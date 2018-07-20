@@ -1,0 +1,174 @@
+<tool name="Generate GSEA input files" id="generate_GSEA_files">
+  <description>Generate data for GSEA sotware.</description>
+  <code file="General_functions.py"/>
+  <stdio>
+    <regex match="Execution halted"
+           source="both"
+           level="fatal"
+           description="Execution halted." />
+    <regex match="Error in"
+           source="both"
+           level="fatal"
+           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+    <regex match="Fatal error"
+           source="both"
+           level="fatal"
+           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+  </stdio>
+  <command>	<![CDATA[
+#if $mainCondition.selection=="classicGSEA":
+
+awk 'BEGIN{FS="\t";OFS="";ORS="";nlines=0} ARGIND==1 && FNR>1{nlines++} ARGIND==2 && FNR==1{print "\#1.2\n"nlines"\t"NF-1"\n";print "NAME\tDESCRIPTION"; for(i=2;i<=NF;i++)print"\t"\$i;print "\n"} ARGIND==2 && FNR>1{print \$1"\tna";for(i=2;i<=NF;i++)print "\t"\$i;print "\n"}' $mainCondition.expressionData $mainCondition.expressionData > $outExpression;
+
+awk -v factor="$mainCondition.factorToInclude" 'BEGIN{FS="\t";OFS="";ORS="";nameCond="";line="";cpt=0;lgt=0} ARGIND==1 && FNR==1{for(iCond=2;iCond<=NF;iCond++){conditionOrder[iCond-1]=\$iCond};cpt=NF-1} ARGIND==2 && FNR==1{for(i=1;i<=NF;i++)if(\$i==factor)factorInd=i} ARGIND==2 && FNR>1{valueFact[\$1]=\$factorInd} END{for(i=1;i<=cpt;i++){ line=line""valueFact[conditionOrder[i]]" "; if(dico[valueFact[conditionOrder[i]]]!=1){lgt++; nameCond=nameCond""valueFact[conditionOrder[i]]" ";dico[valueFact[conditionOrder[i]]]=1}};print cpt" "lgt" 1\n";print "\# "nameCond"\n";print line}' $mainCondition.expressionData $mainCondition.conditionInformation > $outPhenotypes;
+
+#else:
+
+awk -v comparison="$mainCondition.comparisonsToUse" -v rkIndice="$mainCondition.rankingIndice" -v pvalTh="$mainCondition.pvalThreshold" 'BEGIN{FS="\t"} NR==1{if(rkIndice=="pval"){start=4}else{start=6};for(i=start;i<=NF;i=i+4){if(\$i==comparison)refCol=i};} NR>2{if(rkIndice=="pval"){if(\$refCol<pvalTh){val=\$refCol;print \$1"\t"val}}else{if(\$(refCol-2)<pvalTh){if(\$refCol>0){val=\$refCol}else{val=-\$refCol};print \$1"\t"val}}}' $mainCondition.differentialAnalysis > ./temp.txt;
+printf "#NAME\tSCORE\n" > $outRankedGenes;
+#if $mainCondition.rankingIndice=="pval":
+LC_ALL=C sort -t$'\t' -k2,2 -g ./temp.txt >> $outRankedGenes;
+#else:
+LC_ALL=C sort -t$'\t' -k2,2 -gr ./temp.txt >> $outRankedGenes;
+#end if
+rm ./temp.txt;
+
+#end if
+
+bash $scriptTransfer;
+	]]>
+  </command>
+  <inputs>
+    <param type="text" name="title" value="GSEAformat_toPersonalize" label="Title for output WITHOUT SPACE!"/>
+    <conditional name="mainCondition">
+      <param name="selection" type="select" label="GSEA configuration" force_select="true">
+      <option value="classicGSEA">GSEA analysis </option>
+      <option value="rankedGSEA">Pre-ranked GSEA analysis</option>
+      </param>
+      <when value="classicGSEA">
+        <param type="data" name="expressionData" format="tabular" label="Normalized expression tabular file" optional="false"  multiple="false">
+        </param>
+        <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="false" multiple="false">
+        </param>
+            <param name="factorToInclude" type="select" label="Select factor" multiple="false" optional="false"  refresh_on_change="true"
+              dynamic_options="get_column_names_filteredList(mainCondition['conditionInformation'].file_name,[0])">
+        </param>
+      </when>
+      <when value="rankedGSEA">
+      	<param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" multiple="false" help="This file should contain only annotated gene names or only probe identifiers as rows but no both kinds.">
+        </param>
+        <param name="comparisonsToUse" type="select" label="Select comparison used for ranking" optional="false" multiple="false" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(mainCondition['differentialAnalysis'].file_name,[0,1],4)">
+          <validator type="empty_field" message="You should specify one factor"></validator>
+        </param>
+        <param type="select" name="rankingIndice" display="radio" label="On which value ranking should be done?">
+            <option value="FC">Absolute value of Log2(Fold Change)  (decreasing sort)</option>
+            <option value="pval">FDR p-val (increasing sort)</option>
+        </param>
+         <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold used for gene selection">
+                   <validator type="in_range" min="0" max="1" exclude_min="True" message="Threshold should be between 0 and 1"/>
+          </param>
+      </when>
+    </conditional>
+  </inputs>
+
+  <outputs>
+    <data format="gct" name="outExpression" label="${title}_Expressions">
+    <filter>mainCondition['selection']=="classicGSEA"</filter>
+    </data>
+
+    <data format="cls" name="outPhenotypes" label="${title}_Phenotypes">
+    <filter>mainCondition['selection']=="classicGSEA"</filter>
+    </data>
+
+    <data format="rnk" name="outRankedGenes" label="${title}_Ranked_Genes">
+    <filter>mainCondition['selection']=="rankedGSEA"</filter>
+    </data>
+	
+    <data format="txt" name="log" label="${title}_Log" />
+  </outputs>
+
+  <configfiles>
+  
+  
+  
+    <configfile name="scriptTransfer">
+<![CDATA[
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$title
+
+#if $mainCondition.selection=="classicGSEA":
+
+cp $outExpression /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Expressions.cls
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Expressions.cls $outExpression
+
+cp $outPhenotypes /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Phenotypes.gct
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Phenotypes.gct $outPhenotypes
+
+#else:
+
+cp $outRankedGenes /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/RankedGenes.rnk
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/RankedGenes.rnk $outRankedGenes
+
+#end if
+
+
+cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext}
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext} $log
+]]>
+   </configfile>
+  </configfiles>
+  
+ <tests>
+  <test maxseconds="3600" name="CEAS_1">
+    <param name="wfile" value="wiggle.wig" />
+    <param name="bfile" value="bedfile.bed" />
+    <param name="span" value="3000" />
+    <param name="pfres" value="50" />
+    <param name="lowersize" value="1000" />
+    <param name="middlesize" value="2000" />
+    <param name="uppersize" value="3000" />
+    <param name="lowerbisize" value="2500" />
+    <param name="upperbisize" value="5000" />
+    <param name="reldist" value="3000" />
+    <param name="genome" value="hg18" />
+    <param name="imagetype" value="PDF" />
+    <param name="enable" value="no" />
+    <output name="output" file="ceas_1/ceas_1.pdf" />
+    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+  </test>
+</tests> 
+  <help>
+To generate input files for GSEA analysis.
+
+
+.. class:: warningmark
+
+**SANDBOX TOOL**
+
+-----
+
+**Parameters**
+
+- **normalized expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers)
+- **factor information tabular file** with samples as rows, header row contains factor names and first column sample names
+- **factor to use as phenotype** in GSEA
+
+OR
+
+- **differential analysis tabular file** with comparisons as colums with (p-val, FDR p-val and FC fields) and genes as rows (first and second rows contain comparison names and first column gene identifiers)
+- **reference comparison** to use for gene ranking
+- **ranking value** used to rank
+
+
+-----
+
+**Outputs**
+
+- **phenotype file (.cls)** to use as "phenotype labels" file for GSEA
+- **expression file (.gct)** to use as "expression dataset" file for GSEA
+- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked
+- **LOG file** for job log. If you see errors, please attached this in the bug report
+
+  </help>
+
+</tool>

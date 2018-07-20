@@ -1,0 +1,545 @@
+<tool name="Plotting functions" id="jimmy_test1">
+  <description>Generate plots for .CEL files or normalized data file.</description>
+  <code file="General_functions.py"/>
+  <requirements>
+    <requirement type="package" version="1.40.1">bioconductor-oligo</requirement>
+    <requirement type="package" version="2.2.13">ff</requirement>
+	<requirement type="package" version="2.2.0">r-ggplot2</requirement>
+    <requirement type="package" version="2.0.16">r-plotly</requirement>
+  </requirements>
+  <stdio>
+    <regex match="Execution halted"
+           source="both"
+           level="fatal"
+           description="Bad." />
+    <regex match="Error in"
+           source="both"
+           level="fatal"
+           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+	<exit_code range="3"   level="fatal"   description="Input dataset number" />
+	<exit_code range="1"   level="fatal"   description="Error somewhere" />
+  </stdio>
+  <command>	<![CDATA[
+       ##set $dataType=$dataFile.extension
+	   #set $dataType=$dataFile[0].ext
+	   
+	   #if $conditionInformation and $pcaSection.factorsToInclude!="None":
+       	bash $scriptPrepareTable;
+       #end if
+
+	   #if ($dataType == "cel" and len($dataFile)>1) or ($dataType == "tabular" and len($dataFile)==1):
+	   Rscript ${__tool_directory__}/ExprPlotsScript.R -i '$dataFile' -l '$log' -f '$advSection.imageFormat' -j '$dataType'
+	   #if $dataType == "cel":
+	   #for $inputDataset in $dataFile
+        -c '${inputDataset.name}'
+       #end for
+	   #end if
+	   #if $conditionInformation and $pcaSection.factorsToInclude!="None":
+       	 -t 'factorTable.csv'
+       #end if
+	   #if $plotSection.histogramToPlot:
+	     -h 'Histograms'
+	   #end if
+	   #if $plotSection.maplotToPlot:
+	     -a 'MAplots'
+	   #end if
+	   #if $plotSection.boxplotToPlot:
+	     -b 'Boxplots'
+	   #end if
+	   #if $plotSection.microarrayToPlot and $dataType == "cel":
+	    -m 'Microarray'
+	   #end if
+	   #if $pcaSection.acpToPlot:
+	    -p 'PCA'
+      	-s 'screePlot'
+	   #end if
+	   ;
+       bash $scriptTransfer;
+	   #else:
+		 #raise Exception("Execution halted, not enough (.CEL files) or too many (tabular file) input files")
+	   #end if
+	   ]]>
+	   </command>
+  <inputs>
+    <param type="text" name="title" value="PlotFigure_toPersonalize" label="Output title (without space or special characters)">
+	</param>		 
+    <param type="data" name="dataFile" format="cel,tabular" label="Select one .CEL collection or one tabular file" optional="false" multiple="true" >
+	</param>
+
+	<section name="plotSection" title="Plots selection" expanded="True">
+    <param type="boolean" name="histogramToPlot" checked="true" label="Plot histograms" help="Plot intensity distribution for each condition (pm probes for .cel)">
+    </param>
+    <param type="boolean" name="maplotToPlot" checked="true" label="Plot MA plots" help="Plot MA plot for each condition, median value is used as reference">
+    </param>
+    <param type="boolean" name="boxplotToPlot" checked="true" label="Plot boxplots" help="Plot intensity through boxplot for each condition (pm probes for .cel)">
+    </param>
+	<param type="boolean" name="microarrayToPlot" checked="true" label="Display microarrays image (only for .CEL files)">
+    </param>
+
+    </section>
+	<section name="pcaSection" title="PCA analysis" expanded="True">
+	<param type="boolean" name="acpToPlot" checked="true" label="Plot 3D PCA" help="3D plot of conditions in the space defined by the 3 principal components">
+    </param>
+    <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file (optional)" optional="true" multiple="false">
+    </param>
+    <param name="factorsToInclude" type="select" optional="true" multiple="true" label="Select factor informations to display (optional)"
+    	refresh_on_change="true"  dynamic_options="get_column_names(pcaSection['conditionInformation'].file_name,0)">
+                 <validator type="empty_field" message="You should specify one factor"></validator>
+	</param>
+
+
+    </section>
+
+	<section name="advSection" title="Advanced parameters" expanded="False">
+    <param type="select" name="imageFormat" display="radio" label="Output image format">
+      <option value="png">PNG format</option>
+      <option value="pdf">PDF format</option>
+    </param>
+    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
+      <option value="png">PNG format</option>
+      <option value="svg">SVG format</option>
+    </param>
+    </section>
+	
+  </inputs>
+
+  
+  
+  <outputs>	
+		<data format="html" name="html_file" label="${title}_HTML.html"/>
+		<!--
+		<collection name="outputHistogramsList" label="${title}_HistogramsList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['histogramToPlot']</filter>
+		</collection>
+		
+		<collection name="outputMAplotsList" label="${title}_MAplotsList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;MAplots[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['maplotToPlot']</filter>
+		</collection>
+		
+		<collection name="outputBoxplotsList" label="${title}_BoxplotsList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;Boxplots[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['boxplotToPlot']</filter>
+		</collection>
+		
+		<collection name="outputMicroarrayList" label="${title}_MicroarrayList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;Microarray\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['microarrayToPlot'] and dataFile[0].ext == "cel"</filter>
+		</collection>
+
+		<collection name="outputPCAList" label="${title}_PCA" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;PCA[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <discover_datasets pattern="(?P&lt;designation&gt;screePlot)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>pcaSection['acpToPlot']</filter>
+		</collection>
+		-->
+    <data name="log" label="${title}_Log" format="txt"/>
+  </outputs>
+
+  <configfiles>
+
+ <configfile name="scriptPrepareTable">
+   	<![CDATA[
+   	 awk -v fact="$pcaSection.factorsToInclude" 'BEGIN{FS="\t";OFS="";ORS="";split(fact, factors, ",");for(i in factors)factorsName[factors[i]]=1} NR==1{for(i=2;i<=NF;i++){if(\$i in factorsName)positFactor[i]=1}} {print $1;for(factorID in positFactor)print "\t"\$factorID; print "\n"}'  $conditionInformation > ./factorTable.csv;
+   	]]>
+   </configfile>
+
+    <configfile name="scriptTransfer">
+<![CDATA[
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$title
+#set $dataType=$dataFile[0].ext
+#set $cnt=1
+
+##create header of HTML file
+printf  "<!DOCTYPE html>\n<html>\n"  > $html_file
+
+##add to HTML scripts to show and hide MAplots and MicroArray pictures
+
+printf "<head>
+<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script>
+<script>
+\\$(document).ready(function(){
+    \\$(\"\#MAplotTitle\").click(function(){
+	if(\\$(\"p.MAplot\").is(\':visible\'))\\$(\"p.MAplot\").hide(1000);
+        else \\$(\"p.MAplot\").show(1000);
+    });
+    \\$(\"\#MicroarrayTitle\").click(function(){
+	if(\\$(\"p.Microarray\").is(\':visible\'))\\$(\"p.Microarray\").hide(1000);
+        else \\$(\"p.Microarray\").show(1000);
+    });
+});
+</script>
+</head>\n<body>\n" >> $html_file
+
+mkdir -p $html_file.extra_files_path
+
+
+
+#if $plotSection.histogramToPlot:
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Histograms
+counter=1
+for histogram in \$(ls ./plotDir/Histograms*)
+do
+cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Histograms/Histograms\${counter}.${advSection.imageFormat}
+((counter++))
+done
+
+
+printf "<h3>Histograms</h3>\n" >> $html_file
+##create folders in media
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML
+counter=1
+for histogram in \$(ls ./plotLyDir/Histograms*html)
+do
+histogramShort=\${histogram%\.*}
+histogramShort=\${histogramShort\#\#*/}
+
+##modify HTML to point to plotLy folder
+sed -i "s/\${histogramShort}_files/PlotLy_scripts/g" \$histogram
+
+##copy HTML files in both folders
+cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML/Histograms\${counter}.html
+cp \$histogram ${html_file.extra_files_path}/Histograms\${counter}.html
+
+##add HTML link
+printf "<a href=\"Histograms\${counter}.html\">Histograms\${counter}</a>\n"  >> $html_file
+
+if [ \$counter = 1 ]; then
+
+#if $advSection.imagePlotlyFormat=="svg":
+##before copying modify plotLy script to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/\${histogramShort}_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+##copy only scripts folder for the first histogram
+cp -r ./plotLyDir/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML
+mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML/PlotLy_scripts
+cp -r ./plotLyDir/\${histogramShort}_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/\${histogramShort}_files ${html_file.extra_files_path}/PlotLy_scripts
+fi
+
+((counter++))
+done
+
+#end if
+
+
+
+
+#if $plotSection.boxplotToPlot:
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Boxplots
+counter=1
+for boxplot in \$(ls ./plotDir/Boxplots*)
+do
+cp \$boxplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Boxplots/Boxplots\${counter}.${advSection.imageFormat}
+((counter++))
+done
+
+printf "<h3>Boxplots</h3>\n" >> $html_file
+
+##create folders in media
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML
+counter=1
+for boxplot in \$(ls ./plotLyDir/Boxplots*html)
+do
+boxplotShort=\${boxplot%\.*}
+boxplotShort=\${boxplotShort\#\#*/}
+
+##modify HTML to point to plotLy folder
+sed -i "s/\${boxplotShort}_files/PlotLy_scripts/g" \$boxplot
+
+##copy HTML files in both folders
+cp \$boxplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML/Boxplots\${counter}.html
+cp \$boxplot ${html_file.extra_files_path}/Boxplots\${counter}.html
+
+##add HTML link
+printf "<a href=\"Boxplots\${counter}.html\">Boxplots\${counter}</a>\n"  >> $html_file
+
+if [ \$counter = 1 ]; then
+#if $advSection.imagePlotlyFormat=="svg":
+##before copying modify plotLy script to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/\${boxplotShort}_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+##copy only scripts folder for the first boxplot
+cp -r ./plotLyDir/\${boxplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML
+mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML/\${boxplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML/PlotLy_scripts
+cp -r ./plotLyDir/\${boxplotShort}_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/\${boxplotShort}_files ${html_file.extra_files_path}/PlotLy_scripts
+fi
+
+((counter++))
+done
+#end if
+
+
+
+
+
+#if $plotSection.maplotToPlot:
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplots
+counter=1
+for MAplot in \$(ls ./plotDir/MAplots*)
+do
+cp \$MAplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplots/MAplots\${counter}.${advSection.imageFormat}
+((counter++))
+done
+
+printf "<h3 id=\"MAplotTitle\">MA plots (show/hide)</h3>\n" >> $html_file
+
+##create folders in media
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML
+counter=1
+for MAplot in \$(ls ./plotLyDir/MAplots_*html)
+do
+MAplotShort=\${MAplot%\.*}
+MAplotShort=\${MAplotShort\#\#*/}
+
+conditionName=\${MAplot%\.*}
+conditionName=\${conditionName\#\#*MAplots_}
+
+echo \$conditionName > ./temporaryConditionName
+conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{print dico[\$1]}' ./correspondanceFileNames.csv ./temporaryConditionName)
+
+##modify HTML to point to plotLy folder
+sed -i "s/\${MAplotShort}_files/PlotLy_scripts/g" \$MAplot
+
+##copy HTML files in both folders
+cp \$MAplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML/MAplot_\$conditionName.html
+cp \$MAplot ${html_file.extra_files_path}/MAplot_\$conditionName.html
+
+##add HTML link
+printf "<p class=\"MAplot\">\n<a href=\"MAplot_\$conditionName.html\">MAplot \$conditionFormatedName</a>\n</p>\n"  >> $html_file
+
+if [ \$counter = 1 ]; then
+##copy only scripts folder for the first MAplot
+
+#if $advSection.imagePlotlyFormat=="svg":
+##before copying modify plotLy script to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/\${MAplotShort}_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+cp -r ./plotLyDir/\${MAplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML
+mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML/\${MAplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML/PlotLy_scripts
+cp -r ./plotLyDir/\${MAplotShort}_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/\${MAplotShort}_files ${html_file.extra_files_path}/PlotLy_scripts
+fi
+
+((counter++))
+done
+#end if  
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if $plotSection.microarrayToPlot and $dataType == "cel":
+
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Microarray
+printf "<h3 id=\"MicroarrayTitle\">Microarray</h3>\n" >> $html_file
+for microarray in \$(ls ./plotDir/Microarray_*)
+do
+conditionName=\${microarray%\.*}
+conditionName=\${conditionName\#\#*Microarray_}
+
+echo \$conditionName > ./temporaryConditionName
+conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{print dico[\$1]}' ./correspondanceFileNames.csv ./temporaryConditionName)
+
+cp \$microarray /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Microarray/Microarray_\$conditionName.${advSection.imageFormat}
+cp \$microarray ${html_file.extra_files_path}/Microarray_\$conditionName.${advSection.imageFormat}
+printf "<p class=\"Microarray\"><a href=\"Microarray_\$conditionName.${advSection.imageFormat}\">Microarray \$conditionFormatedName</a>\n</p>"  >> $html_file
+done
+
+#end if
+
+
+
+
+
+
+
+
+#if $pcaSection.acpToPlot:
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Pca
+##copy screePlot image in media
+cp ./plotDir/screePlot.${advSection.imageFormat} /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Pca/screePlot.${advSection.imageFormat}
+
+printf "<h3>PCA</h3>\n" >> $html_file
+
+##create folders in media
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML
+counter=1
+for pca in \$(ls ./plotLyDir/PCA*html)
+do
+pcaShort=\${pca%\.*}
+pcaShort=\${pcaShort\#\#*/}
+
+conditionName=\${pca%\.*}
+conditionName=\${conditionName\#\#*PCA_}
+
+echo \$conditionName > ./temporaryConditionName
+conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{split(\$0,tab,"_AND_");if(length(tab)==1){if(\$0 in dico){print dico[\$0]}else{print $0}}else{print dico[tab[1]]" * "dico[tab[2]]}}' ./correspondanceFileNames.csv ./temporaryConditionName)
+
+##modify HTML to point to plotLy folder
+sed -i "s/\${pcaShort}_files/PlotLy_scripts/g" \$pca
+
+##copy HTML files in both folders
+cp \$pca /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/PCA_\$conditionName.html
+cp \$pca ${html_file.extra_files_path}/PCA_\$conditionName.html
+
+##add HTML link
+printf "<p><a href=\"PCA_\$conditionName.html\">PCA \$conditionFormatedName</a>\n</p>"  >> $html_file
+
+
+if [ \$counter = 1 ]; then
+
+#if $advSection.imagePlotlyFormat=="svg":
+##before copying modify plotLy script to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/\${pcaShort}_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+##copy only scripts folder for the first pca
+cp -r ./plotLyDir/\${pcaShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML
+mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/\${pcaShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/PlotLy_scripts
+cp -r ./plotLyDir/\${pcaShort}_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/\${pcaShort}_files ${html_file.extra_files_path}/PlotLy_scripts
+fi
+
+((counter++))
+done
+
+##now for screePlot
+##copy HTML files in both folders
+cp ./plotLyDir/screePlot.html /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/screePlot.html
+cp ./plotLyDir/screePlot.html ${html_file.extra_files_path}/screePlot.html
+##add HTML link
+printf "<p><a href=\"screePlot.html\">Scree plot</a>\n</p>"  >> $html_file
+##copy scripts folder
+
+#if $advSection.imagePlotlyFormat=="svg":
+##but before copying modify plotLy script to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/screePlot_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+cp -r ./plotLyDir/screePlot_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML
+cp -r ./plotLyDir/screePlot_files $html_file.extra_files_path
+
+#end if
+
+
+
+
+
+
+cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext}
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext} $log
+
+##create footer of HTML file
+printf  "</body>\n</html>" >> $html_file
+
+]]>
+    </configfile>
+  </configfiles>
+  
+ <tests>
+  <test maxseconds="3600" name="CEAS_1">
+    <param name="wfile" value="wiggle.wig" />
+    <param name="bfile" value="bedfile.bed" />
+    <param name="span" value="3000" />
+    <param name="pfres" value="50" />
+    <param name="lowersize" value="1000" />
+    <param name="middlesize" value="2000" />
+    <param name="uppersize" value="3000" />
+    <param name="lowerbisize" value="2500" />
+    <param name="upperbisize" value="5000" />
+    <param name="reldist" value="3000" />
+    <param name="genome" value="hg18" />
+    <param name="imagetype" value="PDF" />
+    <param name="enable" value="no" />
+    <output name="output" file="ceas_1/ceas_1.pdf" />
+    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+  </test>
+</tests> 
+  <help>
+This tool generate descriptive plots for Affymetrix raw data (.CEL file) or any tabular file containing expression data.
+
+.. class:: warningmark
+
+**In test**
+
+-----
+
+**Input parameters**
+
+*Output title*
+: to personalize output file names. To avoid file generation failures, do not put any space or special character incompatible with filename system
+
+*Input data*
+: allowed input data are
+
+- **.CEL collection** (at least 2 .CEL files in the collection), raw intensities will be Log2 transformed to improve plots readibility
+
+OR
+
+- **expression tabular file** tabular delimited matrix with first row containing condition names and first column containing genes/probes names. No Log transformation will be applied for tabular files
+
+*Plots selection*
+: to select required plots
+
+- **Plot histograms**
+- **Plot MA plots**
+- **Plot boxplots**
+- **Display microarrays image**
+
+*PCA analysis*
+
+- **Plot 3D PCA**
+- **Factor information**
+- **Select factor informations**
+
+*Advanced parameters*
+
+- **Output image format**
+- **Html snapshot format**
+
+-----
+
+**Outputs**
+
+- **HTML file** to access interactive version of plots through PlotLy html pages
+- **LOG file** for job logs. In case of job failure, please attached this file to bug report
+
+
+  </help>
+
+</tool>

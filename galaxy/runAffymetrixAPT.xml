@@ -1,0 +1,301 @@
+<tool name="Run Affymetrix APT tool" id="run_affymetrix_APT">
+  <description>Apply normalization to .CEL files</description>
+  <stdio>
+    <regex match="Execution halted"
+           source="both"
+           level="fatal"
+           description="Execution halted." />
+    <regex match="Error in"
+           source="both"
+           level="fatal"
+           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+    <regex match="Fatal error"
+           source="both"
+           level="fatal"
+           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+  </stdio>
+  <command>	<![CDATA[
+    #set $pathToApt='/home/galaxy/Software/ThermoFischer/apt-1.20.6-x86_64-intel-linux/bin'
+
+    mkdir ./apt_output/;
+
+  #if $mainCondition.arraySelection=="other":
+    #if $CDFfile:
+    ##.cdf file should has original name
+    cp $CDFfile ./${CDFfile.name};
+    #end if
+  #end if
+
+
+##run APT command
+
+${pathToApt}/apt-probeset-summarize -a $commandLine 
+
+#if $advSection.additionalParameters!="":
+  $advSection.additionalParameters
+#end if
+
+#if $mainCondition.arraySelection=="other":
+  #if $PGFfile and $CLFfile:
+   --use-pgf-names 
+  -p $PGFfile
+  -c $CLFfile
+  #end if 
+  #if $CDFfile:
+  -d ./${CDFfile.name}
+  #end if
+  #if $MPSfile and $normLevel=="core":
+    -m $MPSfile
+  #end if
+  #if $BGPfile:
+    -b $BGPfile 
+  #end if
+
+#else:
+  
+  #if $mainCondition.arrayID.fields.pathPGF!="null" and $mainCondition.arrayID.fields.pathCLF!="null":
+  -p $mainCondition.arrayID.fields.pathPGF
+  -c $mainCondition.arrayID.fields.pathCLF
+  #else:
+    #if $mainCondition.arrayID.fields.pathCDF!="null":
+    -d $mainCondition.arrayID.fields.pathCDF
+    #end if
+  #end if
+  #if $normLevel=="core" and $mainCondition.arrayID.fields.pathMPS!="null":
+    -m $mainCondition.arrayID.fields.pathMPS
+  #end if
+  #if $mainCondition.arrayID.fields.pathBGP!="null":
+  -b $mainCondition.arrayID.fields.pathBGP
+  #end if
+#end if
+
+-o ./apt_output/
+
+\$(echo '$inputData' | tr "," " ") >> $log 2>&1;
+
+
+##launch scripts
+
+bash $scriptFormat;
+#if $annotationCondition.addAnnotation=="true":
+  echo "Annotation file used:" >> $log;
+  #if $mainCondition.arraySelection=="other":
+    bash $scriptAnnotation $mainCondition.annotationFile;
+    echo $mainCondition.annotationFile.name >> $log;
+  #else:
+    #if $normLevel=="core":
+     bash $scriptAnnotation $mainCondition.arrayID.fields.pathAnnotTrans;
+    #else:
+     bash $scriptAnnotation $mainCondition.arrayID.fields.pathAnnotProbe;
+    #end if
+    cat $mainCondition.arrayID.fields.versionInfo >> $log;
+  #end if
+#end if
+bash $scriptTransfer;
+	]]>
+  </command>
+  <inputs>
+    <param type="text" name="title" value="APT_toPersonalize" label="Title for output WITHOUT SPACE!"/>
+
+    <param type="data" name="inputData" format="cel" label=".cel collection file" optional="false" multiple="true">
+      <validator type="empty_dataset" message="At least one data file should be selected"></validator>
+    </param>
+
+    <param type="text" name="commandLine" value="gc-correction,scale-intensities,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish" label="Analysis to perform (apt-probeset-summarize -a parameter)" help="You can use predefined pipelines as 'rma', 'rma-gc-scale', plier-gcbg'... or specify each analysis step like 'quant-norm.sketch=0.bioc=false,pm-mm,plier'. For more details go to APT webpage">
+      <validator type="empty_field" message="You should specify a command"></validator>
+    </param>
+
+    <param type="select" name="normLevel" display="radio" label="Normalization level" help="Option not available for all arrays">
+      <option value="core">Core genes</option>
+      <option value="probeset">Probe set</option>
+    </param>
+
+    <conditional name="mainCondition">
+
+      <param name="arraySelection" type="select" label="Select array kind">
+      <option value="common">common arrays (HTA, HuGene, MoGene)</option>
+      <option value="other">other arrays</option>
+      </param>
+
+      <when value="common">
+        <param name="arrayID" label="Name" type="select">
+          <options from_data_table="aptTool">
+          </options>
+        </param>
+      </when>
+
+      <when value="other">
+
+    <param type="data" name="PGFfile" label=".pgf indicates which probes are grouped together into a probeset*" optional="true" multiple="false">
+    </param>
+
+    <param type="data" name="CLFfile" label=".clf indicates where the probes are located in the CEL file*" optional="true" multiple="false">
+    </param>
+
+    <param type="data" name="CDFfile" label=".cdf contains both .pgf and .clf informations* (requested only if .pgf and .clf files are not available)" optional="true" multiple="false">
+    </param>
+
+    <param type="data" name="MPSfile" label=".mps defines a probeset as a collection of existing probesets* (requested for normalization at gene level)" optional="true" multiple="false" help="If .mps is not selected/available a 'probeset level' normalization will be automatically performed">
+    </param>
+
+    <param type="data" name="BGPfile" label=".bgp indicates which probes are to be used for computing background* (requested only if GC driven background correction is applied)" optional="true" multiple="false" help="*Files should be downloaded from corresponding array specific Affymetrix webpage to insure format compatibility">
+    </param>
+
+    <param type="data" name="annotationFile" format="tabular" label="tabular file containing available probesets annotation (requested if annotation options are selected)" optional="true" multiple="false" >
+    </param>
+
+      </when>
+    </conditional>
+
+  <conditional name="annotationCondition">
+    <param type="boolean" name="addAnnotation" checked="false" label="Add gene annotation">
+    </param> 
+    <when value="true">
+      <param type="boolean" name="keepAnnotated" checked="false" label="Discard probe set without gene annotation">
+      </param>
+
+      <param type="select" name="mergingMethod" display="radio" label="Merging approach for probe set with same gene annotation">
+        <option value="none">No merging</option>
+        <option value="mean" selected="true">Mean between probes [recommended]</option>
+        <option value="higherVar">Keep probe with higher variance</option>
+        <option value="lowerVar">Keep probe with lower variance</option>
+      </param>
+    </when>
+  </conditional>
+
+  <section name="advSection" title="Advanced parameters" expanded="False">
+    <param name="additionalParameters" type="text" value="" label="Additional parameter to give to apt-probeset-summarize command" >
+    </param>
+  </section>
+
+  </inputs>
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${title}_NormalizedData"/>
+    <data format="txt" name="log" label="${title}_Log" />
+  </outputs>
+
+  <configfiles>
+
+
+  
+     <configfile name="scriptFormat">
+<![CDATA[
+#for $inputDataset in $inputData
+        echo '${inputDataset.name}' >> ./tempColumnName.txt
+#end for
+awk ' BEGIN{firstLine=1;OFS="";ORS=""} ARGIND==1{tab[FNR]=$1;nbCol=FNR} ARGIND==2 && !($1 ~ /\\#/){if(firstLine==0){print "\n"\$0}else{print "Conditions";for(i=1;i<=nbCol;i++){print "\t"tab[i]};firstLine=0}}' ./tempColumnName.txt ./apt_output/*summary.txt  > $outputData
+]]>
+   </configfile> 
+
+   <configfile name="scriptAnnotation">
+<![CDATA[
+#if $annotationCondition.addAnnotation=="true":
+#if $annotationCondition.mergingMethod=="none":
+
+  #if $annotationCondition.keepAnnotated=="true":
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0} ARGIND==2 && FNR>1{if(\$1 in dico){\$1=dico[\$1]"_("\$1")";print \$0}}' \$1 $outputData > ./tempData
+  #else:
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0} ARGIND==2 && FNR>1{if(\$1 in dico){\$1=dico[\$1]"_("\$1")"};print \$0}' \$1 $outputData > ./tempData
+  #end if
+
+#end if 
+#if $annotationCondition.mergingMethod=="mean":
+
+  #if $annotationCondition.keepAnnotated=="true":
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0;nbCol=NF} ARGIND==2 && FNR>1{if(\$1 in dico){cpt[dico[\$1]]++;for(i=2;i<=nbCol;i++)sum[dico[\$1]][i]+=\$i}} END{for(iName in cpt){line=iName;for(iCol=2;iCol<=nbCol;iCol++){line=line"\t"sum[iName][iCol]/cpt[iName]};print line}}' \$1 $outputData > ./tempData
+  #else:
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0;nbCol=NF} ARGIND==2 && FNR>1{if(\$1 in dico){cpt[dico[\$1]]++;for(i=2;i<=nbCol;i++)sum[dico[\$1]][i]+=\$i}else{print \$0}} END{for(iName in cpt){line=iName;for(iCol=2;iCol<=nbCol;iCol++){line=line"\t"sum[iName][iCol]/cpt[iName]};print line}}' \$1 $outputData > ./tempData
+  #end if
+
+#end if 
+
+#if $annotationCondition.mergingMethod=="higherVar":
+
+  #if $annotationCondition.keepAnnotated=="true":
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0;nbCol=NF} ARGIND==2 && FNR>1{if(\$1 in dico){mean=0;for(i=2;i<=nbCol;i++){mean+=\$i};mean=mean/(nbCol-1);curVar=0;for(i=2;i<=nbCol;i++){curVar+=(mean-\$i)^2};if(curVar>var[dico[\$1]]){var[dico[\$1]]=curVar;for(i=2;i<=nbCol;i++){bestVar[dico[\$1]][i]=\$i}}}} END{for(iName in bestVar){line=iName;for(iCol=2;iCol<=nbCol;iCol++){line=line"\t"bestVar[iName][iCol]};print line}}' \$1 $outputData > ./tempData
+  #else:
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0;nbCol=NF} ARGIND==2 && FNR>1{if(\$1 in dico){mean=0;for(i=2;i<=nbCol;i++){mean+=\$i};mean=mean/(nbCol-1);curVar=0;for(i=2;i<=nbCol;i++){curVar+=(mean-\$i)^2};if(curVar>var[dico[\$1]]){var[dico[\$1]]=curVar;for(i=2;i<=nbCol;i++){bestVar[dico[\$1]][i]=\$i}}}else{print \$0}} END{for(iName in bestVar){line=iName;for(iCol=2;iCol<=nbCol;iCol++){line=line"\t"bestVar[iName][iCol]};print line}}' \$1 $outputData > ./tempData
+  #end if
+
+#end if 
+
+#if $annotationCondition.mergingMethod=="lowerVar":
+
+  #if $annotationCondition.keepAnnotated=="true":
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0;nbCol=NF} ARGIND==2 && FNR>1{if(\$1 in dico){mean=0;for(i=2;i<=nbCol;i++){mean+=\$i};mean=mean/(nbCol-1);curVar=0;for(i=2;i<=nbCol;i++){curVar+=(mean-\$i)^2};if(var[dico[\$1]]==0 || curVar<var[dico[\$1]]){var[dico[\$1]]=curVar;for(i=2;i<=nbCol;i++){bestVar[dico[\$1]][i]=\$i}}}} END{for(iName in bestVar){line=iName;for(iCol=2;iCol<=nbCol;iCol++){line=line"\t"bestVar[iName][iCol]};print line}}' \$1 $outputData > ./tempData
+  #else:
+    awk 'BEGIN{OFS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2 && FNR==1{print \$0;nbCol=NF} ARGIND==2 && FNR>1{if(\$1 in dico){mean=0;for(i=2;i<=nbCol;i++){mean+=\$i};mean=mean/(nbCol-1);curVar=0;for(i=2;i<=nbCol;i++){curVar+=(mean-\$i)^2};if(var[dico[\$1]]==0 || curVar<var[dico[\$1]]){var[dico[\$1]]=curVar;for(i=2;i<=nbCol;i++){bestVar[dico[\$1]][i]=\$i}}}else{print \$0}} END{for(iName in bestVar){line=iName;for(iCol=2;iCol<=nbCol;iCol++){line=line"\t"bestVar[iName][iCol]};print line}}' \$1 $outputData > ./tempData
+  #end if
+
+#end if 
+
+mv -f ./tempData $outputData
+#end if 
+
+]]>
+   </configfile> 
+  
+    <configfile name="scriptTransfer">
+<![CDATA[
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$title
+cp $outputData /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/NormalizedData.${outputData.ext}
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/NormalizedData.${outputData.ext} $outputData
+cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext}
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext} $log
+]]>
+   </configfile>
+  </configfiles>
+  
+ <tests>
+  <test maxseconds="3600" name="CEAS_1">
+    <param name="wfile" value="wiggle.wig" />
+    <param name="bfile" value="bedfile.bed" />
+    <param name="span" value="3000" />
+    <param name="pfres" value="50" />
+    <param name="lowersize" value="1000" />
+    <param name="middlesize" value="2000" />
+    <param name="uppersize" value="3000" />
+    <param name="lowerbisize" value="2500" />
+    <param name="upperbisize" value="5000" />
+    <param name="reldist" value="3000" />
+    <param name="genome" value="hg18" />
+    <param name="imagetype" value="PDF" />
+    <param name="enable" value="no" />
+    <output name="output" file="ceas_1/ceas_1.pdf" />
+    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+  </test>
+</tests> 
+  <help>
+To normalize data through Affymetrix Power Tools software.
+
+
+.. class:: warningmark
+
+**SANDBOX TOOL**
+
+-----
+
+**Parameters**
+
+
+- **command line** you can go `there`__  to get more informations
+
+
+-----
+
+**Outputs**
+
+- **tabular file** is the result of normalization, represented as tab delimited matrix with first row containing names of conditions as described by .CEL labels and first column containing probe names
+- **LOG file** for job log. If you see errors, please attached this in the bug report
+
+
+
+
+
+    .. __: http://media.affymetrix.com/support/developer/powertools/changelog/apt-probeset-summarize.html#intro
+
+  </help>
+
+</tool>

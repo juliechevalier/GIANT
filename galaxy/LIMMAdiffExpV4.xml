@@ -1,0 +1,505 @@
+<tool name="LIMMA diff. exp." id="LIMMA_diffExpV4">
+  <description>Use LIMMA to detect differentially expressed genes</description>
+  <requirements>
+  <requirement type="package">bioconductor-limma</requirement>
+	<requirement type="package" version="2.2.0">r-ggplot2</requirement>
+	<requirement type="package" version="1.6.16"> r-venndiagram </requirement>
+  </requirements>
+  <code file="LIMMA_options.py"/>
+  <stdio>
+    <regex match="Execution halted"
+           source="both"
+           level="fatal"
+           description="Execution halted." />
+    <regex match="Error in"
+           source="both"
+           level="fatal"
+           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+    <regex match="Fatal error"
+           source="both"
+           level="fatal"
+           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+  </stdio>
+  <command>	<![CDATA[
+  bash $scriptPrepareTable;
+
+  cp /data/galaxy-dist/tools/jimmytools/LIMMA_options.py ./LIMMA_options.py;
+  
+  #if $blockingSection.blockingConditional.addBlocking == "true":
+    python -c 'import LIMMA_options;LIMMA_options.replaceNamesBlockInFiles("$inputSection.inputData","./factorTable.csv","./blockingTable.csv","./expressionRenamed.csv","./factorTableRenamed.csv","./blockingTableRenamed.csv","./dictionnaryRenamed.csv")';
+  #else:
+    python -c 'import LIMMA_options;LIMMA_options.replaceNamesInFiles("$inputSection.inputData","./factorTable.csv","./expressionRenamed.csv","./factorTableRenamed.csv","./dictionnaryRenamed.csv")';
+  #end if
+  printf "Renaming is done\n" >> $log;
+
+  if [ -f ./dictionnaryRenamed.csv ]; then
+    Rscript '/data/galaxy-dist/tools/jimmytools/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -f '$plotSection.imageFormat'
+      -a 'factorTableRenamed.csv' -s 'sumSquareFtest' -g 'dictionnaryRenamed.csv'
+      #if $blockingSection.blockingConditional.addBlocking == "true":
+        -b 'blockingTableRenamed.csv'
+        -u $advSection.confoundingPolicy
+      #end if
+        -r '${contrastSection.factorSelection}'
+      #for $i, $s in enumerate( $contrastSection.contrastList )
+        -p '${s.groupName}'
+        -m '${s.firstGroupToCompare}'
+        -n '${s.secondGroupToCompare}'
+      #end for
+      #if $contrastSection.interactionSelection.interactionContrast == "true":
+        -c '$contrastSection.interactionSelection.controlSelection'
+      #end if
+        -t $plotSection.cutoffTh
+      #if $plotSection.histogramToPlot:
+        -h 'Histograms'
+      #end if
+      #if $plotSection.volcanoToPlot:
+        -v 'Volcanos'
+        -d $plotSection.FCthreshold
+      #end if
+      #if $plotSection.geneInformation.addGeneInfo:
+        -x '$plotSection.geneInformation.organismID'
+        -y '$plotSection.geneInformation.infoInRowType'
+      #end if
+    ;
+    bash $scriptTransfer;
+  else
+    printf "Factor information file should not contain special characters '*',':',',','|' in factor names and possible values\n" >> $log;
+  fi
+	]]>
+  </command>
+  <inputs>
+  <section name="inputSection" title="Input files" expanded="True">
+    <param type="text" name="title" value="LIMMA_toPersonalize" label="Title for output WITHOUT SPACE!"/>
+
+    <param type="data" name="inputData" format="tabular" label="Normalized expression tabular file" optional="false" multiple="false"/>
+
+    <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="true" multiple="false">
+      <validator type="empty_dataset" message="You should specify a dataset"></validator>
+    </param>
+  </section>
+
+  <section name="contrastSection" title="Contrast definition" expanded="True">
+
+    <param name="factorSelection" type="select" label="Select all factors to include in the global model (excepting confounding factors)" refresh_on_change="true" display="checkboxes" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)" help="Confounding factors are selected in the coresponding section below." />
+
+     <repeat name="contrastList" title="Contrast">
+        <param type="text" name="groupName" value="" label="Contrast name"/>
+
+        <param name="firstGroupToCompare" type="select" label="Select factor levels of 1st group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
+          <validator type="empty_field" message="You should select at least one level"></validator>
+        </param>
+
+        <param name="secondGroupToCompare" type="select" label="Select factor levels of 2nd group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
+          <validator type="empty_field" message="You should select at least one level"></validator>
+        </param>
+    </repeat>
+
+    <conditional name="interactionSelection">
+    <param name="interactionContrast" type="boolean" label="Add interaction contrasts" checked="false" help="If you have selected two factors at least."/>
+      <when value="true">
+         <param name="controlSelection" type="select" label="Select one control group for each factor (and only one)" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_allrow_names(inputSection['conditionInformation'].file_name,factorSelection)">
+          <validator type="empty_field" message="You should select at least one group"></validator>
+        </param>
+      </when>
+    </conditional>
+
+  </section>
+
+
+
+  <section name="blockingSection" title="Paired analysis/confounding factor" expanded="True">
+    <conditional name="blockingConditional">
+     <param name="addBlocking" type="boolean" label="Add confounding factors" checked="false" help="To control factors producing spurious association as batch effects or to analyze paired data"/>
+      <when value="true">
+          <param name="blockingToInclude" type="select" label="Select confounding factors" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)">
+            <validator type="empty_field" message="You should select at least one factor"></validator>
+          </param>
+      </when>
+    </conditional>
+  </section>
+
+	<section name="plotSection" title="Output section" expanded="True">
+    <param name="cutoffTh" type="float" value="0.05" label="Output FDR p-val threshold" >
+      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+    </param>
+		<param type="boolean" name="histogramToPlot" checked="true" label="Plot histograms" help="Plot nominal p-val distribution for each comparison.">
+	    </param>
+		<param type="boolean" name="volcanoToPlot" checked="true" label="Plot volcanos" help="Plot volcano for each comparison.">
+	    </param>
+    <param name="FCthreshold" type="float" value="2" label="Fold change threshold for volcanos (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
+      <validator type="in_range" min="1" exclude_min="True" message="Threshold should be greater than 1"/>
+    </param>
+
+    <conditional name="geneInformation">
+    <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
+      <when value="true">
+        <param name="organismID" label="Organism" type="select">
+          <options from_data_table="LimmaTool" >
+            <column name="name" index="1"/>
+            <column name="value" index="0"/>
+            <filter type="unique_value" column="0"/>
+          </options>
+        </param>
+        <param name="infoInRowType" label="Nature of row names" type="select">
+            <options from_data_table="LimmaTool" >
+              <column name="name" index="3"/>
+              <column name="value" index="2"/>
+              <filter type="param_value" ref="organismID" column="0"/>
+            </options>
+        </param>
+      </when>
+    </conditional>
+
+
+		<param type="select" name="imageFormat" display="radio" label="Output image format">
+	      <option value="png">PNG format</option>
+	      <option value="pdf">PDF format</option>
+	  </param>
+    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
+      <option value="png">PNG format</option>
+      <option value="svg">SVG format</option>
+    </param>
+	</section>
+
+    <section name="advSection" title="Advanced parameters" expanded="False">
+    <param type="select" name="confoundingPolicy" display="radio" label="Confounding effect policy" help="DO NOT modify this parameter unless you know what you are doing!">
+      <option value="additive">As an additive factor (default)</option>
+      <option value="correlated">As a correlation constraint</option>
+    </param>
+    </section>
+	
+  </inputs>
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${inputSection.title}_LIMMAstatistics"/>
+	
+	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
+	<!--
+	<collection name="outputHistogramsList" label="${inputSection.title}_HistogramsList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['histogramToPlot']</filter>
+	</collection>
+	
+	<collection name="outputVolcanosList" label="${inputSection.title}_VolcanosList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Volcanos\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['volcanoToPlot']</filter>
+	</collection>
+
+  <data name="fRatioOutput" format="png" label="${inputSection.title}_F-ratio">
+        <change_format>
+            <when input="plotSection['imageFormat']" value="pdf" format="pdf" />
+        </change_format>
+  </data>
+	-->
+    <data format="txt" name="log" label="${inputSection.title}_Log" />
+  </outputs>
+
+ <configfiles>
+   <configfile name="scriptPrepareTable">
+   	<![CDATA[
+    awk -v fact="$contrastSection.factorSelection" 'BEGIN{OFS="";ORS="";FS="\t";split(fact,tab,",");for(i in tab)dico[tab[i]]=1} FNR==1{for(i=2;i<=NF;i++){if(\$i in dico)colToSelect[i]=1}} {print \$1;for(i in colToSelect)print "\t"\$i ; print "\n"}' $inputSection.conditionInformation > ./factorTable.csv;
+
+	   #if $blockingSection.blockingConditional.addBlocking == "true":
+   	 awk -v fact="$blockingSection.blockingConditional.blockingToInclude" ' BEGIN{OFS="";ORS="";FS="\t";split(fact, facto, ",");for(i in facto)factors[facto[i]]=1} FNR==1{for(i=2;i<=NF;i++)if(\$i in factors)dico[i]=1} {print $1;for(factorID in dico)print "\t"\$factorID; print "\n"}'  $inputSection.conditionInformation > ./blockingTable.csv;
+   	 #end if
+     printf "end of scriptPrepareTable\n" >> $log 
+   	]]>
+   </configfile>
+   <configfile name="scriptTableToHtml">
+<![CDATA[
+printf  "<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\">
+<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css\">
+<script type=\"text/javascript\" language=\"javascript\" src=\"https://code.jquery.com/jquery-1.12.4.js\">
+</script>
+<script type=\"text/javascript\" language=\"javascript\" src=\"https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js\">
+</script>
+<script type=\"text/javascript\" class=\"init\">
+\\$(document).ready(function() {
+	\\$(\'\#example\').DataTable( {
+        \"columnDefs\": [ {
+            \"visible\": false,
+            \"targets\": -1
+        } ]
+    } );
+} );
+</script>
+</head>
+<body style=\"background-color:white;\">
+<table id=\"example\" class=\"display\" cellspacing=\"0\">
+" > ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "<colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<col span=\"2\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=3;i<=NF;i=i+4){if(odd==1){odd=0;printf "<col span=\"4\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"4\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+
+printf "<thead>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th rowspan=\"2\">Gene</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th rowspan=\"2\">Info</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR==1{for(i=3;i<=NF;i=i+4)printf "<th colspan=\"4\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tr>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR==2{for(i=3;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tr>\n</thead>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "<tfoot>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR==2{for(i=1;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tr>\n</tfoot>\n">> ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "<tbody>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR>2{printf "<tr>\n";for(i=1;i<=NF;i++){printf "<th>"\$i"</th>\n"};printf "<th></th>\n";printf "</tr>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tbody>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "</table>
+</body>
+</html>" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+]]>
+  </configfile>
+   <configfile name="scriptTransfer">
+<![CDATA[
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$inputSection.title
+
+
+
+##for LIMMA output table
+cp $outputData /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/LIMMAresults.${outputData.ext}
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/LIMMAresults.${outputData.ext} $outputData
+
+mkdir -p $html_file.extra_files_path
+
+##create HTML file for limma output table
+source $scriptTableToHtml
+cp ${html_file.extra_files_path}/outputLIMMA.html /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/LIMMAresults.html
+
+##create header of main HTML file
+printf  "<!DOCTYPE html>\n<html>\n<body>"  > $html_file
+
+##first add reference of the LIMMA output table
+printf "<h3>LIMMA statistics (p.val, FC)</h3>\n" >> $html_file
+printf "<a href=\"outputLIMMA.html\">LIMMA results</a>\n"  >> $html_file
+
+
+
+
+
+#if $plotSection.histogramToPlot:
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Histograms
+counter=1
+for histogram in \$(ls ./plotDir/Histograms*)
+do
+cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Histograms/Histograms\${counter}.$plotSection.imageFormat
+((counter++))
+done
+
+printf "<h3>P-val histograms</h3>\n" >> $html_file
+
+##create folders in media
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML
+counter=1
+for histogram in \$(ls ./plotLyDir/Histograms_*html)
+do
+histogramShort=\${histogram%\.*}
+histogramShort=\${histogramShort\#\#*/}
+
+conditionName=\${histogram%\.*}
+conditionName=\${conditionName\#\#*Histograms_}
+
+echo \$conditionName > ./temporaryConditionName
+conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{print dico[\$1]}' ./correspondanceFileNames.csv ./temporaryConditionName)
+
+##modify HTML to point to plotLy folder
+sed -i "s/\${histogramShort}_files/PlotLy_Histogram_scripts/g" \$histogram
+
+##copy HTML files in both folders
+cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML/Histogram_\$conditionName.html
+cp \$histogram ${html_file.extra_files_path}/Histogram_\$conditionName.html
+
+##add HTML link
+printf "<p>\n<a href=\"Histogram_\$conditionName.html\">Histogram \$conditionFormatedName</a>\n</p>\n"  >> $html_file
+
+if [ \$counter = 1 ]; then
+#if $plotSection.imagePlotlyFormat=="svg":
+##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/\${histogramShort}_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+##now copy only scripts folder for the first histogram and rename
+cp -r ./plotLyDir/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML
+mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML/PlotLy_Histogram_scripts
+cp -r ./plotLyDir/\${histogramShort}_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/\${histogramShort}_files ${html_file.extra_files_path}/PlotLy_Histogram_scripts
+fi
+
+((counter++))
+done
+
+
+#end if  
+
+
+if [ -e ./plotLyDir/sumSquareFtest.html ]; then
+cp ./plotDir/sumSquareFtest.${plotSection.imageFormat} /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/sumSquareFtest.${plotSection.imageFormat}
+
+printf "<h3>Source of variation</h3>\n" >> $html_file
+
+##modify HTML to point to the first script folder
+sed -i "s/sumSquareFtest_files/PlotLy_sumSquareFtest_scripts/g" ./plotLyDir/sumSquareFtest.html
+
+##copy HTML files in both folders
+cp ./plotLyDir/sumSquareFtest.html /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/
+cp ./plotLyDir/sumSquareFtest.html ${html_file.extra_files_path}/
+
+##add HTML link
+printf "<a href=\"sumSquareFtest.html\">F-ratio barplot</a>\n"  >> $html_file
+
+#if $plotSection.imagePlotlyFormat=="svg":
+##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/sumSquareFtest_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+##now copy scripts folder
+cp -r ./plotLyDir/sumSquareFtest_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}
+mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/sumSquareFtest_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/PlotLy_sumSquareFtest_scripts
+cp -r ./plotLyDir/sumSquareFtest_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/sumSquareFtest_files ${html_file.extra_files_path}/PlotLy_sumSquareFtest_scripts
+fi
+
+
+
+
+
+#if $plotSection.volcanoToPlot:
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Volcanos
+for volcano in \$(ls ./plotDir/Volcanos_*)
+do
+printf "move file "\$volcano"\n" >> $log 
+conditionName=\${volcano%\.*}
+conditionName=\${conditionName\#\#*Volcanos_}
+
+cp \$volcano /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Volcanos/Volcano_\$conditionName.$plotSection.imageFormat
+done
+
+printf "<h3>Volcanos</h3>\n" >> $html_file
+
+##create folders in media
+mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML
+counter=1
+for volcano in \$(ls ./plotLyDir/Volcanos_*html)
+do
+volcanoShort=\${volcano%\.*}
+volcanoShort=\${volcanoShort\#\#*/}
+
+conditionName=\${volcano%\.*}
+conditionName=\${conditionName\#\#*Volcanos_}
+
+echo \$conditionName > ./temporaryConditionName
+conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{print dico[\$1]}' ./correspondanceFileNames.csv ./temporaryConditionName)
+
+
+##modify HTML to point to plotLy folder
+sed -i "s/\${volcanoShort}_files/PlotLy_Volcano_scripts/g" \$volcano
+
+##copy HTML files in both folders
+cp \$volcano /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML/Volcano_\$conditionName.html
+cp \$volcano ${html_file.extra_files_path}/Volcano_\$conditionName.html
+
+##add HTML link
+printf "<p>\n<a href=\"Volcano_\$conditionName.html\">Volcano \$conditionFormatedName</a>\n</p>\n"  >> $html_file
+
+if [ \$counter = 1 ]; then
+
+#if $plotSection.imagePlotlyFormat=="svg":
+##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/\${volcanoShort}_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+##now copy only scripts folder for the first volcano and rename
+cp -r ./plotLyDir/\${volcanoShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML
+mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML/\${volcanoShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML/PlotLy_Volcano_scripts
+cp -r ./plotLyDir/\${volcanoShort}_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/\${volcanoShort}_files ${html_file.extra_files_path}/PlotLy_Volcano_scripts
+fi
+
+((counter++))
+done
+#end if
+
+
+
+
+cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Log.${log.ext}
+ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Log.${log.ext} $log
+
+##create footer of HTML file
+printf  "</body>\n</html>" >> $html_file
+printf "end of script" >> $log 
+]]>
+   </configfile>
+ </configfiles>
+  
+ <tests>
+  <test maxseconds="3600" name="CEAS_1">
+    <param name="wfile" value="wiggle.wig" />
+    <param name="bfile" value="bedfile.bed" />
+    <param name="span" value="3000" />
+    <param name="pfres" value="50" />
+    <param name="lowersize" value="1000" />
+    <param name="middlesize" value="2000" />
+    <param name="uppersize" value="3000" />
+    <param name="lowerbisize" value="2500" />
+    <param name="upperbisize" value="5000" />
+    <param name="reldist" value="3000" />
+    <param name="genome" value="hg18" />
+    <param name="imagetype" value="PDF" />
+    <param name="enable" value="no" />
+    <output name="output" file="ceas_1/ceas_1.pdf" />
+    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+  </test>
+</tests> 
+  <help>
+<![CDATA[
+To compute differential expressions for a set of genes.
+This tool use the LIMMA function from R package limma.
+
+.. class:: warningmark
+
+**SANDBOX TOOL**
+
+-----
+
+**Parameters**
+
+- **Normalized tabular file** tab delimited matrix with first row containing names of conditions and first column containing the name of genes (expression are supposed to be allready log2 transformed)
+- **Factor information** indicate if factor information of each condition is included in the tabluar file, in this case each factor should be indicated in rows starting from 2nd row, factor values should not be interpreted as a pure numeric value or will be wrongly integrated in dataset as expression values 
+
+
+-----
+
+**Outputs**
+
+- **tabular file** is the result for LIMMA, represented as tab delimited matrix where each colum contain DE statistics between groups for each gene (in rows).
+- **LOG file** for job log. If you see errors, please attached this in the bug report
+]]>
+  </help>
+
+</tool>
