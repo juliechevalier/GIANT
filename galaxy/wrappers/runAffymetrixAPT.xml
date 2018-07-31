@@ -91,7 +91,6 @@ bash $scriptFormat;
     cat $mainCondition.arrayID.fields.versionInfo >> $log;
   #end if
 #end if
-bash $scriptTransfer;
 	]]>
   </command>
   <inputs>
@@ -235,17 +234,6 @@ mv -f ./tempData $outputData
 
 ]]>
    </configfile> 
-  
-    <configfile name="scriptTransfer">
-<![CDATA[
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$title
-cp $outputData /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/NormalizedData.${outputData.ext}
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/NormalizedData.${outputData.ext} $outputData
-cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext}
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext} $log
-]]>
-   </configfile>
   </configfiles>
   
  <tests>
