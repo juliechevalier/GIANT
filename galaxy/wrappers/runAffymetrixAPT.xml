@@ -1,4 +1,4 @@
-<tool name="Run Affymetrix APT tool" id="run_affymetrix_APT">
+<tool name="Run Affymetrix APT tool" id="run_affymetrix_APT" version="0.1">
   <description>Apply normalization to .CEL files</description>
   <stdio>
     <regex match="Execution halted"
@@ -112,7 +112,7 @@ bash $scriptTransfer;
 
     <conditional name="mainCondition">
 
-      <param name="arraySelection" type="select" label="Select array kind">
+      <param name="arraySelection" type="select" label="Select GeneChip array kind">
       <option value="common">common arrays (HTA, HuGene, MoGene)</option>
       <option value="other">other arrays</option>
       </param>
@@ -270,7 +270,7 @@ ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.hist
   <help>
 **What it does** 
 
-To normalize expression data from Affymetrix GeneChip arrays through Affymetrix Power Tools programs.
+To normalize expression data from Affymetrix GeneChip arrays through Affymetrix Power Tools software.
 
 
 .. class:: warningmark
@@ -281,30 +281,29 @@ To normalize expression data from Affymetrix GeneChip arrays through Affymetrix 
 
 **Parameters**
 
-- **Title** to personalize output file names (please avoid special characters and blanks).
+\- **Title** to personalize output file names (please avoid special characters and blanks).
 
 
-- **.CEL files** you want to normalize (you can select all .CEL files previously downloaded or any built collection of files).
+\- **.CEL files** you want to normalize (you can select multiple .CEL files or unique collection).
 
 
-- **Analysis to perform** : as this tool run apt-probeset-summarize command line of Affymetrix Power Tool, this field should only contains analysis pathways desire (-a parameter). Analysis desired can be describe thanks to predifined pathways alias (like "rma" or "rma-gc-scale") or directly through comma separated line describing each step to run ("rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"). Go to `APT tool web page`__ to get more details about available analysis patwhays.
+\- **Analysis to perform** : as this tool run the 'apt-probeset-summarize' command line from Affymetrix Power Tool software, this field represents the desired analysis pathway (-a parameter). Analysis pathway can be described thanks to predifined pathway alias (like "rma" or "rma-gc-scale") or directly through full descriptive line of all steps to run (like "rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"). Please refer to `APT tool web page`__ to get more details about available analysis patwhays.
 
-- **Normalization level** to choose when CeneChip arrays a
+\- **Normalization level** to choose when GeneChip array kind allows such distinction (ie. when a .mps file exists in Affymetrix webpage). 'Probe set level' is the first level where probes for same exon are merged in probe sets. 'Gene level' [recommended] is an upper level where several probe sets are merged in meta probe sets. If a meta probe set can be see as a good single gene expression indicator, several meta probe sets can still share same gene annotation.
 
-- **GeneChip array kind** to select array corresponding to .CEL files. Configuration files for most common Affymetrix arrays are pre-loaded, in this case you just have to select the array kind. If your array is not available in this list, you should select "other arrays" and then select manually configuration files for the array. Configuration files (.pgf, .clf, .cdf, .mps, .bgp) are available on Affymetrix webpage corresponding to the array in 'Support file' section in library archive files. All these files are not mandatory for each analysis, only .pgf and.clf files or only .cdf file are mandatory for basic normalization. .mps file is requested only with arrays allowing two distinct levels of normalization (see Normalization level). .bgp file is requested only for normalization step with specific background computation. Annotation file is a two column tabular file, with first column containing name of probeset and second corresponding annotation. This file should not contains any column header.
+\- **GeneChip array kind** to select array corresponding to .CEL files. Configuration files for most common Affymetrix arrays are pre-loaded, in this case you just have to select corresponding array kind. If your array is not available in this list, you should choose "other arrays" and then select manually configuration files for the array. Configuration files (.pgf, .clf, .cdf, .mps, .bgp) are available in library archive files from corresponding array Affymetrix webpage (in 'Support file' section). All these files are not mandatory for all normalizations, only .pgf and.clf files or just .cdf file are mandatory for basic normalization. .mps file is requested only for gene level normalization if it is available (see Normalization level parameter). .bgp file is requested only for analysis pathway with specific background computation. Annotation file is a simple two column tabular file, with first column containing probe set names and second corresponding annotation. This file should not contains any column header.
 
-- **Gene annotation** : add gene annotation when available (for pre-loaded arrays, last annotation files available from Affymetriw website are used, for other arrays, you should specify manually annotation file). You can choose to keep or discard in normalized file, probesets without match in annotation file and decide which policy to apply to probesets sharing same gene annotation.
+\- **Gene annotation** : add gene annotation when available (for pre-loaded arrays, most recent annotation files available from Affymetrix website are used, for other arrays, annotation files should be specified manually). You can choose to keep or discard in normalized file (meta) probe sets without match in annotation file and select merging policy for probe sets sharing same gene annotation.
 
-- **Additional parameter** :
-Please do not add -o parameter.
+\- **Additional parameter** to give to 'apt-probeset-summarize' command line except -a, -o, -d, -p, -c, -m, -b parameters already filled by previous fields.
+
 -----
 
 **Outputs**
 
-- **tabular file** is the result of normalization, represented as tab delimited matrix with first row containing names of conditions as described by .CEL labels and first column containing probe names
-- **LOG file** containing information about execution. Useful especially  If you see errors, please attached this in the bug report
+\- **tabular file** containing normalized data as tab delimited matrix. First row contains .CEL names and first column contains (meta) probe set names and/or annotated gene names.
 
-
+\- **LOG file** containing information about execution. Useful especially if tool execution fail. Please attach this log file in any bug report.
 
 
 
