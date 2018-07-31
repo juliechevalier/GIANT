@@ -268,27 +268,41 @@ ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.hist
   </test>
 </tests> 
   <help>
-To normalize data through Affymetrix Power Tools software.
+**What it does** 
+
+To normalize expression data from Affymetrix GeneChip arrays through Affymetrix Power Tools programs.
 
 
 .. class:: warningmark
 
-**SANDBOX TOOL**
+**SANDBOX TOOL** this program is still in developement 
 
 -----
 
 **Parameters**
 
+- **Title** to personalize output file names (please avoid special characters and blanks).
 
-- **command line** you can go `there`__  to get more informations
+
+- **.CEL files** you want to normalize (you can select all .CEL files previously downloaded or any built collection of files).
 
 
+- **Analysis to perform** : as this tool run apt-probeset-summarize command line of Affymetrix Power Tool, this field should only contains analysis pathways desire (-a parameter). Analysis desired can be describe thanks to predifined pathways alias (like "rma" or "rma-gc-scale") or directly through comma separated line describing each step to run ("rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"). Go to `APT tool web page`__ to get more details about available analysis patwhays.
+
+- **Normalization level** to choose when CeneChip arrays a
+
+- **GeneChip array kind** to select array corresponding to .CEL files. Configuration files for most common Affymetrix arrays are pre-loaded, in this case you just have to select the array kind. If your array is not available in this list, you should select "other arrays" and then select manually configuration files for the array. Configuration files (.pgf, .clf, .cdf, .mps, .bgp) are available on Affymetrix webpage corresponding to the array in 'Support file' section in library archive files. All these files are not mandatory for each analysis, only .pgf and.clf files or only .cdf file are mandatory for basic normalization. .mps file is requested only with arrays allowing two distinct levels of normalization (see Normalization level). .bgp file is requested only for normalization step with specific background computation. Annotation file is a two column tabular file, with first column containing name of probeset and second corresponding annotation. This file should not contains any column header.
+
+- **Gene annotation** : add gene annotation when available (for pre-loaded arrays, last annotation files available from Affymetriw website are used, for other arrays, you should specify manually annotation file). You can choose to keep or discard in normalized file, probesets without match in annotation file and decide which policy to apply to probesets sharing same gene annotation.
+
+- **Additional parameter** :
+Please do not add -o parameter.
 -----
 
 **Outputs**
 
 - **tabular file** is the result of normalization, represented as tab delimited matrix with first row containing names of conditions as described by .CEL labels and first column containing probe names
-- **LOG file** for job log. If you see errors, please attached this in the bug report
+- **LOG file** containing information about execution. Useful especially  If you see errors, please attached this in the bug report
 
 
 
@@ -297,5 +311,4 @@ To normalize data through Affymetrix Power Tools software.
     .. __: http://media.affymetrix.com/support/developer/powertools/changelog/apt-probeset-summarize.html#intro
 
   </help>
-
 </tool>
