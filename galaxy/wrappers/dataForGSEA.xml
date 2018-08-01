@@ -39,7 +39,7 @@ bash $scriptTransfer;
 	]]>
   </command>
   <inputs>
-    <param type="text" name="title" value="GSEAformat_toPersonalize" label="Title for output WITHOUT SPACE!"/>
+    <param type="text" name="title" value="GSEAformat_toPersonalize" label="Title for output (without space)"/>
     <conditional name="mainCondition">
       <param name="selection" type="select" label="GSEA configuration" force_select="true">
       <option value="classicGSEA">GSEA analysis </option>
@@ -126,41 +126,46 @@ Generate input files required for GSEA analysis.
 
 - **GSEA Analysis**
 
-\- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers)::
+    \- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
 
-    Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
-    DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
-    MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
-    OR4F5       3.737956                3.011586                 3.424494                   3.497545
-    VWA1        5.189621                5.129595                 4.806793                   5.227014
+    ::
 
-\- **Factor information tabular file** with factors as columns and samples as rows (header row contains factor names and first column sample names)::
+        Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
+        DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+        MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+        OR4F5       3.737956                3.011586                 3.424494                   3.497545
+        VWA1        5.189621                5.129595                 4.806793                   5.227014
 
-    Conditions                Sex   Treatment Reaction
-    138_(HuGene-2_0-st).CEL   1     TreatA    Pos
-    148_(HuGene-2_0-st).CEL   0     NoTreat   Pos
-    139_(HuGene-2_0-st).CEL   0     TreatB    Neg
-    149_(HuGene-2_0-st).CEL   0     NoTreat   Neg
+    \- **Factor information tabular file** with factors as columns and samples as rows (header row contains factor names and first column sample names).
 
-\- **Reference factor** to use as phenotype in GSEA amongst available factors in factor information file.
+    ::
+
+        Conditions                Sex   Treatment Reaction
+        138_(HuGene-2_0-st).CEL   1     TreatA    Pos
+        148_(HuGene-2_0-st).CEL   0     NoTreat   Pos
+        139_(HuGene-2_0-st).CEL   0     TreatB    Neg
+        149_(HuGene-2_0-st).CEL   0     NoTreat   Neg
+
+    \- **Reference factor** to use as phenotype in GSEA amongst available factors in factor information file.
 
 - **Pre-ranked GSEA Analysis**
 
-\- **Differential analysis tabular file** with contrasts statistics (p-val, FDR p-val, FC and log2(FC)) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations)::
+    \- **Differential analysis tabular file** with contrasts statistics (p-val, FDR p-val, FC and log2(FC)) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations).
+
+      ::
+
+        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+        Gene     Info        p-val     FDR.p-val FC        log2(FC)
+        ARSD     na          0.0057    0.41      0.8389   -0.2534  
+        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
+        MIR548AL na          0.072     0.2914    1.711     0.775 
 
 
-    LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
-    Gene     Info        p-val     FDR.p-val FC        log2(FC)
-    ARSD     na          0.0057    0.41      0.8389   -0.2534  
-    TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
-    MIR548AL na          0.072     0.2914    1.711     0.775 
+    \- **Reference contrast** from available contrasts in differential analysis file to use for gene ranking.
 
+    \- **Reference statistic** from reference contrast used to rank genes. Absolute value of log2(FC) is used to sort genes in a decreasing way or FDR p-val in an increasing way.
 
-\- **Reference contrast** from available contrasts in differential analysis file to use for gene ranking.
-
-\- **Reference statistic** from reference contrast used to rank genes. Absolute value of log2(FC) is used to sort genes in a decreasing way or FDR p-val in an increasing way.
-
-\- **FDR p-val threshold** to discard genes with higher FDR p-val than specific threshold [0.05 recommended]. Genes with high FDR p-val are not significant for differential expression in reference contrast.
+    \- **FDR p-val threshold** to discard genes with higher FDR p-val than specific threshold [0.05 recommended]. Genes with high FDR p-val are not significant for differential expression in reference contrast.
 
 
 -----
@@ -171,13 +176,13 @@ Depends on GSEA configuration:
 
 - **GSEA Analysis**
 
-\- **phenotype file (.cls)** to use as "phenotype labels" file for GSEA.
+    \- **phenotype file (.cls)** to use as "phenotype labels" file for GSEA.
 
-\- **expression file (.gct)** to use as "expression dataset" file for GSEA.
+    \- **expression file (.gct)** to use as "expression dataset" file for GSEA.
 
 - **Pre-ranked GSEA Analysis**
 
-\- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked.
+    \- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked.
 
 In all configuration:
 

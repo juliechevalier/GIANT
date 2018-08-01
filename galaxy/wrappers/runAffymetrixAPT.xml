@@ -94,7 +94,7 @@ bash $scriptFormat;
 	]]>
   </command>
   <inputs>
-    <param type="text" name="title" value="APT_toPersonalize" label="Title for output WITHOUT SPACE!"/>
+    <param type="text" name="title" value="APT_toPersonalize" label="Title for output (without space)"/>
 
     <param type="data" name="inputData" format="cel" label=".cel collection file" optional="false" multiple="true">
       <validator type="empty_dataset" message="At least one data file should be selected"></validator>
@@ -290,6 +290,10 @@ Extract of annotation file::
     TC01000024.hg.1  AGRN 
 
 \- **Gene annotation** : add gene annotation when available (for pre-loaded arrays, most recent annotation files available from Affymetrix website are used, for other arrays, annotation files should be specified manually). You can choose to keep or discard in normalized file (meta) probe sets without match in annotation file and select merging policy for probe sets sharing same gene annotation.
+
+-----
+
+**Advanced parameters**
 
 \- **Additional parameter** to give to 'apt-probeset-summarize' command line except -a, -o, -d, -p, -c, -m, -b parameters already filled by previous fields.
 
