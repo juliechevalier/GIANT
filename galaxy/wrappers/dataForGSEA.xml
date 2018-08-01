@@ -50,21 +50,21 @@ bash $scriptTransfer;
         </param>
         <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="false" multiple="false">
         </param>
-            <param name="factorToInclude" type="select" label="Select factor" multiple="false" optional="false"  refresh_on_change="true"
+            <param name="factorToInclude" type="select" label="Reference factor" multiple="false" optional="false"  refresh_on_change="true"
               dynamic_options="get_column_names_filteredList(mainCondition['conditionInformation'].file_name,[0])">
         </param>
       </when>
       <when value="rankedGSEA">
       	<param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" multiple="false" help="This file should contain only annotated gene names or only probe identifiers as rows but no both kinds.">
         </param>
-        <param name="comparisonsToUse" type="select" label="Select comparison used for ranking" optional="false" multiple="false" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(mainCondition['differentialAnalysis'].file_name,[0,1],4)">
+        <param name="comparisonsToUse" type="select" label="Reference contrast" optional="false" multiple="false" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(mainCondition['differentialAnalysis'].file_name,[0,1],4)">
           <validator type="empty_field" message="You should specify one factor"></validator>
         </param>
-        <param type="select" name="rankingIndice" display="radio" label="On which value ranking should be done?">
+        <param type="select" name="rankingIndice" display="radio" label="Reference statistic">
             <option value="FC">Absolute value of Log2(Fold Change)  (decreasing sort)</option>
             <option value="pval">FDR p-val (increasing sort)</option>
         </param>
-         <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold used for gene selection">
+         <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold">
                    <validator type="in_range" min="0" max="1" exclude_min="true" message="Threshold should be between 0 and 1"/>
           </param>
       </when>
@@ -102,8 +102,8 @@ bash $scriptTransfer;
     <param name="genome" value="hg18" />
     <param name="imagetype" value="PDF" />
     <param name="enable" value="no" />
-    <output name="output" file="ceas_1/ceas_1.pdf" />
-    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+    <output name="outExpression" file="ceas_1/ceas_1.pdf" />
+    <output name="log" file="ceas_1/ceas_1.log" lines_diff = "200" />
   </test>
 </tests> 
   <help>
@@ -120,33 +120,70 @@ Generate input files required for GSEA analysis.
 
 **Parameters**
 
-\- **normalized expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers)
+\- **Title** to personalize output file names (please avoid special characters and blanks).
 
-\- **factor information tabular file** with samples as rows, header row contains factor names and first column sample names
+\- **GSEA configuration** : "GSEA analysis" requires expression dataset and phenotype label for each sample whereas "Pre-ranked GSEA Analysis" needs ranked list of samples extracted from differential analysis results.
 
-\- **factor to use as phenotype** in GSEA
+- **GSEA Analysis**
 
-OR
+\- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
 
-\- **differential analysis tabular file** with comparisons as colums with (p-val, FDR p-val and FC fields) and genes as rows (first and second rows contain comparison names and first column gene identifiers)
+\- **Factor information tabular file** with factors as columns and samples as rows (header row contains factor names and first column sample names).
 
-\- **reference comparison** to use for gene ranking
+\- **Reference factor** to use as phenotype in GSEA amongst available factors in factor information file.
 
-\- **ranking value** used to rank
+- **Pre-ranked GSEA Analysis**
+
+\- **Differential analysis tabular file** with contrasts statistics (p-val, FDR p-val, FC and log2(FC)) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations)::
+
+
+    LIMMA   comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+    Gene    Info        p-val     FDR.p-val FC        log2(FC)
+    ARSD    na          0.0057    0.41      0.8389   -0.2534  
+    TTTY10  na          1.6e-07   0.0074    0.6403   -0.6432
+
+
+\- **Reference contrast** from available contrasts in differential analysis file to use for gene ranking.
+
+\- **Reference statistic** from reference contrast used to rank genes. Absolute value of log2(FC) is used to sort genes in a decreasing way or FDR p-val in an increasing way.
+
+\- **FDR p-val threshold** to discard genes with higher FDR p-val than specific threshold [0.05 recommended]. Genes with high FDR p-val are not significant for differential expression in reference contrast.
 
 
 -----
 
 **Outputs**
 
-\- **phenotype file (.cls)** to use as "phenotype labels" file for GSEA
+Depends on GSEA configuration:
 
-\- **expression file (.gct)** to use as "expression dataset" file for GSEA
+- **GSEA Analysis**
 
-\- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked
+\- **phenotype file (.cls)** to use as "phenotype labels" file for GSEA.
 
-\- **LOG file** for job log. If you see errors, please attached this in the bug report
+\- **expression file (.gct)** to use as "expression dataset" file for GSEA.
+
+- **Pre-ranked GSEA Analysis**
+
+\- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked.
+
+In all configuration:
+
+\- **LOG file** containing information about execution. Useful especially if tool execution fail. Please attach this log file in any bug report.
 
   </help>
+
+ <citations>
+  <citation type="bibtex">@article {Subramanian15545,
+  author = {Subramanian, Aravind and Tamayo, Pablo and Mootha, Vamsi K. and Mukherjee, Sayan and Ebert, Benjamin L. and Gillette, Michael A. and Paulovich, Amanda and Pomeroy, Scott L. and Golub, Todd R. and Lander, Eric S. and Mesirov, Jill P.},
+  title = {Gene set enrichment analysis: A knowledge-based approach for interpreting genome-wide expression profiles},
+  volume = {102},
+  number = {43},
+  pages = {15545--15550},
+  year = {2005},
+  publisher = {National Academy of Sciences},
+  issn = {0027-8424},
+  journal = {Proceedings of the National Academy of Sciences}
+  }</citation>
+ </citations>
 
 </tool>
