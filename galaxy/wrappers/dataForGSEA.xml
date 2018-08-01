@@ -1,6 +1,6 @@
-<tool name="Generate GSEA input files" id="generate_GSEA_files">
-  <description>Generate data for GSEA sotware.</description>
-  <code file="General_functions.py"/>
+<tool name="Generate GSEA input files" id="generate_GSEA_files" version="0.1">
+  <description>Generate data for GSEA software.</description>
+  <code file="../../src/General_functions.py"/>
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -65,7 +65,7 @@ bash $scriptTransfer;
             <option value="pval">FDR p-val (increasing sort)</option>
         </param>
          <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold used for gene selection">
-                   <validator type="in_range" min="0" max="1" exclude_min="True" message="Threshold should be between 0 and 1"/>
+                   <validator type="in_range" min="0" max="1" exclude_min="true" message="Threshold should be between 0 and 1"/>
           </param>
       </when>
     </conditional>
@@ -85,41 +85,10 @@ bash $scriptTransfer;
     </data>
 	
     <data format="txt" name="log" label="${title}_Log" />
-  </outputs>
+  </outputs>  
 
-  <configfiles>
-  
-  
-  
-    <configfile name="scriptTransfer">
-<![CDATA[
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$title
-
-#if $mainCondition.selection=="classicGSEA":
-
-cp $outExpression /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Expressions.cls
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Expressions.cls $outExpression
-
-cp $outPhenotypes /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Phenotypes.gct
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Phenotypes.gct $outPhenotypes
-
-#else:
-
-cp $outRankedGenes /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/RankedGenes.rnk
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/RankedGenes.rnk $outRankedGenes
-
-#end if
-
-
-cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext}
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext} $log
-]]>
-   </configfile>
-  </configfiles>
-  
  <tests>
-  <test maxseconds="3600" name="CEAS_1">
+  <test maxseconds="3600" >
     <param name="wfile" value="wiggle.wig" />
     <param name="bfile" value="bedfile.bed" />
     <param name="span" value="3000" />
@@ -138,36 +107,45 @@ ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.hist
   </test>
 </tests> 
   <help>
-To generate input files for GSEA analysis.
+**What it does** 
+
+Generate input files required for GSEA analysis.
 
 
 .. class:: warningmark
 
-**SANDBOX TOOL**
+**SANDBOX TOOL** this program is still in developement 
 
 -----
 
 **Parameters**
 
-- **normalized expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers)
-- **factor information tabular file** with samples as rows, header row contains factor names and first column sample names
-- **factor to use as phenotype** in GSEA
+\- **normalized expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers)
+
+\- **factor information tabular file** with samples as rows, header row contains factor names and first column sample names
+
+\- **factor to use as phenotype** in GSEA
 
 OR
 
-- **differential analysis tabular file** with comparisons as colums with (p-val, FDR p-val and FC fields) and genes as rows (first and second rows contain comparison names and first column gene identifiers)
-- **reference comparison** to use for gene ranking
-- **ranking value** used to rank
+\- **differential analysis tabular file** with comparisons as colums with (p-val, FDR p-val and FC fields) and genes as rows (first and second rows contain comparison names and first column gene identifiers)
+
+\- **reference comparison** to use for gene ranking
+
+\- **ranking value** used to rank
 
 
 -----
 
 **Outputs**
 
-- **phenotype file (.cls)** to use as "phenotype labels" file for GSEA
-- **expression file (.gct)** to use as "expression dataset" file for GSEA
-- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked
-- **LOG file** for job log. If you see errors, please attached this in the bug report
+\- **phenotype file (.cls)** to use as "phenotype labels" file for GSEA
+
+\- **expression file (.gct)** to use as "expression dataset" file for GSEA
+
+\- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked
+
+\- **LOG file** for job log. If you see errors, please attached this in the bug report
 
   </help>
 
