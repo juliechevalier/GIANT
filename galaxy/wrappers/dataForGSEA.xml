@@ -126,9 +126,21 @@ Generate input files required for GSEA analysis.
 
 - **GSEA Analysis**
 
-\- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
+\- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers)::
 
-\- **Factor information tabular file** with factors as columns and samples as rows (header row contains factor names and first column sample names).
+    Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
+    DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+    MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+    OR4F5       3.737956                3.011586                 3.424494                   3.497545
+    VWA1        5.189621                5.129595                 4.806793                   5.227014
+
+\- **Factor information tabular file** with factors as columns and samples as rows (header row contains factor names and first column sample names)::
+
+    Conditions                Sex   Treatment Reaction
+    138_(HuGene-2_0-st).CEL   1     TreatA    Pos
+    148_(HuGene-2_0-st).CEL   0     NoTreat   Pos
+    139_(HuGene-2_0-st).CEL   0     TreatB    Neg
+    149_(HuGene-2_0-st).CEL   0     NoTreat   Neg
 
 \- **Reference factor** to use as phenotype in GSEA amongst available factors in factor information file.
 
@@ -137,10 +149,11 @@ Generate input files required for GSEA analysis.
 \- **Differential analysis tabular file** with contrasts statistics (p-val, FDR p-val, FC and log2(FC)) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations)::
 
 
-    LIMMA   comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
-    Gene    Info        p-val     FDR.p-val FC        log2(FC)
-    ARSD    na          0.0057    0.41      0.8389   -0.2534  
-    TTTY10  na          1.6e-07   0.0074    0.6403   -0.6432
+    LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+    Gene     Info        p-val     FDR.p-val FC        log2(FC)
+    ARSD     na          0.0057    0.41      0.8389   -0.2534  
+    TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
+    MIR548AL na          0.072     0.2914    1.711     0.775 
 
 
 \- **Reference contrast** from available contrasts in differential analysis file to use for gene ranking.
