@@ -237,7 +237,7 @@ mv -f ./tempData $outputData
   </configfiles>
   
  <tests>
-  <test maxseconds="3600" name="CEAS_1">
+  <test maxseconds="3600">
     <param name="wfile" value="wiggle.wig" />
     <param name="bfile" value="bedfile.bed" />
     <param name="span" value="3000" />
