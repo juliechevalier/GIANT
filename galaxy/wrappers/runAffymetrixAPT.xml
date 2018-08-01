@@ -279,7 +279,15 @@ To normalize expression data from Affymetrix GeneChip arrays through Affymetrix 
 
 \- **Normalization level** to choose when GeneChip array kind allows such distinction (ie. when a .mps file exists in Affymetrix webpage). 'Probe set level' is the first level where probes for same exon are merged in probe sets. 'Gene level' [recommended] is an upper level where several probe sets are merged in meta probe sets. If a meta probe set can be see as a good single gene expression indicator, several meta probe sets can still share same gene annotation.
 
-\- **GeneChip array kind** to select array corresponding to .CEL files. Configuration files for most common Affymetrix arrays are pre-loaded, in this case you just have to select corresponding array kind. If your array is not available in this list, you should choose "other arrays" and then select manually configuration files for the array. Configuration files (.pgf, .clf, .cdf, .mps, .bgp) are available in library archive files from corresponding array Affymetrix webpage (in 'Support file' section). All these files are not mandatory for all normalizations, only .pgf and.clf files or just .cdf file are mandatory for basic normalization. .mps file is requested only for gene level normalization if it is available (see Normalization level parameter). .bgp file is requested only for analysis pathway with specific background computation. Annotation file is a simple two column tabular file, with first column containing probe set names and second corresponding annotation. This file should not contains any column header.
+\- **GeneChip array kind** to select array corresponding to .CEL files. Configuration files for most common Affymetrix arrays are pre-loaded, in this case you just have to select corresponding array kind. If your array is not available in this list, you should choose "other arrays" and then select manually configuration files for the array. Configuration files (.pgf, .clf, .cdf, .mps, .bgp) are available in library archive files from corresponding array Affymetrix webpage (in 'Support file' section). All these files are not mandatory for all normalizations, only .pgf and.clf files or just .cdf file are mandatory for basic normalization. .mps file is requested only for gene level normalization if it is available (see Normalization level parameter). .bgp file is requested only for analysis pathway with specific background computation. Annotation file is a simple two column tabular file, with first column containing probe set names and second corresponding annotation, it should not contains any column header.
+
+Extract of annotation file::
+
+    TC01000020.hg.1  SAMD11 
+    TC01000021.hg.1  KLHL17 
+    TC01000022.hg.1  PLEKHN1 
+    TC01000023.hg.1  ISG15 
+    TC01000024.hg.1  AGRN 
 
 \- **Gene annotation** : add gene annotation when available (for pre-loaded arrays, most recent annotation files available from Affymetrix website are used, for other arrays, annotation files should be specified manually). You can choose to keep or discard in normalized file (meta) probe sets without match in annotation file and select merging policy for probe sets sharing same gene annotation.
 
@@ -289,7 +297,13 @@ To normalize expression data from Affymetrix GeneChip arrays through Affymetrix 
 
 **Outputs**
 
-\- **tabular file** containing normalized data as tab delimited matrix. First row contains .CEL names and first column contains (meta) probe set names and/or annotated gene names.
+\- **tabular file** containing normalized data as tab delimited matrix. First row contains .CEL names and first column contains (meta) probe set names and/or annotated gene names::
+
+    Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
+    DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+    MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+    OR4F5       3.737956                3.011586                 3.424494                   3.497545
+    VWA1        5.189621                5.129595                 4.806793                   5.227014
 
 \- **LOG file** containing information about execution. Useful especially if tool execution fail. Please attach this log file in any bug report.
 
