@@ -7,8 +7,8 @@
 #
 #
 #
-source("/data/galaxy-dist/tools/jimmytools/utils.R")
-source("/data/galaxy-dist/tools/jimmytools/getopt.R")
+source("./utils.R")
+source("./getopt.R")
 
 addComment("Welcome R!")
 

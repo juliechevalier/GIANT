@@ -184,7 +184,7 @@ Depends on GSEA configuration:
 
     \- **pre-ranked file (.rnk)** to use as "ranked list" file for GSEA pre-ranked.
 
-In all configuration:
+For all configurations:
 
 \- **LOG file** containing information about execution. Useful especially if tool execution fail. Please attach this log file in any bug report.
 

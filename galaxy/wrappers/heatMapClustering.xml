@@ -8,7 +8,7 @@
     <requirement type="package" version="0.4.4">r-circlize</requirement>
     <requirement type="package" version="1.17.1">bioconductor-complexheatmap</requirement>
   </requirements>
-    <code file="../../src/General_functions.py"/>
+  <code file="../../src/General_functions.py"/>
   <stdio>
     <regex match="Execution halted"
            source="both"

@@ -1,11 +1,14 @@
-<tool name="LIMMA diff. exp." id="LIMMA_diffExpV4">
+<tool name="LIMMA diff. exp." id="LIMMA_diffExpV4" version="0.1">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
-  <requirement type="package">bioconductor-limma</requirement>
-	<requirement type="package" version="2.2.0">r-ggplot2</requirement>
-	<requirement type="package" version="1.6.16"> r-venndiagram </requirement>
+    <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
+    <requirement type="package" version="3.34.9">bioconductor-limma</requirement>
+    <requirement type="package" version="2.2.1">r-ggplot2</requirement>
+    <requirement type="package" version="4.5.6">r-plotly</requirement>
+    <requirement type="package" version="0.5.0">r-webshot</requirement>
+    <requirement type="package" version="1.3.1">r-stringr</requirement>
   </requirements>
-  <code file="LIMMA_options.py"/>
+  <code file="../../src/LIMMA_options.py"/>
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -127,7 +130,7 @@
 		<param type="boolean" name="volcanoToPlot" checked="true" label="Plot volcanos" help="Plot volcano for each comparison.">
 	    </param>
     <param name="FCthreshold" type="float" value="2" label="Fold change threshold for volcanos (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
-      <validator type="in_range" min="1" exclude_min="True" message="Threshold should be greater than 1"/>
+      <validator type="in_range" min="1" exclude_min="true" message="Threshold should be greater than 1"/>
     </param>
 
     <conditional name="geneInformation">
@@ -264,20 +267,14 @@ printf "</table>
   </configfile>
    <configfile name="scriptTransfer">
 <![CDATA[
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$inputSection.title
-
 
 
 ##for LIMMA output table
-cp $outputData /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/LIMMAresults.${outputData.ext}
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/LIMMAresults.${outputData.ext} $outputData
 
 mkdir -p $html_file.extra_files_path
 
 ##create HTML file for limma output table
 source $scriptTableToHtml
-cp ${html_file.extra_files_path}/outputLIMMA.html /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/LIMMAresults.html
 
 ##create header of main HTML file
 printf  "<!DOCTYPE html>\n<html>\n<body>"  > $html_file
@@ -291,18 +288,10 @@ printf "<a href=\"outputLIMMA.html\">LIMMA results</a>\n"  >> $html_file
 
 
 #if $plotSection.histogramToPlot:
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Histograms
-counter=1
-for histogram in \$(ls ./plotDir/Histograms*)
-do
-cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Histograms/Histograms\${counter}.$plotSection.imageFormat
-((counter++))
-done
 
 printf "<h3>P-val histograms</h3>\n" >> $html_file
 
 ##create folders in media
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML
 counter=1
 for histogram in \$(ls ./plotLyDir/Histograms_*html)
 do
@@ -319,7 +308,6 @@ conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{
 sed -i "s/\${histogramShort}_files/PlotLy_Histogram_scripts/g" \$histogram
 
 ##copy HTML files in both folders
-cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML/Histogram_\$conditionName.html
 cp \$histogram ${html_file.extra_files_path}/Histogram_\$conditionName.html
 
 ##add HTML link
@@ -336,8 +324,6 @@ cd ../../../
 #end if
 
 ##now copy only scripts folder for the first histogram and rename
-cp -r ./plotLyDir/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML
-mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/HistogramsHTML/PlotLy_Histogram_scripts
 cp -r ./plotLyDir/\${histogramShort}_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/\${histogramShort}_files ${html_file.extra_files_path}/PlotLy_Histogram_scripts
 fi
@@ -350,7 +336,6 @@ done
 
 
 if [ -e ./plotLyDir/sumSquareFtest.html ]; then
-cp ./plotDir/sumSquareFtest.${plotSection.imageFormat} /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/sumSquareFtest.${plotSection.imageFormat}
 
 printf "<h3>Source of variation</h3>\n" >> $html_file
 
@@ -358,7 +343,6 @@ printf "<h3>Source of variation</h3>\n" >> $html_file
 sed -i "s/sumSquareFtest_files/PlotLy_sumSquareFtest_scripts/g" ./plotLyDir/sumSquareFtest.html
 
 ##copy HTML files in both folders
-cp ./plotLyDir/sumSquareFtest.html /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/
 cp ./plotLyDir/sumSquareFtest.html ${html_file.extra_files_path}/
 
 ##add HTML link
@@ -374,8 +358,6 @@ cd ../../../
 #end if
 
 ##now copy scripts folder
-cp -r ./plotLyDir/sumSquareFtest_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}
-mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/sumSquareFtest_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/PlotLy_sumSquareFtest_scripts
 cp -r ./plotLyDir/sumSquareFtest_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/sumSquareFtest_files ${html_file.extra_files_path}/PlotLy_sumSquareFtest_scripts
 fi
@@ -385,20 +367,10 @@ fi
 
 
 #if $plotSection.volcanoToPlot:
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Volcanos
-for volcano in \$(ls ./plotDir/Volcanos_*)
-do
-printf "move file "\$volcano"\n" >> $log 
-conditionName=\${volcano%\.*}
-conditionName=\${conditionName\#\#*Volcanos_}
-
-cp \$volcano /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Volcanos/Volcano_\$conditionName.$plotSection.imageFormat
-done
 
 printf "<h3>Volcanos</h3>\n" >> $html_file
 
 ##create folders in media
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML
 counter=1
 for volcano in \$(ls ./plotLyDir/Volcanos_*html)
 do
@@ -416,7 +388,6 @@ conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{
 sed -i "s/\${volcanoShort}_files/PlotLy_Volcano_scripts/g" \$volcano
 
 ##copy HTML files in both folders
-cp \$volcano /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML/Volcano_\$conditionName.html
 cp \$volcano ${html_file.extra_files_path}/Volcano_\$conditionName.html
 
 ##add HTML link
@@ -434,8 +405,6 @@ cd ../../../
 #end if
 
 ##now copy only scripts folder for the first volcano and rename
-cp -r ./plotLyDir/\${volcanoShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML
-mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML/\${volcanoShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/VolcanosHTML/PlotLy_Volcano_scripts
 cp -r ./plotLyDir/\${volcanoShort}_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/\${volcanoShort}_files ${html_file.extra_files_path}/PlotLy_Volcano_scripts
 fi
@@ -445,11 +414,6 @@ done
 #end if
 
 
-
-
-cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Log.${log.ext}
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${inputSection.title}/Log.${log.ext} $log
-
 ##create footer of HTML file
 printf  "</body>\n</html>" >> $html_file
 printf "end of script" >> $log 
@@ -458,7 +422,7 @@ printf "end of script" >> $log
  </configfiles>
   
  <tests>
-  <test maxseconds="3600" name="CEAS_1">
+  <test maxseconds="3600">
     <param name="wfile" value="wiggle.wig" />
     <param name="bfile" value="bedfile.bed" />
     <param name="span" value="3000" />
@@ -472,8 +436,7 @@ printf "end of script" >> $log
     <param name="genome" value="hg18" />
     <param name="imagetype" value="PDF" />
     <param name="enable" value="no" />
-    <output name="output" file="ceas_1/ceas_1.pdf" />
-    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+    <output name="outputData" file="ceas_1/ceas_1.pdf" />
   </test>
 </tests> 
   <help>

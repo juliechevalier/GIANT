@@ -1,12 +1,12 @@
-<tool name="Plotting functions" id="jimmy_test1">
+<tool name="Plotting functions" id="jimmy_test1" version="0.1">
   <description>Generate plots for .CEL files or normalized data file.</description>
-  <code file="General_functions.py"/>
   <requirements>
-    <requirement type="package" version="1.40.1">bioconductor-oligo</requirement>
-    <requirement type="package" version="2.2.13">ff</requirement>
-	<requirement type="package" version="2.2.0">r-ggplot2</requirement>
-    <requirement type="package" version="2.0.16">r-plotly</requirement>
+	  <requirement type="package" version="1.42.0">bioconductor-oligo</requirement>
+	  <requirement type="package" version="2.2_13">r-ff</requirement>
+	  <requirement type="package" version="2.2.1">r-ggplot2</requirement>
+	  <requirement type="package" version="4.5.6">r-plotly</requirement>
   </requirements>
+  <code file="../../src/General_functions.py"/>
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -147,8 +147,6 @@
 
     <configfile name="scriptTransfer">
 <![CDATA[
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name} 2>/dev/null
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-$title
 #set $dataType=$dataFile[0].ext
 #set $cnt=1
 
@@ -178,18 +176,9 @@ mkdir -p $html_file.extra_files_path
 
 
 #if $plotSection.histogramToPlot:
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Histograms
-counter=1
-for histogram in \$(ls ./plotDir/Histograms*)
-do
-cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Histograms/Histograms\${counter}.${advSection.imageFormat}
-((counter++))
-done
-
 
 printf "<h3>Histograms</h3>\n" >> $html_file
 ##create folders in media
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML
 counter=1
 for histogram in \$(ls ./plotLyDir/Histograms*html)
 do
@@ -200,7 +189,6 @@ histogramShort=\${histogramShort\#\#*/}
 sed -i "s/\${histogramShort}_files/PlotLy_scripts/g" \$histogram
 
 ##copy HTML files in both folders
-cp \$histogram /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML/Histograms\${counter}.html
 cp \$histogram ${html_file.extra_files_path}/Histograms\${counter}.html
 
 ##add HTML link
@@ -218,8 +206,6 @@ cd ../../../
 #end if
 
 ##copy only scripts folder for the first histogram
-cp -r ./plotLyDir/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML
-mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML/\${histogramShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/HistogramsHTML/PlotLy_scripts
 cp -r ./plotLyDir/\${histogramShort}_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/\${histogramShort}_files ${html_file.extra_files_path}/PlotLy_scripts
 fi
@@ -233,18 +219,10 @@ done
 
 
 #if $plotSection.boxplotToPlot:
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Boxplots
-counter=1
-for boxplot in \$(ls ./plotDir/Boxplots*)
-do
-cp \$boxplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Boxplots/Boxplots\${counter}.${advSection.imageFormat}
-((counter++))
-done
 
 printf "<h3>Boxplots</h3>\n" >> $html_file
 
 ##create folders in media
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML
 counter=1
 for boxplot in \$(ls ./plotLyDir/Boxplots*html)
 do
@@ -255,7 +233,6 @@ boxplotShort=\${boxplotShort\#\#*/}
 sed -i "s/\${boxplotShort}_files/PlotLy_scripts/g" \$boxplot
 
 ##copy HTML files in both folders
-cp \$boxplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML/Boxplots\${counter}.html
 cp \$boxplot ${html_file.extra_files_path}/Boxplots\${counter}.html
 
 ##add HTML link
@@ -272,8 +249,6 @@ cd ../../../
 #end if
 
 ##copy only scripts folder for the first boxplot
-cp -r ./plotLyDir/\${boxplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML
-mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML/\${boxplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/BoxplotsHTML/PlotLy_scripts
 cp -r ./plotLyDir/\${boxplotShort}_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/\${boxplotShort}_files ${html_file.extra_files_path}/PlotLy_scripts
 fi
@@ -287,18 +262,10 @@ done
 
 
 #if $plotSection.maplotToPlot:
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplots
-counter=1
-for MAplot in \$(ls ./plotDir/MAplots*)
-do
-cp \$MAplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplots/MAplots\${counter}.${advSection.imageFormat}
-((counter++))
-done
 
 printf "<h3 id=\"MAplotTitle\">MA plots (show/hide)</h3>\n" >> $html_file
 
 ##create folders in media
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML
 counter=1
 for MAplot in \$(ls ./plotLyDir/MAplots_*html)
 do
@@ -315,7 +282,6 @@ conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{
 sed -i "s/\${MAplotShort}_files/PlotLy_scripts/g" \$MAplot
 
 ##copy HTML files in both folders
-cp \$MAplot /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML/MAplot_\$conditionName.html
 cp \$MAplot ${html_file.extra_files_path}/MAplot_\$conditionName.html
 
 ##add HTML link
@@ -333,8 +299,6 @@ rm ./plotly-latest.minTemp.js
 cd ../../../
 #end if
 
-cp -r ./plotLyDir/\${MAplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML
-mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML/\${MAplotShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/MAplotsHTML/PlotLy_scripts
 cp -r ./plotLyDir/\${MAplotShort}_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/\${MAplotShort}_files ${html_file.extra_files_path}/PlotLy_scripts
 fi
@@ -357,7 +321,6 @@ done
 
 #if $plotSection.microarrayToPlot and $dataType == "cel":
 
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Microarray
 printf "<h3 id=\"MicroarrayTitle\">Microarray</h3>\n" >> $html_file
 for microarray in \$(ls ./plotDir/Microarray_*)
 do
@@ -367,7 +330,6 @@ conditionName=\${conditionName\#\#*Microarray_}
 echo \$conditionName > ./temporaryConditionName
 conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{print dico[\$1]}' ./correspondanceFileNames.csv ./temporaryConditionName)
 
-cp \$microarray /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Microarray/Microarray_\$conditionName.${advSection.imageFormat}
 cp \$microarray ${html_file.extra_files_path}/Microarray_\$conditionName.${advSection.imageFormat}
 printf "<p class=\"Microarray\"><a href=\"Microarray_\$conditionName.${advSection.imageFormat}\">Microarray \$conditionFormatedName</a>\n</p>"  >> $html_file
 done
@@ -382,14 +344,10 @@ done
 
 
 #if $pcaSection.acpToPlot:
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Pca
-##copy screePlot image in media
-cp ./plotDir/screePlot.${advSection.imageFormat} /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Pca/screePlot.${advSection.imageFormat}
 
 printf "<h3>PCA</h3>\n" >> $html_file
 
 ##create folders in media
-mkdir /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML
 counter=1
 for pca in \$(ls ./plotLyDir/PCA*html)
 do
@@ -406,7 +364,6 @@ conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{
 sed -i "s/\${pcaShort}_files/PlotLy_scripts/g" \$pca
 
 ##copy HTML files in both folders
-cp \$pca /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/PCA_\$conditionName.html
 cp \$pca ${html_file.extra_files_path}/PCA_\$conditionName.html
 
 ##add HTML link
@@ -425,8 +382,6 @@ cd ../../../
 #end if
 
 ##copy only scripts folder for the first pca
-cp -r ./plotLyDir/\${pcaShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML
-mv /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/\${pcaShort}_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/PlotLy_scripts
 cp -r ./plotLyDir/\${pcaShort}_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/\${pcaShort}_files ${html_file.extra_files_path}/PlotLy_scripts
 fi
@@ -436,7 +391,6 @@ done
 
 ##now for screePlot
 ##copy HTML files in both folders
-cp ./plotLyDir/screePlot.html /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML/screePlot.html
 cp ./plotLyDir/screePlot.html ${html_file.extra_files_path}/screePlot.html
 ##add HTML link
 printf "<p><a href=\"screePlot.html\">Scree plot</a>\n</p>"  >> $html_file
@@ -451,18 +405,10 @@ rm ./plotly-latest.minTemp.js
 cd ../../../
 #end if
 
-cp -r ./plotLyDir/screePlot_files /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/PcaHTML
 cp -r ./plotLyDir/screePlot_files $html_file.extra_files_path
 
 #end if
 
-
-
-
-
-
-cp $log /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext}
-ln -s -f /media/NasShared/Galaxy_Outputs/$userEmail/${log.history_id}-${log.history.name}/${log.hid}-${title}/Log.${log.ext} $log
 
 ##create footer of HTML file
 printf  "</body>\n</html>" >> $html_file
@@ -472,7 +418,7 @@ printf  "</body>\n</html>" >> $html_file
   </configfiles>
   
  <tests>
-  <test maxseconds="3600" name="CEAS_1">
+  <test maxseconds="3600">
     <param name="wfile" value="wiggle.wig" />
     <param name="bfile" value="bedfile.bed" />
     <param name="span" value="3000" />
@@ -486,8 +432,7 @@ printf  "</body>\n</html>" >> $html_file
     <param name="genome" value="hg18" />
     <param name="imagetype" value="PDF" />
     <param name="enable" value="no" />
-    <output name="output" file="ceas_1/ceas_1.pdf" />
-    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+    <output name="log" file="ceas_1/ceas_1.pdf" />
   </test>
 </tests> 
   <help>
