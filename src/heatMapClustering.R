@@ -7,8 +7,12 @@
 #
 #
 #
-source("./utils.R")
-source("./getopt.R")
+initial.options <- commandArgs(trailingOnly = FALSE)
+file.arg.name <- "--file="
+script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
+script.basename <- dirname(script.name)
+source(file.path(script.basename, "utils.R"))
+source(file.path(script.basename, "getopt.R"))
 
 addComment("Welcome R!")
 
@@ -16,15 +20,16 @@ addComment("Welcome R!")
 options( show.error.messages=F, error = function () { cat(geterrmessage(), file=stderr() ); q( "no", 1, F ) } )
 
 # we need that to not crash galaxy with an UTF8 error on German LC settings.
-loc <- Sys.setlocale("LC_MESSAGES", "en_US.UTF-8")
+#Sys.setlocale("LC_NUMERIC", "C")
 
 #get starting time
 start.time <- Sys.time()
 
-#get options
-options(stringAsfactors = FALSE, useFancyQuotes = FALSE)
-args <- commandArgs()
 
+options(stringAsfactors = FALSE, useFancyQuotes = FALSE, OutDec=".")
+
+#get options
+args <- commandArgs()
 
 # get options, using the spec as defined by the enclosed list.
 # we read the options from the default: commandArgs(TRUE).
@@ -188,10 +193,9 @@ if(!is.null(opt$comparisonName)){
   comparisonMatrixInfoGene=as.character(unlist(comparisonMatrix[,2]))
   names(comparisonMatrixInfoGene)=as.character(unlist(comparisonMatrix[,1]))
   comparisonMatrix=comparisonMatrix[,-c(1,2)]
-
   
   comparisonMatrix=matrix(as.numeric(as.matrix(comparisonMatrix)),ncol=ncol(comparisonMatrix),dimnames = dimnames(comparisonMatrix))
-  
+   
   if (!is.numeric(comparisonMatrix)) {
     addComment("diff. exp. data is not fully numeric!",T,opt$log)
     q( "no", 1, F )
@@ -211,7 +215,7 @@ if(!is.null(opt$comparisonName)){
   comparisonMatrix=matrix(comparisonMatrix[,colToKeep],ncol=length(colToKeep),dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[colToKeep]))
   
   addComment(c("dim of effective comparison matrix:",dim(comparisonMatrix)),T,opt$log,display=F)
-  
+
   #get number of required comparisons
   nbComparisons=ncol(comparisonMatrix)/4 
 }
@@ -291,7 +295,8 @@ if(expressionToCluster){
     addComment("cannot make clustering with unique cell tab",T,opt$log)
     q( "no", 1, F )
   }
-
+  
+  
   #heatMapGenesToKeep=genesToKeep
   #if(length(heatMapGenesToKeep)>5000){
   #  heatMapGenesToKeep=sample(genesToKeep,5000)
@@ -417,7 +422,6 @@ if(expressionToCluster){
   addComment("Heatmap drawn")  
   
   
-  
   #plot circular heatmap
   if(!class(effectiveRowClust)=="logical"){
     dendo=as.dendrogram(effectiveRowClust)
@@ -443,6 +447,7 @@ if(expressionToCluster){
                     rownames(effectiveDataToHeatMap)[order.dendrogram(dendo)], facing = "clockwise", niceFacing = TRUE, cex = 0.3)
       }
     })
+
     circos.track(ylim = c(0, ncol(effectiveDataToHeatMap)), bg.border = NA, panel.fun = function(x, y) {
       
         m = t(matrix(effectiveDataToHeatMap[order.dendrogram(dendo),],ncol=ncol(effectiveDataToHeatMap)))
@@ -469,7 +474,6 @@ if(expressionToCluster){
                  if(CELL_META$sector.index=="a")circos.dendrogram(dendo)} )
     
     circos.clear()
-    
     ##add legend
     lgd_links = Legend(at = seq(ceiling(min(effectiveDataToHeatMap)),floor(max(effectiveDataToHeatMap)),ceiling((floor(max(effectiveDataToHeatMap))-ceiling(min(effectiveDataToHeatMap)))/4)), col_fun = col_fun, 
                       title_position = "topleft", grid_width = unit(5, "mm") ,title = valueMeaning)
@@ -480,16 +484,14 @@ if(expressionToCluster){
                           just = c("left", "bottom")))
     grid.draw(lgd_links)
     upViewport()
-
+    
     
     dev.off()
     
     addComment("Circular heatmap drawn")  
-    
+    Sys.setlocale("LC_NUMERIC","C")
     rm(effectiveDataToHeatMap,effectiveRowClust,effectiveNbClusters)
   }
-  
-  
   
   #plot screeplot 
   if(class(rowClust)!="logical" && nrow(dataToHeatMap)>2){
@@ -504,7 +506,7 @@ if(expressionToCluster){
       #screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>1){   var(dist(rbind(apply(dataToHeatMap[temp,],2,mean),dataToHeatMap[temp,]))[1:length(temp)]) }else{0}}))) )
       if(ncol(dataToHeatMap)>1)screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>1){   sum((dist(rbind(apply(dataToHeatMap[temp,],2,mean),dataToHeatMap[temp,]))[1:length(temp)])^2) }else{0}}))) )
       else screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>1){   sum((dataToHeatMap[temp,]-mean(dataToHeatMap[temp,]))^2) }else{0}}))) )
-       }
+    }
     
     dataToPlot=data.frame(clusterNb=seq(2,length(screePlotData)+1),wcss=screePlotData)
     p <- ggplot(data=dataToPlot, aes(clusterNb,wcss)) + geom_point(colour="#EE4444") + geom_line(colour="#DD9999") +
@@ -552,10 +554,9 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="output"){
   addComment(c("output filtering step:",length(rowToKeep),"remaining rows"),T,opt$log,display=F) 
 }
   
-
 #we add differential analysis info in output if it was directly used for clustering or when it was used for filtering with expression
 addingDiffExpStat=nbComparisons>=1
-  
+
 #formating output matrix depending on genes to keep
 if(length(rowToKeep)==0){
   addComment("No more gene after output filtering step, tabular output will be empty",T,opt$log)
@@ -582,7 +583,6 @@ if(length(rowToKeep)==0){
   }
 }
 addComment("Formated output") 
-  
 write.table(outputData,file=opt$outputFile,quote=FALSE,sep="\t",col.names = F,row.names = F)
   
 ##----------------------
