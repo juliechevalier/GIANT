@@ -7,8 +7,9 @@
     <requirement type="package" version="0.15.2">r-heatmaply</requirement>
     <requirement type="package" version="0.4.4">r-circlize</requirement>
     <requirement type="package" version="1.17.1">bioconductor-complexheatmap</requirement>
+    <requirement type="package" version="2.2.2">pandoc</requirement>
   </requirements>
-  <code file="../../src/General_functions.py"/>
+  <code file='../../src/General_functions.py'/>
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -35,7 +36,7 @@
         cp $dataToCluster.differentialAnalysis ./filteredDifferentialAnalysis;
       #end if
 
-	   Rscript '/data/galaxy-dist/tools/jimmytools/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
+	   Rscript '$__tool_directory__/../../src/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
       #if $advSection.clusterConditions=="true":
      -s 
       #end if
