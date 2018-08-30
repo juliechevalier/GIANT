@@ -14,15 +14,13 @@
     <regex match="Execution halted"
            source="both"
            level="fatal"
-           description="Execution halted." />
+           description="Execution halted, please contact tool developer or administrators." />
     <regex match="Error in"
            source="both"
            level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
-    <regex match="Fatal error"
-           source="both"
-           level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+           description="An error occured during R execution, please contact tool developer." />
+    <exit_code range="10" level="fatal" description="Missing file during html report, see log file for more information." />
+    <exit_code range="1:9" level="fatal" description="Error in R execution, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
 
@@ -70,7 +68,17 @@
         #end if
       #end if
 	   ;
-       bash $scriptTransfer;
+	   ret_code=\$?;
+	   if [ \$ret_code != 0 ]; then
+	   	exit \$ret_code;
+	   else
+	   	bash $scriptTransfer;
+	   	ret_code=\$?;
+	   	if [ \$ret_code != 0 ]; then
+	   		exit \$ret_code;
+	   	fi 
+	   fi;
+	   printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
 <inputs>
@@ -350,6 +358,12 @@ mkdir -p $html_file.extra_files_path
 ##create HTML file for clustering output table
 source $scriptTableToHtml
 
+##check /outputClustering.html is here
+if ! [ -e ${html_file.extra_files_path}/outputClustering.html ]; then
+	printf "[ERROR]outputClustering.html is missing" >> $log; 
+	exit 10
+fi
+
 #write header of html file
 printf  "<!DOCTYPE html>\n<html>\n<body>"  > $html_file
 
@@ -359,12 +373,10 @@ printf "<h3>Clustering tabular</h3>\n" >> $html_file
 printf "<a href=\"outputClustering.html\">Clustering results</a>\n"  >> $html_file
 
 
-
-
 ##manage heatmap file
 
 
-if [ -e ./plotDir/Heatmap.${advSection.imageFormat} ]; then
+if [ -e ./plotLyDir/Heatmap.html ]; then
 
 printf "<h3>Heatmap plot</h3>\n" >> $html_file
 
@@ -390,6 +402,9 @@ cd ../../../
 cp -r ./plotLyDir/Heatmap_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/Heatmap_files ${html_file.extra_files_path}/PlotLy_Heatmap_scripts
 
+else
+	printf "[ERROR]Heatmap.html is missing" >> $log; 
+	exit 10
 fi
 
 
@@ -398,7 +413,7 @@ fi
 ##manage screePlot files
 
 
-if [ -e ./plotDir/screePlot.${advSection.imageFormat} ]; then
+if [ -e ./plotLyDir/screePlot.html ]; then
 
 printf "<h3>Scree plot</h3>\n" >> $html_file
 
@@ -424,6 +439,9 @@ cd ../../../
 cp -r ./plotLyDir/screePlot_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/screePlot_files ${html_file.extra_files_path}/PlotLy_screePlot_scripts
 
+else
+	printf "[ERROR]screeplot.html is missing" >> $log; 
+	exit 10
 fi
 
 
@@ -438,6 +456,10 @@ printf "<h3>Circular plot</h3>\n" >> $html_file
 
 ##add HTML link
 printf "<a href=\"circularPlot.${advSection.imageFormat}\">Circular plot</a>\n"  >> $html_file
+
+else
+	printf "[ERROR]circularPlot file is missing" >> $log; 
+	exit 10
 fi
 
 

@@ -91,6 +91,7 @@ bash $scriptFormat;
     cat $mainCondition.arrayID.fields.versionInfo >> $log;
   #end if
 #end if
+printf "end of script" >> $log; 
 	]]>
   </command>
   <inputs>

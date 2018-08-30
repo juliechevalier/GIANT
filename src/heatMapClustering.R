@@ -14,13 +14,14 @@ script.basename <- dirname(script.name)
 source(file.path(script.basename, "utils.R"))
 source(file.path(script.basename, "getopt.R"))
 
-addComment("Welcome R!")
+#addComment("Welcome R!")
 
 # setup R error handling to go to stderr
 options( show.error.messages=F, error = function () { cat(geterrmessage(), file=stderr() ); q( "no", 1, F ) } )
 
 # we need that to not crash galaxy with an UTF8 error on German LC settings.
-#Sys.setlocale("LC_NUMERIC", "C")
+loc <- Sys.setlocale("LC_MESSAGES", "en_US.UTF-8")
+loc <- Sys.setlocale("LC_NUMERIC", "C")
 
 #get starting time
 start.time <- Sys.time()
@@ -55,45 +56,46 @@ opt <- getopt(spec)
 
 # enforce the following required arguments
 if (is.null(opt$log)) {
-  addComment("'log file' is required")
+  addComment("[ERROR]'log file' is required")
   q( "no", 1, F )
 }
+addComment("[INFO]Start of R script",T,opt$log,display=FALSE)
 if (is.null(opt$format)) {
-  addComment("'output format' is required",T,opt$log)
+  addComment("[ERROR]'output format' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$outputFile)) {
-  addComment("'output file' is required",T,opt$log)
+  addComment("[ERROR]'output file' is required",T,opt$log)
   q( "no", 1, F )
 }
 
 if (is.null(opt$clusterNumber) || opt$clusterNumber<2) {
-  addComment("'valid cluster number' is required",T,opt$log)
+  addComment("[ERROR]'valid cluster number' is required",T,opt$log)
   q( "no", 1, F )
 }
 
 if (is.null(opt$maxRows) || opt$maxRows<2) {
-  addComment("'valid plotted row number' is required",T,opt$log)
+  addComment("[ERROR]'valid plotted row number' is required",T,opt$log)
   q( "no", 1, F )
 }
 
 if (!is.null(opt$comparisonName) && nchar(opt$comparisonName)==0){
-  addComment("'you have to specify comparison",T,opt$log)
+  addComment("[ERROR]'you have to specify comparison",T,opt$log)
   q( "no", 1, F )
 }
 
 if (!is.null(opt$comparisonName) && is.null(opt$diffAnalyseFile)) {
-  addComment("'diff. exp. analysis file' is required",T,opt$log)
+  addComment("[ERROR]'diff. exp. analysis file' is required",T,opt$log)
   q( "no", 1, F )
 }
 
 if ((!is.null(opt$FCthreshold) || !is.null(opt$pvalThreshold)) && is.null(opt$comparisonName)) {
-  addComment("'comparisons' are missing for filtering",T,opt$log)
+  addComment("[ERROR]'comparisons' are missing for filtering",T,opt$log)
   q( "no", 1, F )
 }
 
 if ((!is.null(opt$FCthreshold) || !is.null(opt$pvalThreshold)) && !is.null(opt$geneListFiltering)) {
-  addComment("cannot have two filtering strategies",T,opt$log)
+  addComment("[ERROR]Cannot have two filtering strategies",T,opt$log)
   q( "no", 1, F )
 }
 
@@ -102,10 +104,10 @@ verbose <- if (is.null(opt$quiet)) {
 }else{
   FALSE}
 
-addComment("Parameters checked!")
+addComment("[INFO]Parameters checked!",T,opt$log,display=FALSE)
 
-addComment(getwd(),TRUE,opt$log,display=FALSE)
-addComment(args,TRUE,opt$log,display=FALSE)
+addComment(c("[INFO]Working directory: ",getwd()),TRUE,opt$log,display=FALSE)
+addComment(c("[INFO]Command line: ",args),TRUE,opt$log,display=FALSE)
 
 #directory for plots and HTML
 dir.create(file.path(getwd(), "plotDir"))
@@ -145,12 +147,12 @@ if(expressionToCluster){
   
   #check input files
   if (!is.numeric(expressionMatrix)) {
-    addComment("expression data is not fully numeric!",T,opt$log)
+    addComment("[ERROR]Expression data is not fully numeric!",T,opt$log,display=FALSE)
     q( "no", 1, F )
   }
   
-  addComment("Expression data loaded and checked")
-  addComment(c("dim of expression matrix:",dim(expressionMatrix)),T,opt$log,display=F)
+  addComment("[INFO]Expression data loaded and checked")
+  addComment(c("[INFO]Dim of expression matrix:",dim(expressionMatrix)),T,opt$log,display=FALSE)
 }
 
 
@@ -166,15 +168,15 @@ if(!is.null(opt$factorInfo)){
   
   
   if(expressionToCluster && length(setdiff(colnames(expressionMatrix),rownames(factorInfoMatrix)))!=0){
-    addComment("Missing samples in factor file",T,opt$log)
+    addComment("[ERROR]Missing samples in factor file",T,opt$log,display=FALSE)
     q( "no", 1, F )
   }
   
   #order sample as in expression matrix and remove spurious sample
   if(expressionToCluster)factorInfoMatrix=factorInfoMatrix[colnames(expressionMatrix),]
   
-  addComment("Factors OK")
-  addComment(c("dim of factorInfo matrix:",dim(factorInfoMatrix)),T,opt$log,display=F)
+  addComment("[INFO]Factors OK",T,opt$log,display=FALSE)
+  addComment(c("[INFO]Dim of factorInfo matrix:",dim(factorInfoMatrix)),T,opt$log,display=FALSE)
 }
 
 nbComparisons=0
@@ -195,26 +197,26 @@ if(!is.null(opt$comparisonName)){
   comparisonMatrix=comparisonMatrix[,-c(1,2)]
   
   comparisonMatrix=matrix(as.numeric(as.matrix(comparisonMatrix)),ncol=ncol(comparisonMatrix),dimnames = dimnames(comparisonMatrix))
-   
+  
   if (!is.numeric(comparisonMatrix)) {
-    addComment("diff. exp. data is not fully numeric!",T,opt$log)
+    addComment("[ERROR]Diff. exp. data is not fully numeric!",T,opt$log,display=FALSE)
     q( "no", 1, F )
   }
   
   if(expressionToCluster && length(setdiff(rownames(comparisonMatrix),rownames(expressionMatrix)))!=0){
-    addComment("geneSet from diff. exp. file should be included in expression file",T,opt$log)
+    addComment("[ERROR]GeneSet from diff. exp. file should be included in expression file",T,opt$log,display=FALSE)
     q( "no", 1, F )
   }
   
-  addComment("Diff. exp. analysis loaded and checked")
-  addComment(c("dim of original comparison matrix:",dim(comparisonMatrix)),T,opt$log,display=F)
+  addComment("[INFO]Diff. exp. analysis loaded and checked",T,opt$log,display=FALSE)
+  addComment(c("[INFO]Dim of original comparison matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
   
   #restrict to user specified comparisons
   restrictedComparisons=unlist(strsplit(opt$comparisonName,","))
   colToKeep=which(unlist(lapply(colnames(comparisonMatrix),function(x)any(startsWith(x,restrictedComparisons)))))
   comparisonMatrix=matrix(comparisonMatrix[,colToKeep],ncol=length(colToKeep),dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[colToKeep]))
   
-  addComment(c("dim of effective comparison matrix:",dim(comparisonMatrix)),T,opt$log,display=F)
+  addComment(c("[INFO]Dim of effective comparison matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
 
   #get number of required comparisons
   nbComparisons=ncol(comparisonMatrix)/4 
@@ -228,7 +230,7 @@ if(!is.null(opt$personalColors)){
     personalColors=c(personalColors[1],paste(c("#",as.character(as.hexmode(floor(apply(col2rgb(personalColors),1,mean))))),collapse=""),personalColors[2])
   }
   if(length(personalColors)!=3){
-    addComment("personalized colors doesn't contain enough colors",T,opt$log)
+    addComment("[ERROR]Personalized colors doesn't contain enough colors",T,opt$log,display=FALSE)
     q( "no", 1, F )
   }
     
@@ -254,7 +256,7 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="input"){
     }
     
     if(length(rowToKeep)==0){
-      addComment("No gene survive from input filtering, execution will be aborted.",T,opt$log)
+      addComment("[ERROR]No gene survive from input filtering, execution will be aborted.",T,opt$log)
       q( "no", 1, F )
     }
     
@@ -267,15 +269,15 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="input"){
     if(expressionToCluster)expressionMatrix=matrix(expressionMatrix[rowToKeep,],ncol=ncol(expressionMatrix),dimnames = list(rowToKeep,colnames(expressionMatrix)))
 
     if(!is.null(opt$comparisonName) && expressionToCluster && nrow(comparisonMatrix)!=nrow(expressionMatrix)){
-      addComment("Problem during input filtering, please check code",T,opt$log)
+      addComment("[ERROR]Problem during input filtering, please check code",T,opt$log,display=FALSE)
       q( "no", 1, F )
     }
     
-    addComment("Filtering step done")
-    addComment(c("input filtering step:",length(rowToKeep),"remaining rows"),T,opt$log,display=F)
+    addComment("[INFO]Filtering step done",T,opt$log,display=FALSE)
+    addComment(c("[INFO]Input filtering step:",length(rowToKeep),"remaining rows"),T,opt$log,display=FALSE)
 }
 
-addComment("Ready to plot")
+addComment("[INFO]Ready to plot",T,opt$log,display=FALSE)
 
 ##---------------------
 
@@ -289,10 +291,10 @@ if(expressionToCluster){
     dataToHeatMap=matrix(comparisonMatrix[,seq(4,ncol(comparisonMatrix),4)],ncol=nbComparisons,dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),4)]))
     valueMeaning="Log2(FC)"
   }
-  addComment(c("dim of heatmap matrix:",dim(dataToHeatMap)),T,opt$log,display=F)
+  addComment(c("[INFO]Dim of heatmap matrix:",dim(dataToHeatMap)),T,opt$log,display=FALSE)
   
   if(nrow(dataToHeatMap)==1 && ncol(dataToHeatMap)==1){
-    addComment("cannot make clustering with unique cell tab",T,opt$log)
+    addComment("[ERROR]Cannot make clustering with unique cell tab",T,opt$log,display=FALSE)
     q( "no", 1, F )
   }
   
@@ -369,7 +371,7 @@ if(expressionToCluster){
   if(nbClusters>nrow(dataToHeatMap)){
     #correct number of cluster if needed
     nbClusters=nrow(dataToHeatMap)
-    addComment(c("WARNING not enough rows to reach required cluster number, it is reduced to number of rows:",nbClusters),T,opt$log)
+    addComment(c("[WARNING]Not enough rows to reach required cluster number, it is reduced to number of rows:",nbClusters),T,opt$log,display=FALSE)
   }
   
   colClust=FALSE
@@ -389,7 +391,7 @@ if(expressionToCluster){
     effectiveDataToHeatMap=matrix(dataToHeatMap[heatMapGenesToKeep,],ncol=ncol(dataToHeatMap),dimnames=list(heatMapGenesToKeep,colnames(dataToHeatMap)))
     effectiveRowClust=hclust(dist(effectiveDataToHeatMap))
     effectiveNbClusters=min(nbClusters,maxRowsToDisplay)
-    addComment(c("WARNING too many rows for efficient heatmap drawing",maxRowsToDisplay,"subsampling is done for vizualization only"),T,opt$log)
+    addComment(c("[WARNING]Too many rows for efficient heatmap drawing",maxRowsToDisplay,"subsampling is done for vizualization only"),T,opt$log,display=FALSE)
     rm(heatMapGenesToKeep)
   }else{
     effectiveDataToHeatMap=dataToHeatMap
@@ -397,7 +399,7 @@ if(expressionToCluster){
     effectiveNbClusters=nbClusters
   }
   
-  addComment(c("dim of plotted heatmap matrix:",dim(effectiveDataToHeatMap)),T,opt$log,display=F)
+  addComment(c("[INFO]Dim of plotted heatmap matrix:",dim(effectiveDataToHeatMap)),T,opt$log,display=FALSE)
   
   personalized_hoverinfo=matrix("",ncol = ncol(effectiveDataToHeatMap),nrow = nrow(effectiveDataToHeatMap),dimnames = dimnames(effectiveDataToHeatMap))
   if(expressionToCluster){
@@ -419,7 +421,7 @@ if(expressionToCluster){
   #save plotLy file
   htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/Heatmap.html"),collapse=""),selfcontained = F)
   
-  addComment("Heatmap drawn")  
+  addComment("[INFO]Heatmap drawn",T,opt$log,display=FALSE)  
   
   
   #plot circular heatmap
@@ -488,8 +490,8 @@ if(expressionToCluster){
     
     dev.off()
     
-    addComment("Circular heatmap drawn")  
-    Sys.setlocale("LC_NUMERIC","C")
+    addComment("[INFO]Circular heatmap drawn",T,opt$log,display=FALSE)  
+    loc <- Sys.setlocale("LC_NUMERIC","C")
     rm(effectiveDataToHeatMap,effectiveRowClust,effectiveNbClusters)
   }
   
@@ -527,9 +529,9 @@ if(expressionToCluster){
     #save plotly files 
     htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/screePlot.html"),collapse=""),selfcontained = F)
     
-    addComment("Scree plot drawn")  
+    addComment("[INFO]Scree plot drawn",T,opt$log,display=FALSE)  
   }else{
-    addComment(c("Scree plot will not be plotted considering row number <= 2"),T,opt$log)
+    addComment(c("[WARNING]Scree plot will not be plotted considering row number <= 2"),T,opt$log,display=FALSE)
   }
 
 ##----------------------
@@ -551,7 +553,7 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="output"){
       rowToKeep=intersect(rowToKeep,rownames(expressionMatrix))
     }
   }
-  addComment(c("output filtering step:",length(rowToKeep),"remaining rows"),T,opt$log,display=F) 
+  addComment(c("[INFO]Output filtering step:",length(rowToKeep),"remaining rows"),T,opt$log,display=FALSE) 
 }
   
 #we add differential analysis info in output if it was directly used for clustering or when it was used for filtering with expression
@@ -559,7 +561,7 @@ addingDiffExpStat=nbComparisons>=1
 
 #formating output matrix depending on genes to keep
 if(length(rowToKeep)==0){
-  addComment("No more gene after output filtering step, tabular output will be empty",T,opt$log)
+  addComment("[WARNING]No more gene after output filtering step, tabular output will be empty",T,opt$log,display=FALSE)
   outputData=matrix(0,ncol=nbComparisons*4+3,nrow=3-!addingDiffExpStat)
   if(addingDiffExpStat)outputData[1,]=c("","","Comparison",rep(colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),4)],each=4))
   outputData[2-!addingDiffExpStat,]=c("Gene","Info","Cluster",rep(c("p-val","FDR.p-val","FC","log2(FC)"),nbComparisons))
@@ -582,16 +584,16 @@ if(length(rowToKeep)==0){
     }else{outputData[2:(length(rowToKeep)+1),2]=0}
   }
 }
-addComment("Formated output") 
+addComment("[INFO]Formated output",T,opt$log,display=FALSE) 
 write.table(outputData,file=opt$outputFile,quote=FALSE,sep="\t",col.names = F,row.names = F)
   
 ##----------------------
 
 end.time <- Sys.time()
-addComment(c("Total execution time:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=F)
+addComment(c("[INFO]Total execution time for R script:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=FALSE)
 
 
-addComment("End of R script",T,opt$log)
+addComment("[INFO]End of R script",T,opt$log,display=FALSE)
 
 #sessionInfo()
 

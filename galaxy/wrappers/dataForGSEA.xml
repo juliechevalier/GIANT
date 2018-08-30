@@ -36,6 +36,7 @@ rm ./temp.txt;
 #end if
 
 bash $scriptTransfer;
+printf "end of script" >> $log;
 	]]>
   </command>
   <inputs>

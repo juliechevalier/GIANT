@@ -13,20 +13,17 @@
     <regex match="Execution halted"
            source="both"
            level="fatal"
-           description="Execution halted." />
+           description="Execution halted, please contact tool developer or administrators." />
     <regex match="Error in"
            source="both"
            level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
-    <regex match="Fatal error"
-           source="both"
-           level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+           description="An error occured during R execution, please contact tool developer." />
+    <exit_code range="1:" level="fatal" description="Error in R execution, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
   bash $scriptPrepareTable;
 
-  cp /data/galaxy-dist/tools/jimmytools/LIMMA_options.py ./LIMMA_options.py;
+  cp '$__tool_directory__/../../src/LIMMA_options.py' ./LIMMA_options.py;
   
   #if $blockingSection.blockingConditional.addBlocking == "true":
     python -c 'import LIMMA_options;LIMMA_options.replaceNamesBlockInFiles("$inputSection.inputData","./factorTable.csv","./blockingTable.csv","./expressionRenamed.csv","./factorTableRenamed.csv","./blockingTableRenamed.csv","./dictionnaryRenamed.csv")';
@@ -36,7 +33,7 @@
   printf "Renaming is done\n" >> $log;
 
   if [ -f ./dictionnaryRenamed.csv ]; then
-    Rscript '/data/galaxy-dist/tools/jimmytools/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -f '$plotSection.imageFormat'
+    Rscript '$__tool_directory__/../../src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -f '$plotSection.imageFormat'
       -a 'factorTableRenamed.csv' -s 'sumSquareFtest' -g 'dictionnaryRenamed.csv'
       #if $blockingSection.blockingConditional.addBlocking == "true":
         -b 'blockingTableRenamed.csv'
@@ -64,10 +61,16 @@
         -y '$plotSection.geneInformation.infoInRowType'
       #end if
     ;
-    bash $scriptTransfer;
+    ret_code=\$?;
+    if [ \$ret_code != 0 ]; then
+      exit \$ret_code;
+    else
+      bash $scriptTransfer;
+    fi  
   else
     printf "Factor information file should not contain special characters '*',':',',','|' in factor names and possible values\n" >> $log;
-  fi
+  fi;
+  printf "end of script" >> $log;
 	]]>
   </command>
   <inputs>
@@ -416,7 +419,6 @@ done
 
 ##create footer of HTML file
 printf  "</body>\n</html>" >> $html_file
-printf "end of script" >> $log 
 ]]>
    </configfile>
  </configfiles>
