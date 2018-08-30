@@ -5,9 +5,12 @@
 #
 #
 #
-
-source("/data/galaxy-dist/tools/jimmytools/utils.R")
-source("/data/galaxy-dist/tools/jimmytools/getopt.R")
+initial.options <- commandArgs(trailingOnly = FALSE)
+file.arg.name <- "--file="
+script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
+script.basename <- dirname(script.name)
+source(file.path(script.basename, "utils.R"))
+source(file.path(script.basename, "getopt.R"))
 
 addComment("Welcome R!")
 
