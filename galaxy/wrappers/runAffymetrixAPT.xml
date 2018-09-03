@@ -1,21 +1,18 @@
 <tool name="Run Affymetrix APT tool" id="run_affymetrix_APT" version="0.1">
   <description>Apply normalization to .CEL files</description>
+  <requirements>
+    <requirement type="package" version="2.10.0">apt-probeset-summarize</requirement>
+  </requirements>
   <stdio>
     <regex match="Execution halted"
            source="both"
            level="fatal"
-           description="Execution halted." />
-    <regex match="Error in"
-           source="both"
-           level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
-    <regex match="Fatal error"
-           source="both"
-           level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+           description="Execution halted, please contact tool developer or administrators." />
+    <exit_code range="10" level="fatal" description="Error in post-treatments, see log file for more information." />
+    <exit_code range="1:9" level="fatal" description="Error during apt command execution, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
-    #set $pathToApt='/home/galaxy/Software/ThermoFischer/apt-1.20.6-x86_64-intel-linux/bin'
+  ##set $pathToApt='/home/galaxy/Software/ThermoFischer/apt-1.20.6-x86_64-intel-linux/bin'
 
     mkdir ./apt_output/;
 
@@ -29,11 +26,9 @@
 
 ##run APT command
 
-${pathToApt}/apt-probeset-summarize -a $commandLine 
+##${pathToApt}/apt-probeset-summarize -a $commandLine 
 
-#if $advSection.additionalParameters!="":
-  $advSection.additionalParameters
-#end if
+apt-probeset-summarize -a $commandLine 
 
 #if $mainCondition.arraySelection=="other":
   #if $PGFfile and $CLFfile:
@@ -70,42 +65,51 @@ ${pathToApt}/apt-probeset-summarize -a $commandLine
 #end if
 
 -o ./apt_output/
+;
+ret_code=\$?;
 
-\$(echo '$inputData' | tr "," " ") >> $log 2>&1;
+\$(echo '[INFO]Normalized files: $inputData' | tr "," " ") >> $log 2>&1;
 
+if [ \$ret_code != 0 ]; then
+    exit \$ret_code;
+else
 
-##launch scripts
+  ##launch post-treatment scripts
 
-bash $scriptFormat;
-#if $annotationCondition.addAnnotation=="true":
-  echo "Annotation file used:" >> $log;
-  #if $mainCondition.arraySelection=="other":
-    bash $scriptAnnotation $mainCondition.annotationFile;
-    echo $mainCondition.annotationFile.name >> $log;
-  #else:
-    #if $normLevel=="core":
-     bash $scriptAnnotation $mainCondition.arrayID.fields.pathAnnotTrans;
+  bash $scriptFormat;
+  #if $annotationCondition.addAnnotation=="true":
+    echo "[INFO]Annotation file used:" >> $log;
+    #if $mainCondition.arraySelection=="other":
+      bash $scriptAnnotation $mainCondition.annotationFile;
+      echo $mainCondition.annotationFile.name >> $log;
     #else:
-     bash $scriptAnnotation $mainCondition.arrayID.fields.pathAnnotProbe;
+      #if $normLevel=="core":
+       bash $scriptAnnotation $mainCondition.arrayID.fields.pathAnnotTrans;
+      #else:
+       bash $scriptAnnotation $mainCondition.arrayID.fields.pathAnnotProbe;
+      #end if
+      cat $mainCondition.arrayID.fields.versionInfo >> $log;
     #end if
-    cat $mainCondition.arrayID.fields.versionInfo >> $log;
   #end if
-#end if
-printf "end of script" >> $log; 
+  fi;
+  printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
   <inputs>
-    <param type="text" name="title" value="APT_toPersonalize" label="Title for output (without space)"/>
+    <param type="text" name="title" value="APT_toPersonalize" label="Title for output"/>
 
     <param type="data" name="inputData" format="cel" label=".cel collection file" optional="false" multiple="true">
       <validator type="empty_dataset" message="At least one data file should be selected"></validator>
     </param>
 
-    <param type="text" name="commandLine" value="gc-correction,scale-intensities,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish" label="Analysis to perform (apt-probeset-summarize -a parameter)" help="You can use predefined pipelines as 'rma', 'rma-gc-scale', plier-gcbg'... or specify each analysis step like 'quant-norm.sketch=0.bioc=false,pm-mm,plier'. For more details go to APT webpage">
-      <validator type="empty_field" message="You should specify a command"></validator>
+    <param type="select" name="commandLine" display="radio" label="Normalization to perform" help="For more details go to APT webpage">
+        <option value="rma-gc-scale" selected="true">gc correction + scale intensity + rma</option>
+        <option value="scale-intensities,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish">scale intensity + rma</option>
+        <option value="gc-correction,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish">gc correction + rma</option>
+        <option value="rma">rma</option>
     </param>
 
-    <param type="select" name="normLevel" display="radio" label="Normalization level" help="Option not available for all arrays">
+    <param type="select" name="normLevel" display="radio" label="Normalization level" help="'Core genes' option is not available for all arrays">
       <option value="core">Core genes</option>
       <option value="probeset">Probe set</option>
     </param>
@@ -163,11 +167,6 @@ printf "end of script" >> $log;
     </when>
   </conditional>
 
-  <section name="advSection" title="Advanced parameters" expanded="False">
-    <param name="additionalParameters" type="text" value="" label="Additional parameter to give to apt-probeset-summarize command" >
-    </param>
-  </section>
-
   </inputs>
 
   <outputs>
@@ -185,6 +184,11 @@ printf "end of script" >> $log;
         echo '${inputDataset.name}' >> ./tempColumnName.txt
 #end for
 awk ' BEGIN{firstLine=1;OFS="";ORS=""} ARGIND==1{tab[FNR]=$1;nbCol=FNR} ARGIND==2 && !($1 ~ /\\#/){if(firstLine==0){print "\n"\$0}else{print "Conditions";for(i=1;i<=nbCol;i++){print "\t"tab[i]};firstLine=0}}' ./tempColumnName.txt ./apt_output/*summary.txt  > $outputData
+
+if [ ! -e $outputData ]; then
+  printf "[ERROR]Formating results failed" >> $log; 
+  exit 10
+fi
 ]]>
    </configfile> 
 
@@ -230,7 +234,13 @@ awk ' BEGIN{firstLine=1;OFS="";ORS=""} ARGIND==1{tab[FNR]=$1;nbCol=FNR} ARGIND==
 
 #end if 
 
-mv -f ./tempData $outputData
+if [ -e ./tempData ]; then
+  mv -f ./tempData $outputData
+else
+  printf "[ERROR]Annotation merge failed" >> $log; 
+  exit 10
+fi
+
 #end if 
 
 ]]>
@@ -270,7 +280,7 @@ To normalize expression data from Affymetrix GeneChip arrays through Affymetrix 
 
 **Parameters**
 
-\- **Title** to personalize output file names (please avoid special characters and blanks).
+\- **Title** to personalize output file names (please avoid special characters).
 
 
 \- **.CEL files** you want to normalize (you can select multiple .CEL files or unique collection).

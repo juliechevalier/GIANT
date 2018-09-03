@@ -18,10 +18,16 @@
            source="both"
            level="fatal"
            description="An error occured during R execution, please contact tool developer." />
-    <exit_code range="1:" level="fatal" description="Error in R execution, see log file for more information." />
+    <exit_code range="15" level="fatal" description="Error during formating scripts, see log file for more information." />
+    <exit_code range="10" level="fatal" description="Missing file during html report, see log file for more information." />
+    <exit_code range="1:9" level="fatal" description="Error in R execution, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
   bash $scriptPrepareTable;
+  ret_code=\$?;
+  if [ \$ret_code != 0 ]; then
+     exit \$ret_code;
+  fi 
 
   cp '$__tool_directory__/../../src/LIMMA_options.py' ./LIMMA_options.py;
   
@@ -30,9 +36,10 @@
   #else:
     python -c 'import LIMMA_options;LIMMA_options.replaceNamesInFiles("$inputSection.inputData","./factorTable.csv","./expressionRenamed.csv","./factorTableRenamed.csv","./dictionnaryRenamed.csv")';
   #end if
-  printf "Renaming is done\n" >> $log;
+
 
   if [ -f ./dictionnaryRenamed.csv ]; then
+    printf "[INFO]Renaming is done\n" >> $log;
     Rscript '$__tool_directory__/../../src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -f '$plotSection.imageFormat'
       -a 'factorTableRenamed.csv' -s 'sumSquareFtest' -g 'dictionnaryRenamed.csv'
       #if $blockingSection.blockingConditional.addBlocking == "true":
@@ -61,21 +68,26 @@
         -y '$plotSection.geneInformation.infoInRowType'
       #end if
     ;
-    ret_code=\$?;
-    if [ \$ret_code != 0 ]; then
+     ret_code=\$?;
+     if [ \$ret_code != 0 ]; then
       exit \$ret_code;
-    else
+     else
       bash $scriptTransfer;
-    fi  
+      ret_code=\$?;
+      if [ \$ret_code != 0 ]; then
+        exit \$ret_code;
+      fi 
+     fi;
   else
-    printf "Factor information file should not contain special characters '*',':',',','|' in factor names and possible values\n" >> $log;
+    printf "[ERROR]Error during renaming, factor information file should not contain special characters '*',':',',','|' in factor names and possible values\n" >> $log;
+    exit 15;
   fi;
-  printf "end of script" >> $log;
+  printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
   <inputs>
   <section name="inputSection" title="Input files" expanded="True">
-    <param type="text" name="title" value="LIMMA_toPersonalize" label="Title for output WITHOUT SPACE!"/>
+    <param type="text" name="title" value="LIMMA_toPersonalize" label="Title for output"/>
 
     <param type="data" name="inputData" format="tabular" label="Normalized expression tabular file" optional="false" multiple="false"/>
 
@@ -205,10 +217,22 @@
    	<![CDATA[
     awk -v fact="$contrastSection.factorSelection" 'BEGIN{OFS="";ORS="";FS="\t";split(fact,tab,",");for(i in tab)dico[tab[i]]=1} FNR==1{for(i=2;i<=NF;i++){if(\$i in dico)colToSelect[i]=1}} {print \$1;for(i in colToSelect)print "\t"\$i ; print "\n"}' $inputSection.conditionInformation > ./factorTable.csv;
 
+    if [ ! -e ./factorTable.csv ]; then
+      printf "[ERROR]factorTable.csv is missing" >> $log; 
+      exit 15
+    fi
+
+
 	   #if $blockingSection.blockingConditional.addBlocking == "true":
    	 awk -v fact="$blockingSection.blockingConditional.blockingToInclude" ' BEGIN{OFS="";ORS="";FS="\t";split(fact, facto, ",");for(i in facto)factors[facto[i]]=1} FNR==1{for(i=2;i<=NF;i++)if(\$i in factors)dico[i]=1} {print $1;for(factorID in dico)print "\t"\$factorID; print "\n"}'  $inputSection.conditionInformation > ./blockingTable.csv;
+
+      if [ ! -e ./blockingTable.csv ]; then
+        printf "[ERROR]blockingTable.csv is missing" >> $log; 
+        exit 15
+      fi
+
    	 #end if
-     printf "end of scriptPrepareTable\n" >> $log 
+     printf "[INFO]End of scriptPrepareTable\n" >> $log 
    	]]>
    </configfile>
    <configfile name="scriptTableToHtml">
@@ -279,14 +303,18 @@ mkdir -p $html_file.extra_files_path
 ##create HTML file for limma output table
 source $scriptTableToHtml
 
+##check outputLIMMA.html is here
+if ! [ -e ${html_file.extra_files_path}/outputLIMMA.html ]; then
+  printf "[ERROR]outputLIMMA.html is missing" >> $log; 
+  exit 10
+fi
+
 ##create header of main HTML file
 printf  "<!DOCTYPE html>\n<html>\n<body>"  > $html_file
 
 ##first add reference of the LIMMA output table
 printf "<h3>LIMMA statistics (p.val, FC)</h3>\n" >> $html_file
 printf "<a href=\"outputLIMMA.html\">LIMMA results</a>\n"  >> $html_file
-
-
 
 
 
@@ -334,6 +362,10 @@ fi
 ((counter++))
 done
 
+if [ \$counter = 1 ]; then
+  printf "[ERROR]Histograms are missing" >> $log; 
+  exit 10
+fi
 
 #end if  
 
@@ -363,6 +395,10 @@ cd ../../../
 ##now copy scripts folder
 cp -r ./plotLyDir/sumSquareFtest_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/sumSquareFtest_files ${html_file.extra_files_path}/PlotLy_sumSquareFtest_scripts
+
+else
+  printf "[ERROR]sumSquareFtest plot is missing" >> $log; 
+  exit 10
 fi
 
 
@@ -414,6 +450,12 @@ fi
 
 ((counter++))
 done
+
+if [ \$counter = 1 ]; then
+  printf "[ERROR]Volcano plots are missing" >> $log; 
+  exit 10
+fi
+
 #end if
 
 
@@ -442,7 +484,6 @@ printf  "</body>\n</html>" >> $html_file
   </test>
 </tests> 
   <help>
-<![CDATA[
 To compute differential expressions for a set of genes.
 This tool use the LIMMA function from R package limma.
 
@@ -454,6 +495,8 @@ This tool use the LIMMA function from R package limma.
 
 **Parameters**
 
+\- **Title** to personalize output file names (please avoid special characters).
+
 - **Normalized tabular file** tab delimited matrix with first row containing names of conditions and first column containing the name of genes (expression are supposed to be allready log2 transformed)
 - **Factor information** indicate if factor information of each condition is included in the tabluar file, in this case each factor should be indicated in rows starting from 2nd row, factor values should not be interpreted as a pure numeric value or will be wrongly integrated in dataset as expression values 
 
@@ -464,7 +507,6 @@ This tool use the LIMMA function from R package limma.
 
 - **tabular file** is the result for LIMMA, represented as tab delimited matrix where each colum contain DE statistics between groups for each gene (in rows).
 - **LOG file** for job log. If you see errors, please attached this in the bug report
-]]>
   </help>
 
 </tool>

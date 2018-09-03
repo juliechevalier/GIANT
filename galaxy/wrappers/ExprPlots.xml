@@ -16,15 +16,21 @@
            source="both"
            level="fatal"
            description="An error occured during R execution, please contact tool developer." />
-    <exit_code range="1:" level="fatal" description="Error in R execution, see log file for more information." />
+    <exit_code range="15" level="fatal" description="Error during formating scripts, see log file for more information." />
+    <exit_code range="10" level="fatal" description="Missing file during html report, see log file for more information." />
+    <exit_code range="1:9" level="fatal" description="Error in R execution, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
-       ##set $dataType=$dataFile.extension
+    ##set $dataType=$dataFile.extension
 	   #set $dataType=$dataFile[0].ext
 	   
 	   #if $conditionInformation and $pcaSection.factorsToInclude!="None":
        	bash $scriptPrepareTable;
-       #end if
+        ret_code=\$?;
+        if [ \$ret_code != 0 ]; then
+          exit \$ret_code;
+        fi 
+     #end if
 
 	   #if ($dataType == "cel" and len($dataFile)>1) or ($dataType == "tabular" and len($dataFile)==1):
 	   Rscript '$__tool_directory__/../../src/ExprPlotsScript.R' -i '$dataFile' -l '$log' -f '$advSection.imageFormat' -j '$dataType'
@@ -53,20 +59,25 @@
       	-s 'screePlot'
 	   #end if
 	   ;
-       ret_code=\$?;
-	   if [ \$ret_code != 0 ]; then
-	   	exit \$ret_code;
-	   else
-	   	bash $scriptTransfer;
-	   fi;  
+     ret_code=\$?;
+     if [ \$ret_code != 0 ]; then
+      exit \$ret_code;
+     else
+      bash $scriptTransfer;
+      ret_code=\$?;
+      if [ \$ret_code != 0 ]; then
+        exit \$ret_code;
+      fi
+     fi;
 	   #else:
-		 #raise Exception("Execution halted, not enough (.CEL files) or too many (tabular file) input files")
+		  printf "[ERROR]Execution halted, not enough (.CEL files) or too many (tabular file) input files" >> $log;
+      exit 15;
 	   #end if
-	   printf "end of script" >> $log;
+     printf "[INFO]End of tool script" >> $log; 
 	   ]]>
 	   </command>
   <inputs>
-    <param type="text" name="title" value="PlotFigure_toPersonalize" label="Output title (without space or special characters)">
+    <param type="text" name="title" value="PlotFigure_toPersonalize" label="Title for output">
 	</param>		 
     <param type="data" name="dataFile" format="cel,tabular" label="Select one .CEL collection or one tabular file" optional="false" multiple="true" >
 	</param>
@@ -147,6 +158,12 @@
  <configfile name="scriptPrepareTable">
    	<![CDATA[
    	 awk -v fact="$pcaSection.factorsToInclude" 'BEGIN{FS="\t";OFS="";ORS="";split(fact, factors, ",");for(i in factors)factorsName[factors[i]]=1} NR==1{for(i=2;i<=NF;i++){if(\$i in factorsName)positFactor[i]=1}} {print $1;for(factorID in positFactor)print "\t"\$factorID; print "\n"}'  $conditionInformation > ./factorTable.csv;
+
+    if [ ! -e ./factorTable.csv ]; then
+      printf "[ERROR]factorTable.csv is missing" >> $log; 
+      exit 15
+    fi
+    printf "[INFO]End of scriptPrepareTable\n" >> $log 
    	]]>
    </configfile>
 
@@ -218,6 +235,11 @@ fi
 ((counter++))
 done
 
+if [ \$counter = 1 ]; then
+  printf "[ERROR]Histograms are missing" >> $log; 
+  exit 10
+fi
+
 #end if
 
 
@@ -260,6 +282,12 @@ fi
 
 ((counter++))
 done
+
+if [ \$counter = 1 ]; then
+  printf "[ERROR]Boxplots are missing" >> $log; 
+  exit 10
+fi
+
 #end if
 
 
@@ -310,14 +338,13 @@ fi
 
 ((counter++))
 done
+
+if [ \$counter = 1 ]; then
+  printf "[ERROR]MAplots are missing" >> $log; 
+  exit 10
+fi
+
 #end if  
-
-
-
-
-
-
-
 
 
 
@@ -340,8 +367,6 @@ printf "<p class=\"Microarray\"><a href=\"Microarray_\$conditionName.${advSectio
 done
 
 #end if
-
-
 
 
 
@@ -394,11 +419,22 @@ fi
 ((counter++))
 done
 
+if [ \$counter = 1 ]; then
+  printf "[ERROR]PCA plots are missing" >> $log; 
+  exit 10
+fi
+
 ##now for screePlot
-##copy HTML files in both folders
-cp ./plotLyDir/screePlot.html ${html_file.extra_files_path}/screePlot.html
-##add HTML link
-printf "<p><a href=\"screePlot.html\">Scree plot</a>\n</p>"  >> $html_file
+if [ -e ./plotLyDir/screePlot.html ]; then
+  ##copy HTML files in both folders
+  cp ./plotLyDir/screePlot.html ${html_file.extra_files_path}/screePlot.html
+  ##add HTML link
+  printf "<p><a href=\"screePlot.html\">Scree plot</a>\n</p>"  >> $html_file
+else
+  printf "[ERROR]screePlot.html is missing" >> $log; 
+  exit 10
+fi
+
 ##copy scripts folder
 
 #if $advSection.imagePlotlyFormat=="svg":
@@ -448,10 +484,9 @@ This tool generate descriptive plots for Affymetrix raw data (.CEL file) or any 
 
 -----
 
-**Input parameters**
+**Parameters**
 
-*Output title*
-: to personalize output file names. To avoid file generation failures, do not put any space or special character incompatible with filename system
+\- **Title** to personalize output file names (please avoid special characters).
 
 *Input data*
 : allowed input data are

@@ -82,7 +82,7 @@
 	]]>
   </command>
 <inputs>
-  <param type="text" name="title" value="Heatmap_toPersonalize" label="Title for output (without space)"/>
+  <param type="text" name="title" value="Heatmap_toPersonalize" label="Title for output"/>
 
   <conditional name="dataToCluster">
     <param name="dataToCluster_selector" type="select" label="Data to cluster">
@@ -358,7 +358,7 @@ mkdir -p $html_file.extra_files_path
 ##create HTML file for clustering output table
 source $scriptTableToHtml
 
-##check /outputClustering.html is here
+##check outputClustering.html is here
 if ! [ -e ${html_file.extra_files_path}/outputClustering.html ]; then
 	printf "[ERROR]outputClustering.html is missing" >> $log; 
 	exit 10
@@ -502,7 +502,7 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 **Parameters**
 
-\- **Title** to personalize output file names (please avoid special characters and blanks).
+\- **Title** to personalize output file names (please avoid special characters).
 
 \- **Data to cluster** 
 

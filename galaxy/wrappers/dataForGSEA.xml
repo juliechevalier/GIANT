@@ -6,37 +6,44 @@
            source="both"
            level="fatal"
            description="Execution halted." />
-    <regex match="Error in"
-           source="both"
-           level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
-    <regex match="Fatal error"
-           source="both"
-           level="fatal"
-           description="An undefined error occurred, please check your input carefully and contact your administrator." />
+    <exit_code range="10" level="fatal" description="Error during file generation, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
 #if $mainCondition.selection=="classicGSEA":
 
-awk 'BEGIN{FS="\t";OFS="";ORS="";nlines=0} ARGIND==1 && FNR>1{nlines++} ARGIND==2 && FNR==1{print "\#1.2\n"nlines"\t"NF-1"\n";print "NAME\tDESCRIPTION"; for(i=2;i<=NF;i++)print"\t"\$i;print "\n"} ARGIND==2 && FNR>1{print \$1"\tna";for(i=2;i<=NF;i++)print "\t"\$i;print "\n"}' $mainCondition.expressionData $mainCondition.expressionData > $outExpression;
+  awk 'BEGIN{FS="\t";OFS="";ORS="";nlines=0} ARGIND==1 && FNR>1{nlines++} ARGIND==2 && FNR==1{print "\#1.2\n"nlines"\t"NF-1"\n";print "NAME\tDESCRIPTION"; for(i=2;i<=NF;i++)print"\t"\$i;print "\n"} ARGIND==2 && FNR>1{print \$1"\tna";for(i=2;i<=NF;i++)print "\t"\$i;print "\n"}' $mainCondition.expressionData $mainCondition.expressionData > $outExpression;
 
-awk -v factor="$mainCondition.factorToInclude" 'BEGIN{FS="\t";OFS="";ORS="";nameCond="";line="";cpt=0;lgt=0} ARGIND==1 && FNR==1{for(iCond=2;iCond<=NF;iCond++){conditionOrder[iCond-1]=\$iCond};cpt=NF-1} ARGIND==2 && FNR==1{for(i=1;i<=NF;i++)if(\$i==factor)factorInd=i} ARGIND==2 && FNR>1{valueFact[\$1]=\$factorInd} END{for(i=1;i<=cpt;i++){ line=line""valueFact[conditionOrder[i]]" "; if(dico[valueFact[conditionOrder[i]]]!=1){lgt++; nameCond=nameCond""valueFact[conditionOrder[i]]" ";dico[valueFact[conditionOrder[i]]]=1}};print cpt" "lgt" 1\n";print "\# "nameCond"\n";print line}' $mainCondition.expressionData $mainCondition.conditionInformation > $outPhenotypes;
+  if [ ! -e $outExpression ]; then
+    printf "[ERROR]Expression file failed" >> $log; 
+    exit 10
+  fi
+
+  awk -v factor="$mainCondition.factorToInclude" 'BEGIN{FS="\t";OFS="";ORS="";nameCond="";line="";cpt=0;lgt=0} ARGIND==1 && FNR==1{for(iCond=2;iCond<=NF;iCond++){conditionOrder[iCond-1]=\$iCond};cpt=NF-1} ARGIND==2 && FNR==1{for(i=1;i<=NF;i++)if(\$i==factor)factorInd=i} ARGIND==2 && FNR>1{valueFact[\$1]=\$factorInd} END{for(i=1;i<=cpt;i++){ line=line""valueFact[conditionOrder[i]]" "; if(dico[valueFact[conditionOrder[i]]]!=1){lgt++; nameCond=nameCond""valueFact[conditionOrder[i]]" ";dico[valueFact[conditionOrder[i]]]=1}};print cpt" "lgt" 1\n";print "\# "nameCond"\n";print line}' $mainCondition.expressionData $mainCondition.conditionInformation > $outPhenotypes;
+
+  if [ ! -e $outPhenotypes ]; then
+    printf "[ERROR]Phenotype file failed" >> $log; 
+    exit 10
+  fi
 
 #else:
 
-awk -v comparison="$mainCondition.comparisonsToUse" -v rkIndice="$mainCondition.rankingIndice" -v pvalTh="$mainCondition.pvalThreshold" 'BEGIN{FS="\t"} NR==1{if(rkIndice=="pval"){start=4}else{start=6};for(i=start;i<=NF;i=i+4){if(\$i==comparison)refCol=i};} NR>2{if(rkIndice=="pval"){if(\$refCol<pvalTh){val=\$refCol;print \$1"\t"val}}else{if(\$(refCol-2)<pvalTh){if(\$refCol>0){val=\$refCol}else{val=-\$refCol};print \$1"\t"val}}}' $mainCondition.differentialAnalysis > ./temp.txt;
-printf "#NAME\tSCORE\n" > $outRankedGenes;
-#if $mainCondition.rankingIndice=="pval":
-LC_ALL=C sort -t$'\t' -k2,2 -g ./temp.txt >> $outRankedGenes;
-#else:
-LC_ALL=C sort -t$'\t' -k2,2 -gr ./temp.txt >> $outRankedGenes;
-#end if
-rm ./temp.txt;
+  awk -v comparison="$mainCondition.comparisonsToUse" -v rkIndice="$mainCondition.rankingIndice" -v pvalTh="$mainCondition.pvalThreshold" 'BEGIN{FS="\t"} NR==1{if(rkIndice=="pval"){start=4}else{start=6};for(i=start;i<=NF;i=i+4){if(\$i==comparison)refCol=i};} NR>2{if(rkIndice=="pval"){if(\$refCol<pvalTh){val=\$refCol;print \$1"\t"val}}else{if(\$(refCol-2)<pvalTh){if(\$refCol>0){val=\$refCol}else{val=-\$refCol};print \$1"\t"val}}}' $mainCondition.differentialAnalysis > ./temp.txt;
+  printf "#NAME\tSCORE\n" > $outRankedGenes;
+  #if $mainCondition.rankingIndice=="pval":
+  LC_ALL=C sort -t$'\t' -k2,2 -g ./temp.txt >> $outRankedGenes;
+  #else:
+  LC_ALL=C sort -t$'\t' -k2,2 -gr ./temp.txt >> $outRankedGenes;
+  #end if
+  rm ./temp.txt;
+
+  if [ ! -e $outRankedGenes ]; then
+    printf "[ERROR]Rank file failed" >> $log; 
+    exit 10
+  fi
 
 #end if
 
-bash $scriptTransfer;
-printf "end of script" >> $log;
+  printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
   <inputs>
@@ -121,7 +128,7 @@ Generate input files required for GSEA analysis.
 
 **Parameters**
 
-\- **Title** to personalize output file names (please avoid special characters and blanks).
+\- **Title** to personalize output file names (please avoid special characters).
 
 \- **GSEA configuration** : "GSEA analysis" requires expression dataset and phenotype label for each sample whereas "Pre-ranked GSEA Analysis" needs ranked list of samples extracted from differential analysis results.
 
