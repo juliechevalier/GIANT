@@ -476,54 +476,67 @@ printf  "</body>\n</html>" >> $html_file
   </test>
 </tests> 
   <help>
+<![CDATA[
+**What it does ?**
+
 This tool generate descriptive plots for Affymetrix raw data (.CEL file) or any tabular file containing expression data.
-
-.. class:: warningmark
-
-**In test**
 
 -----
 
 **Parameters**
 
-\- **Title** to personalize output file names (please avoid special characters).
+\- **Title** to personalize output file names (please avoid special characters and spaces).
 
-*Input data*
-: allowed input data are
+\- **Input Data** 
 
-- **.CEL collection** (at least 2 .CEL files in the collection), raw intensities will be Log2 transformed to improve plots readibility
+- **.CEL files** of your study (you can select multiple .CEL files or unique collection).
 
 OR
 
-- **expression tabular file** tabular delimited matrix with first row containing condition names and first column containing genes/probes names. No Log transformation will be applied for tabular files
+- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
 
-*Plots selection*
+    ::
+
+        Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
+        DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+        MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+        OR4F5       3.737956                3.011586                 3.424494                   3.497545
+        VWA1        5.189621                5.129595                 4.806793                   5.227014
+
+\- **Plots selection**
 : to select required plots
 
 - **Plot histograms**
 - **Plot MA plots**
 - **Plot boxplots**
-- **Display microarrays image**
+- **Display microarrays image** (only if Input Data are .CEL files)
 
-*PCA analysis*
+\- **PCA analysis**
 
-- **Plot 3D PCA**
-- **Factor information**
-- **Select factor informations**
+- **Plot 3D PCA** plot the 3 first principal components
+- **Factor information tabular file** with factors as columns and samples as rows (header row contains factor names and first column sample names). Can help to discriminate samples in PCA plot.
 
-*Advanced parameters*
+    ::
+
+        Conditions                Sex   Treatment Reaction
+        138_(HuGene-2_0-st).CEL   1     TreatA    Pos
+        148_(HuGene-2_0-st).CEL   0     NoTreat   Pos
+        139_(HuGene-2_0-st).CEL   0     TreatB    Neg
+        149_(HuGene-2_0-st).CEL   0     NoTreat   Neg
+
+- **Select factor informations** you want to display in PCA plot (1 for samples colors and 1 for samples shapes)
+
+\- **Advanced parameters**
 
 - **Output image format**
-- **Html snapshot format**
+- **Html snapshot format** : format of plot images taken from interactive view
 
 -----
 
-**Outputs**
+\- **Outputs**
 
 - **HTML file** to access interactive version of plots through PlotLy html pages
 - **LOG file** for job logs. In case of job failure, please attached this file to bug report
-
-
-  </help>
+]]>  </help>
 
 </tool>
