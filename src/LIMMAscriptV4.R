@@ -3,8 +3,6 @@
 # one of these arguments is required:
 #
 #
-#
-#
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="
 script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
@@ -12,13 +10,14 @@ script.basename <- dirname(script.name)
 source(file.path(script.basename, "utils.R"))
 source(file.path(script.basename, "getopt.R"))
 
-addComment("Welcome R!")
+#addComment("Welcome R!")
 
 # setup R error handling to go to stderr
-options( show.error.messages=F, error = function () { cat( geterrmessage(), file=stderr() ); q( "no", 1, F ) } )
+options( show.error.messages=F, error = function () { cat(geterrmessage(), file=stderr() ); q( "no", 1, F ) } )
 
 # we need that to not crash galaxy with an UTF8 error on German LC settings.
 loc <- Sys.setlocale("LC_MESSAGES", "en_US.UTF-8")
+loc <- Sys.setlocale("LC_NUMERIC", "C")
 
 #get starting time
 start.time <- Sys.time()
@@ -55,51 +54,52 @@ opt <- getopt(spec)
 
 # enforce the following required arguments
 if (is.null(opt$log)) {
-  addComment("'log file' is required\n")
+  addComment("[ERROR]'log file' is required\n")
   q( "no", 1, F )
 }
+addComment("[INFO]Start of R script",T,opt$log,display=FALSE)
 if (is.null(opt$dataFile)) {
-  addComment("'dataFile' is required",T,opt$log)
+  addComment("[ERROR]'dataFile' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (!is.null(opt$blockingInfo) && is.null(opt$blockingPolicy) ) {
-  addComment("blocking policy is missing",T,opt$log)
+  addComment("[ERROR]blocking policy is missing",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$dicoRenaming)) {
-  addComment("renaming dictionnary is missing",T,opt$log)
+  addComment("[ERROR]renaming dictionnary is missing",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$factorsContrast) && is.null(opt$firstGroupContrast) && is.null(opt$secondGroupContrast)) {
-  addComment("factor and contrast informations are missing",T,opt$log)
+  addComment("[ERROR]factor and contrast informations are missing",T,opt$log)
   q( "no", 1, F )
 }
 if (length(opt$firstGroupContrast)!=length(opt$secondGroupContrast)) {
-  addComment("some contrast groups seems to be empty",T,opt$log)
+  addComment("[ERROR]some contrast groups seems to be empty",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$factorInfo)) {
-  addComment("factors info is missing",T,opt$log)
+  addComment("[ERROR]factors info is missing",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$format)) {
-  addComment("'output format' is required",T,opt$log)
+  addComment("[ERROR]'output format' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$thresholdPval)) {
-  addComment("'p-val threshold' is required",T,opt$log)
+  addComment("[ERROR]'p-val threshold' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$outputFile)) {
-  addComment("'output file' is required",T,opt$log)
+  addComment("[ERROR]'output file' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (!is.null(opt$volcano) && is.null(opt$thresholdFC)){
-  addComment("'FC threshold' is required for volcanos",T,opt$log)
+  addComment("[ERROR]'FC threshold' is required for volcanos",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$fratioFile)) {
-  addComment("F-ratio parameter is missing",T,opt$log)
+  addComment("[ERROR]F-ratio parameter is missing",T,opt$log)
   q( "no", 1, F )
 }
 
@@ -114,10 +114,10 @@ verbose <- if (is.null(opt$quiet)) {
 #pour savoir si on remplace les FC calculés par LIMMA par un calcul du LS-MEAN (ie moyenne de moyennes de chaque groupe dans chaque terme du contraste plutôt qu'une moyenne globale dans chaque terme)
 useLSmean=FALSE
 
-if(verbose)addComment("parameters checked")
+addComment("[INFO]Parameters checked!",T,opt$log,display=FALSE)
 
-addComment(getwd(),TRUE,opt$log,display=FALSE)
-addComment(args,TRUE,opt$log,display=FALSE)
+addComment(c("[INFO]Working directory: ",getwd()),TRUE,opt$log,display=FALSE)
+addComment(c("[INFO]Command line: ",args),TRUE,opt$log,display=FALSE)
 
 #directory for plots
 dir.create(file.path(getwd(), "plotDir"))
@@ -157,16 +157,17 @@ dimnames(expDataMatrix)=list(rowNamesData,colNamesData)
 #test the number of rows that are constant in dataMatrix
 nbConstantRows=length(which(unlist(apply(expDataMatrix,1,var))==0))
 if(nbConstantRows>0){
-  addComment(c("Warning!",nbConstantRows,"rows are constant across conditions in input data file"),T,opt$log)
+  addComment(c("[WARNING]",nbConstantRows,"rows are constant across conditions in input data file"),T,opt$log,display=FALSE)
 }
 
 #test if all condition names are present in dico
 if(!all(colnames(expDataMatrix) %in% rownames(renamingDico))){
-  addComment("missing condition names in renaming dictionary",T,opt$log)
+  addComment("[ERROR]Missing condition names in renaming dictionary",T,opt$log)
   q( "no", 1, F )
 }
 
-if(verbose)addComment("Input data loaded")
+addComment("[INFO]Expression data loaded and checked",T,opt$log,display=FALSE)
+addComment(c("[INFO]Dim of expression matrix:",dim(expDataMatrix)),T,opt$log,display=FALSE)
 
 #chargement du fichier des facteurs
 factorInfoMatrix=read.csv(file=file.path(getwd(), opt$factorInfo),header=F,sep="\t",colClasses="character")
@@ -177,7 +178,7 @@ factorInfoMatrix=factorInfoMatrix[-1,]
 rownames(factorInfoMatrix)=factorInfoMatrix[,1]
 
 if(length(setdiff(colnames(expDataMatrix),rownames(factorInfoMatrix)))!=0){
-  addComment("Missing samples in factor file",T,opt$log)
+  addComment("[ERROR]Missing samples in factor file",T,opt$log)
   q( "no", 1, F )
 }
 
@@ -186,11 +187,12 @@ factorInfoMatrix=factorInfoMatrix[colnames(expDataMatrix),]
 
 #test if all values names are present in dico
 if(!all(unlist(factorInfoMatrix) %in% rownames(renamingDico))){
-  addComment("missing factor names in renaming dictionary",T,opt$log)
+  addComment("[ERROR]Missing factor names in renaming dictionary",T,opt$log)
   q( "no", 1, F )
 }
 
-if(verbose)addComment("Factors OK")
+addComment("[INFO]Factors OK",T,opt$log,display=FALSE)
+addComment(c("[INFO]Dim of factorInfo matrix:",dim(factorInfoMatrix)),T,opt$log,display=FALSE)
   
 ##manage blocking factor
 blockingFactor=NULL
@@ -207,7 +209,7 @@ if(!is.null(opt$blockingInfo)){
   
   
   if(length(setdiff(colnames(expDataMatrix),rownames(blockingInfoMatrix)))!=0){
-    addComment("Missing samples in blocking factor file",T,opt$log)
+    addComment("[ERROR]Missing samples in blocking factor file",T,opt$log)
     q( "no", 1, F )
   }
   
@@ -216,14 +218,14 @@ if(!is.null(opt$blockingInfo)){
   
   #test if all blocking names are present in dico
   if(!all(unlist(blockingInfoMatrix) %in% rownames(renamingDico))){
-    addComment("missing blocking names in renaming dictionary",T,opt$log)
+    addComment("[ERROR]Missing blocking names in renaming dictionary",T,opt$log)
     q( "no", 1, F )
   }
   
   #remove blocking factors allready present as real factors
   blockingNotInMainFactors=setdiff(colnames(blockingInfoMatrix)[-1],colnames(factorInfoMatrix)[-1])
   
-  if(length(blockingNotInMainFactors)<(ncol(blockingInfoMatrix)-1))addComment("Blocking factors cannot be principal factors",T,opt$log)
+  if(length(blockingNotInMainFactors)<(ncol(blockingInfoMatrix)-1))addComment("[WARNING]Blocking factors cannot be principal factors",T,opt$log,display=FALSE)
   
   if(length(blockingNotInMainFactors)>0){
     
@@ -243,15 +245,14 @@ if(!is.null(opt$blockingInfo)){
     if(opt$blockingPolicy=="correlated"){
       blockingFactor=factor(groupBlocking)
       if(length(levels(blockingFactor))==1){
-        addComment("selected blocking factors seems to be constant",T,opt$log)
+        addComment("[ERROR]Selected blocking factors seems to be constant",T,opt$log)
         q( "no", 1, F )
       }
     }
+    addComment("[INFO]Blocking info OK",T,opt$log,display=FALSE)
   }else{
-    addComment("No blocking factors will be considered",T,opt$log)
+    addComment("[WARNING]No blocking factors will be considered",T,opt$log,display=FALSE)
   }
-  
-  if(verbose)addComment("Blocking info OK")
 }
 
 
@@ -270,7 +271,7 @@ if(!is.null(opt$controlGroups)){
   }
   opt$controlGroups=renamedGroups
 }
-if(verbose)addComment("renaming contrast variables OK")
+addComment("[INFO]Contrast variables are renamed to avoid confusion",T,opt$log,display=FALSE)
 ##renaming done
 
 #to convert factor as numeric value --> useless now ?
@@ -280,19 +281,19 @@ if(verbose)addComment("renaming contrast variables OK")
 factorsList=list()
 for(iFactor in opt$factorsContrast){
   if(!(iFactor %in% colnames(factorInfoMatrix))){
-    addComment("required factors are missing in input file",T,opt$log)
+    addComment("[ERROR]Required factors are missing in input file",T,opt$log)
     q( "no", 1, F )
   }
   factorsList[[iFactor]]=factor(unlist(lapply(factorInfoMatrix[,iFactor],function(x)paste(c(iFactor,"_",x),collapse=""))))
   if(length(levels(factorsList[[iFactor]]))==1){
-    addComment("one selected factor seems to be constant",T,opt$log)
+    addComment("[ERROR]One selected factor seems to be constant",T,opt$log)
     q( "no", 1, F )
   }
 }
 
 #check if there is at least 2 factors to allow interaction computation
 if(!is.null(opt$controlGroups) && length(factorsList)<2){
-  addComment("You cannot ask for interaction with less than 2 factors",T,opt$log)
+  addComment("[ERROR]You cannot ask for interaction with less than 2 factors",T,opt$log)
   q( "no", 1, F )
 }
 
@@ -305,7 +306,7 @@ factorsMerged=factor(factorsMerged)
 
 #checked that coefficient number (ie. factorsMerged levels) is strictly smaller than sample size
 if(length(levels(factorsMerged))>=length(factorsMerged)){
-  addComment(c("No enough samples (",length(factorsMerged),") to estimate ",length(levels(factorsMerged))," coefficients"),T,opt$log)
+  addComment(c("[ERROR]No enough samples (",length(factorsMerged),") to estimate ",length(levels(factorsMerged))," coefficients"),T,opt$log)
   q( "no", 1, F )
 }
 
@@ -334,11 +335,11 @@ if(!is.null(blockinFactorsList)){
   colnames(design) = coeffMeaning
 }
   
-addComment(c("Available coefficients : ",coeffMeaning),T,opt$log,display=F)
+addComment(c("[INFO]Available coefficients: ",coeffMeaning),T,opt$log,display=F)
 
 estimableCoeff=which(colSums(design)!=0)
   
-if(verbose)addComment("Design OK")
+addComment("[INFO]Design done",T,opt$log,display=F)
   
   #use blocking factor if exists
 if(!is.null(blockingFactor)){
@@ -353,11 +354,11 @@ if(!is.null(blockingFactor)){
   
 estimatedCoeff=which(!is.na(data.fit$coefficients[1,]))
   
-if(verbose)addComment("lmfit OK")
+addComment("[INFO]Lmfit done",T,opt$log,display=F)
 
 #catch situation where some coefficients cannot be estimated, probably due to dependances between design columns 
 if(length(setdiff(estimableCoeff,estimatedCoeff))>0){
-  addComment("Error in design matrix, check your group definitions",T,opt$log)
+  addComment("[ERROR]Error in design matrix, check your group definitions",T,opt$log)
   q( "no", 1, F )
 }
   
@@ -371,7 +372,7 @@ persoContrastName=c()
     #clear posGroup and negGroup from empty groups
     emptyPosGroups=which(!(posGroup%in%coeffMeaning))
     if(length(emptyPosGroups)>0){
-      addComment(c("The group(s)",posGroup[emptyPosGroups],"is/are removed from contrast as it/they is/are empty"),T,opt$log)
+      addComment(c("[WARNING]The group(s)",posGroup[emptyPosGroups],"is/are removed from contrast as it/they is/are empty"),T,opt$log,display=FALSE)
       posGroup=posGroup[-emptyPosGroups]
       currentHumanContrast=paste(unlist(strsplit(opt$firstGroupContrast[iContrast],","))[-emptyPosGroups],collapse="+") 
     }else{
@@ -379,17 +380,17 @@ persoContrastName=c()
     }
     emptyNegGroups=which(!(negGroup%in%coeffMeaning))
     if(length(emptyNegGroups)>0){
-      addComment(c("The group(s)",negGroup[emptyNegGroups],"is/are removed from contrast as it/they is/are empty"),T,opt$log)
+      addComment(c("[WARNING]The group(s)",negGroup[emptyNegGroups],"is/are removed from contrast as it/they is/are empty"),T,opt$log,display=FALSE)
       negGroup=negGroup[-emptyNegGroups]
       currentHumanContrast=paste(c(currentHumanContrast,unlist(strsplit(opt$secondGroupContrast[iContrast],","))[-emptyNegGroups]),collapse="-")
     }else{
       currentHumanContrast=paste(c(currentHumanContrast,unlist(strsplit(opt$secondGroupContrast[iContrast],","))),collapse="-")
     }
     if(length(posGroup)==0 || length(negGroup)==0 ){
-      addComment(c("Contrast",posGroup,"-",negGroup,"cannot be estimated due to empty group"),T,opt$log)
+      addComment(c("[WARNING]Contrast",posGroup,"-",negGroup,"cannot be estimated due to empty group"),T,opt$log,display=FALSE)
     }else{
       if(all(posGroup%in%negGroup) && all(negGroup%in%posGroup)){
-        addComment(c("Contrast",posGroup,"-",negGroup,"cannot be estimated due to null contrast"),T,opt$log)
+        addComment(c("[WARNING]Contrast",posGroup,"-",negGroup,"cannot be estimated due to null contrast"),T,opt$log,display=FALSE)
       }else{
         #get coefficients required for first group added as positive
         positiveCoeffWeights=sampleSizeFactor[posGroup]/sum(sampleSizeFactor[posGroup])
@@ -412,7 +413,7 @@ persoContrastName=c()
           persoContrastName=c(persoContrastName,"")
         }
         
-        addComment(c("Contrast added : ",currentHumanContrast),T,opt$log,display=F)
+        addComment(c("[INFO]Contrast added : ",currentHumanContrast),T,opt$log,display=F)
         addComment(c("with complete formula ",currentContrast),T,opt$log,display=F)
       }
     }
@@ -454,11 +455,11 @@ persoContrastName=c()
       splitGroup[2]=paste(splitGroup[1],splitGroup[2],sep = "_")
       #check if defined control group is really a level of the corresponding factor
       if(!splitGroup[1]%in%names(controlGroup) || !splitGroup[2]%in%factorsList[[splitGroup[1]]]){
-        addComment(c("the factor name",splitGroup[1],"does not exist or group name",splitGroup[2]),T,opt$log)
+        addComment(c("[ERROR]The factor name",splitGroup[1],"does not exist or group name",splitGroup[2]),T,opt$log)
         q( "no", 1, F )
       }
       if(!is.na(controlGroup[splitGroup[1]])){
-        addComment("Several control groups are defined for the same factor",T,opt$log)
+        addComment("[ERROR]Several control groups are defined for the same factor",T,opt$log)
         q( "no", 1, F )
       }
       controlGroup[splitGroup[1]]=splitGroup[2]
@@ -466,7 +467,7 @@ persoContrastName=c()
     
     #check if all factor have a defined control group
     if(any(is.na(controlGroup))){
-      addComment("Missing control group for some factors",T,opt$log)
+      addComment("[ERROR]Missing control group for some factors",T,opt$log)
       q( "no", 1, F )
     }
     
@@ -546,11 +547,11 @@ persoContrastName=c()
       }
       interactionContrasts[iContrast]=paste(splitContrast,collapse="")
       if(all(splitContrast[seq(1,length(splitContrast),2)]%in%coeffMeaning)){
-        addComment(c("Interaction contrast added : ",humanReadingInteraction[iContrast]),T,opt$log,display=F)
+        addComment(c("[INFO]Interaction contrast added : ",humanReadingInteraction[iContrast]),T,opt$log,display=F)
         addComment(c("with complete formula ",interactionContrasts[iContrast]),T,opt$log,display=F)
       }else{
         contrastToIgnore=c(contrastToIgnore,iContrast)
-        addComment(c("Interaction contrast",humanReadingInteraction[iContrast],"is removed due to empty group"),T,opt$log,display=F)
+        addComment(c("[WARNING]Interaction contrast",humanReadingInteraction[iContrast],"is removed due to empty group"),T,opt$log,display=F)
       }
     }
     
@@ -569,7 +570,7 @@ persoContrastName=c()
   #remove from requiredContrasts contrasts that cannot be estimated
   toRemove=unique(unlist(lapply(setdiff(coeffMeaning,names(estimatedCoeff)),function(x)grep(x,requiredContrasts))))
   if(length(toRemove)>0){
-    addComment(c(length(toRemove),"contrasts are removed, due to missing coefficients"),T,opt$log,T,F)
+    addComment(c("[WARNING]",length(toRemove)," contrasts are removed, due to missing coefficients"),T,opt$log,display=FALSE)
     requiredContrasts=requiredContrasts[-toRemove]
     humanReadingContrasts=humanReadingContrasts[-toRemove]
     persoContrastName=persoContrastName[-toRemove]
@@ -609,12 +610,12 @@ persoContrastName=c()
   contrast.matrix = makeContrasts(contrasts=requiredContrasts,levels=design)
   data.fit.con = contrasts.fit(data.fit,contrast.matrix)
   
-  if(verbose)addComment("Contrast OK")
+  addComment("[INFO]Contrast definition done",T,opt$log,T,display=FALSE)
   
   #compute LIMMA statistics
   data.fit.eb = eBayes(data.fit.con)
   
-  if(verbose)addComment("Estimation OK")
+  addComment("[INFO]Estimation done",T,opt$log,T,display=FALSE)
   
   #adjust p.value through FDR
   data.fit.eb$adj_p.value=data.fit.eb$p.value
@@ -625,7 +626,7 @@ persoContrastName=c()
   #add a new field based on LS-means for each contrast instead of global mean like they were calculated in coefficients field
   data.fit.eb$coefficientsLS=data.fit.eb$coefficients
   if(ncol(data.fit.eb$coefficients)!=length(meanPosGroup)){
-    addComment("Estimated contrasts number unexpected",T,opt$log)
+    addComment("[ERROR]Estimated contrasts number unexpected",T,opt$log)
     q( "no", 1, F )
   }
   for(iContrast in 1:length(meanPosGroup)){
@@ -635,7 +636,7 @@ persoContrastName=c()
   #if requested replace coefficient computed as global mean by LS-means values
   if(useLSmean)data.fit.eb$coefficients=data.fit.eb$coefficientsLS
 
-if(verbose)addComment("Core treatment OK")
+addComment("[INFO]Core treatment done",T,opt$log,T,display=FALSE)
   
   
 ##convert humanReadingContrasts with namingDictionary to create humanReadingContrastsRenamed and keep original humanReadingContrasts names for file names 
@@ -693,7 +694,8 @@ if (!is.null(opt$histo)) {
       }
     }
   }
-  if(verbose)addComment("Histograms drawn")
+  addComment("[INFO]Histograms drawn",T,opt$log,T,display=FALSE)
+  
 }
 
 #plot F-test sum square barplot
@@ -714,7 +716,7 @@ if(!is.null(allFtestMeanSquare)){
   pp <- ggplotly(p)
   htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/",opt$fratioFile,".html"),collapse=""),selfcontained = F)
   
-  if(verbose)addComment("SumSquareFtest drawn")
+  addComment("[INFO]SumSquareTest drawn",T,opt$log,T,display=FALSE)
 }
 
 #plot VOLCANO plot
@@ -811,7 +813,7 @@ if (!is.null(opt$volcano)) {
     }
   }
   remove(dataToPlot,dataSignifToPlot)
-  if(verbose)addComment("Volcano drawn")
+  addComment("[INFO]Volcanos drawn",T,opt$log,T,display=FALSE)
 }
 
 rowItemInfo=NULL
@@ -846,10 +848,10 @@ if(length(genesToKeep)>0){
   rownames(data.fit.eb$coefficients)=genesToKeep
   colnames(data.fit.eb$coefficients)=colnames(data.fit.eb$adj_p.value)
 }else{
-  addComment("WARNING no significative genes",T,opt$log)
+  addComment("[WARNING]No significative genes",T,opt$log,display=FALSE)
 }
 
-if(verbose)addComment("Significative gene filtering OK")
+addComment("[INFO]Significant genes filtering done",T,opt$log,T,display=FALSE)
 
 
 #plot VennDiagramm for genes below threshold between comparisons
@@ -917,16 +919,15 @@ if(length(genesToKeep)==0){
     outputData[3:nrow(outputData),seq(6,ncol(outputData),4)]=prettyNum(data.fit.eb$coefficients,digits=4)
   }
 }
-if(verbose)addComment("Formated output")
+addComment("[INFO]Formated output",T,opt$log,display=FALSE) 
 
 #write output results
 write.table(outputData,file=opt$outputFile,quote=FALSE,sep="\t",col.names = F,row.names = F)
 
 end.time <- Sys.time()
-addComment(c("Total execution time:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=F)
+addComment(c("[INFO]Total execution time for R script:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=FALSE)
 
-
-addComment("End of R script",T,opt$log)
+addComment("[INFO]End of R script",T,opt$log,display=FALSE)
 
 #sessionInfo()
 

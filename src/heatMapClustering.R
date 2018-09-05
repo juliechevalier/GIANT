@@ -3,10 +3,6 @@
 # one of these arguments is required:
 #
 #
-# the output file has columns:
-#
-#
-#
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="
 script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
