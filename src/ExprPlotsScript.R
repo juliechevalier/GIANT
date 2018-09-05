@@ -3,10 +3,6 @@
 # one of these arguments is required:
 #
 #
-# the output file has columns:
-#
-#
-#
 initial.options <- commandArgs(trailingOnly = FALSE)
 file.arg.name <- "--file="
 script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
@@ -14,13 +10,14 @@ script.basename <- dirname(script.name)
 source(file.path(script.basename, "utils.R"))
 source(file.path(script.basename, "getopt.R"))
 
-addComment("Welcome R!")
+#addComment("Welcome R!")
 
 # setup R error handling to go to stderr
-options( show.error.messages=F, error = function () { cat( geterrmessage(), file=stderr() ); q( "no", 1, F ) } )
+options( show.error.messages=F, error = function () { cat(geterrmessage(), file=stderr() ); q( "no", 1, F ) } )
 
 # we need that to not crash galaxy with an UTF8 error on German LC settings.
 loc <- Sys.setlocale("LC_MESSAGES", "en_US.UTF-8")
+loc <- Sys.setlocale("LC_NUMERIC", "C")
 
 #get starting time
 start.time <- Sys.time()
@@ -51,19 +48,20 @@ opt <- getopt(spec)
 
 # enforce the following required arguments
 if (is.null(opt$log)) {
-  addComment("'log file' is required")
+  addComment("[ERROR]'log file' is required")
   q( "no", 1, F )
 }
+addComment("[INFO]Start of R script",T,opt$log,display=FALSE)
 if (is.null(opt$dataFile) || is.null(opt$dataFileFormat)) {
-  addComment("'dataFile' and it format are required",T,opt$log)
+  addComment("[ERROR]'dataFile' and it format are required",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$format)) {
-  addComment("'output format' is required",T,opt$log)
+  addComment("[ERROR]'output format' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$histo) & is.null(opt$maPlot) & is.null(opt$boxplot) & is.null(opt$microarray) & is.null(opt$acp)){
-  addComment("select at least one plot to draw",T,opt$log)
+  addComment("[ERROR]Select at least one plot to draw",T,opt$log)
   q( "no", 1, F )
 }
 
@@ -72,10 +70,10 @@ verbose <- if (is.null(opt$quiet)) {
 }else{
   FALSE}
 
-if(verbose)addComment("parameters checked")
+addComment("[INFO]Parameters checked!",T,opt$log,display=FALSE)
 
-addComment(getwd(),TRUE,opt$log,display=FALSE)
-addComment(args,TRUE,opt$log,display=FALSE)
+addComment(c("[INFO]Working directory: ",getwd()),TRUE,opt$log,display=FALSE)
+addComment(c("[INFO]Command line: ",args),TRUE,opt$log,display=FALSE)
 
 #directory for plots
 dir.create(file.path(getwd(), "plotDir"))
@@ -120,7 +118,8 @@ if(toupper(opt$dataFileFormat)=="CEL"){
   dimnames(dataMatrix)=list(rowNamesData,colNamesData)
 }
 
-if(verbose)addComment("Input data loaded")
+addComment("[INFO]Input data loaded",TRUE,opt$log,display=FALSE)
+addComment(c("[INFO]Dim of data matrix:",dim(dataMatrix)),T,opt$log,display=FALSE)
 
 #get number of conditions
 nbConditions=ncol(dataMatrix)
@@ -141,7 +140,7 @@ correspondanceNameTable[,1]=paste("Condition",1:nbConditions,sep="")
 correspondanceNameTable[,2]=nameConditions
 rownames(correspondanceNameTable)=correspondanceNameTable[,2]
 
-if(verbose)addComment("Conditions names OK")
+addComment("[INFO]Retreive condition names",TRUE,opt$log,display=FALSE)
 
 if(!is.null(opt$factorInfo)){
   #chargement du fichier des facteurs
@@ -154,18 +153,19 @@ if(!is.null(opt$factorInfo)){
   
   
   if(length(setdiff(colnames(dataMatrix),rownames(factorInfoMatrix)))!=0){
-    addComment("missing samples in factor file",T,opt$log)
+    addComment("[ERROR]Missing samples in factor file",T,opt$log)
     q( "no", 1, F )
   }
   
   #order sample as in expression matrix and remove spurious sample
   factorInfoMatrix=factorInfoMatrix[colnames(dataMatrix),]
   
-  if(verbose)addComment("Factors OK")
+  addComment("[INFO]Factors OK",T,opt$log,display=FALSE)
+  addComment(c("[INFO]Dim of factorInfo matrix:",dim(factorInfoMatrix)),T,opt$log,display=FALSE)
   
 }
 
-if(verbose)addComment("Ready to plot")
+addComment("[INFO]Ready to plot",T,opt$log,display=FALSE)
 
 
 ##----------------------
@@ -198,7 +198,7 @@ if (!is.null(opt$histo)) {
     htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/",opt$histo,iToPlot,".html"),collapse=""),selfcontained = F)
   }
   remove(p,dataToPlot)
-  if(verbose)addComment("Histograms drawn")
+  addComment("[INFO]Histograms drawn",T,opt$log,display=FALSE)
 }
 
 ##----------------------
@@ -248,7 +248,7 @@ if (!is.null(opt$maPlot)) {
     }
   }
   remove(p,dataToPlot,dataA,dataB,toTake,xToPlot,yToPlot)
-  if(verbose)addComment("MAplots drawn")
+  addComment("[INFO]MAplots drawn",T,opt$log,display=FALSE)
 }
 
 ##----------------------
@@ -337,7 +337,7 @@ if (!is.null(opt$boxplot)) {
     htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/",opt$boxplot,iToPlot,".html"),collapse=""),selfcontained = F)
   }
   remove(p,dataToPlot)
-  if(verbose)addComment("Boxplots drawn")
+  addComment("[INFO]Boxplots drawn",T,opt$log,display=FALSE)
   
 }
 
@@ -353,7 +353,7 @@ if (!is.null(opt$microarray) && dataAreFromCel) {
     image(celData[,iCondition],main=correspondanceNameTable[iCondition,2])
     dev.off()
   }
-  if(verbose)addComment("Microarray drawn")
+  addComment("[INFO]Microarray drawn",T,opt$log,display=FALSE)
 }
 
 ##----------------------
@@ -403,7 +403,7 @@ if (!is.null(opt$acp)){
     #first order factors from decreasing groups number
     orderedFactors=colnames(factorInfoMatrix)[-1][order(unlist(lapply(colnames(factorInfoMatrix)[-1],function(x)length(table(factorInfoMatrix[,x])))),decreasing = T)]
     allFactorsBigger=length(table(factorInfoMatrix[,orderedFactors[length(orderedFactors)]]))>length(symbolset)
-    if(allFactorsBigger)addComment("All factors are composed of too many groups to display two factors at same time, each PCA plot will display only one factor groups",T,opt$log) 
+    if(allFactorsBigger)addComment("[WARNING]All factors are composed of too many groups to display two factors at same time, each PCA plot will display only one factor groups",T,opt$log,display=FALSE) 
     for(iFactor in 1:length(orderedFactors)){
       #if it is the last factor of the list or if all factor 
       if(iFactor==length(orderedFactors) || allFactorsBigger){
@@ -431,7 +431,7 @@ if (!is.null(opt$acp)){
             #save the plotly plot
             htmlwidgets::saveWidget(as_widget(p), paste(c(file.path(getwd(), "plotLyDir"),"/",opt$acp,"_",fileIdent,".html"),collapse=""),selfcontained = F)
           }else{
-            addComment(c("PCA with",orderedFactors[iFactor],"and",orderedFactors[iFactorBis],"groups cannot be displayed, too many groups (max",length(symbolset),")"),T,opt$log) 
+            addComment(c("[WARNING]PCA with",orderedFactors[iFactor],"and",orderedFactors[iFactorBis],"groups cannot be displayed, too many groups (max",length(symbolset),")"),T,opt$log,display=FALSE) 
           }
         }
       }
@@ -447,15 +447,14 @@ if (!is.null(opt$acp)){
     htmlwidgets::saveWidget(as_widget(p), paste(c(file.path(getwd(), "plotLyDir"),"/",opt$acp,"_plot.html"),collapse=""),selfcontained = F)
   }
   remove(p,dataToPlot,dataFiltered)
-  if(verbose)addComment("ACP plot drawn")
+  addComment("[INFO]ACP plot drawn",T,opt$log,display=FALSE)
 }
 
 #write correspondances between plot file names and displayed names in figure legends, usefull to define html items in xml file
 write.table(correspondanceNameTable,file=file.path(getwd(), "correspondanceFileNames.csv"),quote=FALSE,sep="\t",col.names = F,row.names = F)
 
-
 end.time <- Sys.time()
-addComment(c("Total execution time:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=F)
+addComment(c("[INFO]Total execution time for R script:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=FALSE)
 
-addComment("End of R script",T,opt$log)
+addComment("[INFO]End of R script",T,opt$log,display=FALSE)
 #sessionInfo()
