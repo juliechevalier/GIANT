@@ -115,6 +115,7 @@
   </test>
 </tests> 
   <help>
+  <![CDATA[
 **What it does** 
 
 Generate input files required for GSEA analysis.
@@ -194,8 +195,8 @@ Depends on GSEA configuration:
 
 For all configurations:
 
-\- **LOG file** containing information about execution. Useful especially if tool execution fail. Please attach this log file in any bug report.
-
+\- **LOG file** containing information about execution. Useful especially if tool execution fails. Please attach this log file in any bug report.
+]]> 
   </help>
 
  <citations>

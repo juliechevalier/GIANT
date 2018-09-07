@@ -267,6 +267,7 @@ fi
   </test>
 </tests> 
   <help>
+  <![CDATA[
 **What it does** 
 
 To normalize expression data from Affymetrix GeneChip arrays through Affymetrix Power Tools software.
@@ -286,7 +287,17 @@ To normalize expression data from Affymetrix GeneChip arrays through Affymetrix 
 \- **.CEL files** you want to normalize (you can select multiple .CEL files or unique collection).
 
 
-\- **Analysis to perform** : as this tool run the 'apt-probeset-summarize' command line from Affymetrix Power Tool software, this field represents the desired analysis pathway (-a parameter). Analysis pathway can be described thanks to predifined pathway alias (like "rma" or "rma-gc-scale") or directly through full descriptive line of all steps to run (like "rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"). Please refer to `APT tool web page`__ to get more details about available analysis patwhays.
+\- **Analysis to perform** : as this tool run the 'apt-probeset-summarize' command line from Affymetrix Power Tool software, this field represents the desired analysis pathway (-a parameter). Analysis pathways are summarized through predifined pathway alias with full description of all run steps below:
+
+    - gc correction + scale intensity + rma: "gc-correction,scale-intensities,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"
+
+    - scale intensity + rma: "scale-intensities,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"
+
+    - gc correction + rma: "gc-correction,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"
+
+    - rma: "rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish"
+
+Please refer to `APT tool web page`__ to get more details about analysis steps.
 
 \- **Normalization level** to choose when GeneChip array kind allows such distinction (ie. when a .mps file exists in Affymetrix webpage). 'Probe set level' is the first level where probes for same exon are merged in probe sets. 'Gene level' [recommended] is an upper level where several probe sets are merged in meta probe sets. If a meta probe set can be see as a good single gene expression indicator, several meta probe sets can still share same gene annotation.
 
@@ -320,11 +331,12 @@ Extract of annotation file::
     OR4F5       3.737956                3.011586                 3.424494                   3.497545
     VWA1        5.189621                5.129595                 4.806793                   5.227014
 
-\- **LOG file** containing information about execution. Useful especially if tool execution fail. Please attach this log file in any bug report.
+\- **LOG file** containing information about execution. Useful especially if tool execution fais. Please attach this log file in any bug report.
 
 
 
     .. __: http://media.affymetrix.com/support/developer/powertools/changelog/apt-probeset-summarize.html#intro
 
+]]> 
   </help>
 </tool>
