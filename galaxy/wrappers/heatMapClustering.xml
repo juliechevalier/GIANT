@@ -103,7 +103,7 @@
         <when value="input">
           <conditional name="select_filtering">
             <param name="filtering_stepBis_selector" type="select" label="Filter">
-              <option value="diffExpParam" selected="true">Based on diff. exp. parameters (FC and p-val)</option>
+              <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
               <option value="geneList">From list of genes</option>
             </param>
             <when value="diffExpParam">
@@ -130,7 +130,7 @@
         <when value="output">
           <conditional name="select_filtering">
             <param name="filtering_stepBis_selector" type="select" label="Filter">
-              <option value="diffExpParam" selected="true">Based on diff. exp. parameters (FC and p-val)</option>
+              <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
               <option value="geneList">From list of genes</option>
             </param>
             <when value="diffExpParam">
@@ -175,7 +175,7 @@
           <when value="input">
             <conditional name="select_filtering">
               <param name="filtering_stepBis_selector" type="select" label="Filter">
-                <option value="diffExpParam" selected="true">Based on diff. exp. parameters (FC and p-val)</option>
+                <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
                 <option value="geneList">From list of genes</option>
               </param>
               <when value="diffExpParam">
@@ -225,7 +225,7 @@
     <param type="boolean" name="clusterConditions" checked="true" label="Cluster samples" help="To apply hierarchical clustering to samples">
     </param>
 
-    <param name="maxSampleToPlot" type="integer" value="1000" label="Max gene/probe number to plot">
+    <param name="maxSampleToPlot" type="integer" value="1000" label="Maximum gene number to plot">
       <validator type="in_range" min="2" message="The number should be greater than 1"/>
     </param>
 
@@ -490,6 +490,7 @@ printf  "</body>\n</html>" >> $html_file
   </test>
 </tests> 
   <help>
+  	<![CDATA[
 **What it does** 
 
 Run hierarchical clustering on gene expression data or differential expression analysis and diplay correponding heatmap.
@@ -504,52 +505,77 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 \- **Title** to personalize output file names (please avoid special characters).
 
-\- **Data to cluster** 
+\- **Data to cluster** you can choose to cluster genes on expression data or using results from differential analysis. 
 
 
-- **Expression data**
+- **Expression data** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
+
+    ::
+
+        Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
+        DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+        MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+        OR4F5       3.737956                3.011586                 3.424494                   3.497545
+        VWA1        5.189621                5.129595                 4.806793                   5.227014
 
 
-- **Differential expression analysis results**
+- **Differential expression analysis results** with contrasts statistics (p-val, FDR p-val, FC and log2(FC)) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations).
+
+    ::
+
+        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+        Gene     Info        p-val     FDR.p-val FC        log2(FC)
+        ARSD     na          0.0057    0.41      0.8389   -0.2534  
+        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
+        MIR548AL na          0.072     0.2914    1.711     0.775 
+
+    \- **Comparisons to cluster** when differential results are used to cluster, log2(FC) values of selected comparisons will be used for clustering.
 
 
-\- **Probes/genes filtering** 
+\- **Genes filtering** can be applied before or after clustering step.
 
-- **Filtering before clustering**
-
-
-- **Filtering after clustering**
-
-\- **Filter** 
-
-- **From differential expression analysis**
-
-    \- **Differential expression results file**
-
-    \- **Reference contrast**
-
-    \- **Fold change threshold**
-
-    \- **FDR-val threshold**
+- **Filtering before clustering** allows to restrict clustering to differentially expressed genes (using differential expression analysis file) or to specific user defined genes (using gene list file).
 
 
-- **From list of genes/probes**
+- **Filtering after clustering** will not impact clustering procedure and generated heatmaps. This filter will be only applied to generated tabular clustering file to keep differentially expressed genes (using differential expression analysis file) or specific user defined genes (using gene list file). 
 
-\- **Gene list file**
+\- **Filter approaches** : two filtering strategies can be applied before/after clustering, you can use differential expression results or using gene list file.
+
+- **From differential expression analysis** to filter genes based on fold change and FDR p-val for selected contrasts.
+
+    \- **Differential expression results file** is requested if "data to cluster" are expression data. In other case the same differential results file selected as "data to cluster" will be used. (see "Data to cluster section" for differential results file format)
+
+    \- **Comparisons to use** are requested if "data to cluster" are expression data. In other case the same comparisons selected from "data to cluster" section will be used. If several comparisons are selected, kept genes should satisfy both fold change and FDR p-val conditions in at least one of these comparisons. 
+
+    \- **Fold change threshold** to use for filtering, genes with fold change >= threshold or fold change <= 1/threshold will be kept (set this threshold to 1 if you do not want to filter on fold change).
+
+    \- **FDR p-val threshold** to use for filtering genes with FDR p-val <= threshold will be kept (set this threshold to 1 if you do not want to filter on FDR p-val).
+
+
+- **From list of genes** to focus on pre-identified genes.
+
+    \- **Gene list file** with genes identifiers as one column file without header.
+
+    ::
+
+        DDX11L2
+        VWA1 
+        TTTY10
+        ARSD
 
 -----
 
 **Advanced parameters**
 
-\- **Cluster number** fixed for hierarchical clustering. Use generated screeplot to adjust this number and re-run clustering.
+\- **Cluster number** fixed for hierarchical clustering. Use generated screeplot to adjust this number before re-run clustering.
 
-\- **Cluster samples** allow to apply clustering on samples additionnaly to genes/probes clustering. If you want to keep sample order for visualization purposes, you should disable this option. Sample clusters will not appear (yet) in output text file.
+\- **Cluster samples** option allows to apply additional clustering on samples/comparisons. Disable this option if you need to conserve input sample/comparison order for visualization purposes. Sample/comparison cluster information is not included (yet) in output text file.
 
-\- **Max. gene/probe number** : for readability and running time, number of displayed rows in heatmaps (genes/probes) can be limited, clustering and scree plot are still computed for all rows but heatmaps are displayed for a random selection of original data. To avoid such random selection we advise you to use input filtering option.
+\- **Maximum gene number** : for readability and running time, number of displayed rows (genes) in heatmaps/circular plot can be limited. If clustering information in tabular file and scree plot are generated from a global clustering considering all genes (except those filtered before), heatmap and circular plot are displayed for a random gene selection. To avoid such random selection we advise you to use input filtering option before clustering.
 
 \- **Personalized color** to build color gradient choosing start, middle and end colors.
 
-\- **Output format** for heatmap plots.
+\- **Output format** for circular plots.
 
 \- **Html snapshot format** for interactive plotly plots.
 
@@ -557,13 +583,13 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 **Outputs**
 
-\- **Tabular clustering file** containing 
+\- **Tabular clustering file** containing cluster group for each gene satifying filtering steps. If input data are expression data, a two columns file is generated with gene identifiers and cluster numbers. If differential results file is used as input data, the same file is returned with an additional column containing cluster numbers.
 
-\- **Heatmap** when number of gene to display in heatmap exceed 1.000, random sampling is done for plotting efficiency, in this case clustering displayed may differ from clustering information contained in table as heatmap clustering is done over 1.000 samples maximum whereas a global clustering is done for table content
+\- **HTML file** to access interactive version of heatmap and screeplot through PlotLy html pages, circular plot image and tabulated clustering results. We remind you that when gene number to display in heatmap/circular plot exceeds maximum gene number parameter, random sampling is done for plotting efficiency, in this case clustering displayed on heatmap/circular plot may differ from clustering information contained in tabular file as heatmap/circular plot clustering is done over a subset of genes whereas tabular file contains clustering results of all genes (except those filtered before).
 
-\- **LOG file** containing information about execution. Useful especially if tool execution fail. Please attach this log file in any bug report.
+\- **LOG file** containing information about execution. Useful especially if tool execution fails. Please attach this log file in any bug report.
 
-
+]]> 
   </help>
 
 </tool>
