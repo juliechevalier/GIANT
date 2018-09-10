@@ -40,7 +40,7 @@
 
   if [ -f ./dictionnaryRenamed.csv ]; then
     printf "[INFO]Renaming is done\n" >> $log;
-    Rscript '$__tool_directory__/../../src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -f '$plotSection.imageFormat'
+    Rscript '$__tool_directory__/../../src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -f 'pdf'
       -a 'factorTableRenamed.csv' -s 'sumSquareFtest' -g 'dictionnaryRenamed.csv'
       #if $blockingSection.blockingConditional.addBlocking == "true":
         -b 'blockingTableRenamed.csv'
@@ -168,11 +168,6 @@
       </when>
     </conditional>
 
-
-		<param type="select" name="imageFormat" display="radio" label="Output image format">
-	      <option value="png">PNG format</option>
-	      <option value="pdf">PDF format</option>
-	  </param>
     <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
       <option value="png">PNG format</option>
       <option value="svg">SVG format</option>
