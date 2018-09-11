@@ -1,5 +1,5 @@
-<tool name="Run Affymetrix APT tool" id="run_affymetrix_APT" version="0.1">
-  <description>Apply normalization to .CEL files</description>
+<tool name="GIANT-APT Summarize" id="GIANT_APT-Summarize" version="0.1">
+  <description>Apply Affymetrix Power Tool summarize function to .CEL collection</description>
   <requirements>
     <requirement type="package" version="2.10.0">apt-probeset-summarize</requirement>
   </requirements>

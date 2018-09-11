@@ -1,5 +1,5 @@
-<tool name="Generate GSEA input files" id="generate_GSEA_files" version="0.1">
-  <description>Generate data for GSEA software.</description>
+<tool name="GIANT-GSEA Formating" id="GIANT_GSEA-Format" version="0.1">
+  <description>Format input files for GSEA software</description>
   <code file="../../src/General_functions.py"/>
   <stdio>
     <regex match="Execution halted"

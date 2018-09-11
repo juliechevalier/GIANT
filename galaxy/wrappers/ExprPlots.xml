@@ -1,5 +1,5 @@
-<tool name="Plotting functions" id="jimmy_test1" version="0.1">
-  <description>Generate plots for .CEL files or normalized data file.</description>
+<tool name="GIANT-Plot Functions" id="GIANT_Plot-Functions" version="0.1">
+  <description>Descriptive plots of .CEL collections or normalized expression data</description>
   <requirements>
 	  <requirement type="package" version="1.42.0">bioconductor-oligo</requirement>
 	  <requirement type="package" version="2.2_13">r-ff</requirement>
