@@ -1,4 +1,4 @@
-<tool name="LIMMA diff. exp." id="LIMMA_diffExpV4" version="0.1">
+<tool name="GIANT-LIMMA Analysis" id="GIANT_LIMMA-Analysis" version="0.1">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
