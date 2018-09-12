@@ -12,7 +12,8 @@
     <exit_code range="1:9" level="fatal" description="Error during apt command execution, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
-  ##set $pathToApt='/home/galaxy/Software/ThermoFischer/apt-1.20.6-x86_64-intel-linux/bin'
+  ##ONLY FOR LOCAL TEST PURPOSE, COMMENT OTHERWISE
+  ##set $pathToApt='/mnt/galaxy/home/galaxy/Software/ThermoFischer/apt-1.20.6-x86_64-intel-linux/bin'
 
     mkdir ./apt_output/;
 
@@ -26,8 +27,9 @@
 
 ##run APT command
 
+##ONLY FOR LOCAL TEST PURPOSE COMMENT IF NOT NECESSARY
 ##${pathToApt}/apt-probeset-summarize -a $commandLine 
-
+##AND UNCOMMENT LINE BELOW
 apt-probeset-summarize -a $commandLine 
 
 #if $mainCondition.arraySelection=="other":
@@ -65,10 +67,12 @@ apt-probeset-summarize -a $commandLine
 #end if
 
 -o ./apt_output/
-;
+
+\$(echo '$inputData' | tr "," " ") >> $log 2>&1;
+
 ret_code=\$?;
 
-\$(echo '[INFO]Normalized files: $inputData' | tr "," " ") >> $log 2>&1;
+printf "[INFO]Normalized files: "$inputData >> $log; 
 
 if [ \$ret_code != 0 ]; then
     exit \$ret_code;
@@ -249,23 +253,20 @@ fi
   
  <tests>
   <test maxseconds="3600">
-    <param name="wfile" value="wiggle.wig" />
-    <param name="bfile" value="bedfile.bed" />
-    <param name="span" value="3000" />
-    <param name="pfres" value="50" />
-    <param name="lowersize" value="1000" />
-    <param name="middlesize" value="2000" />
-    <param name="uppersize" value="3000" />
-    <param name="lowerbisize" value="2500" />
-    <param name="upperbisize" value="5000" />
-    <param name="reldist" value="3000" />
-    <param name="genome" value="hg18" />
-    <param name="imagetype" value="PDF" />
-    <param name="enable" value="no" />
-    <output name="output" file="ceas_1/ceas_1.pdf" />
-    <output name="output" file="ceas_1/ceas_1.log" lines_diff = "200" />
+  	<param name="inputData" value="./CELfiles/GSM205766.CEL,./CELfiles/GSM205767.CEL,./CELfiles/GSM205768.CEL" />
+    <param name="commandLine" value="rma-gc-scale" />
+    <param name="normLevel" value="core" />
+    <param name="arraySelection" value="other" />
+    <param name="CDFfile" value="./Mouse430_2.cdf" />
+    <param name="annotationFile" value="./formatedAnnotation.csv" />
+    <param name="addAnnotation" value="true" />
+    <param name="keepAnnotated" value="false" />
+    <param name="mergingMethod" value="mean" />
+    <output name="outputData" file="./APT-summarize/expressionOutput.csv" />
+    <output name="log" file="./APT-summarize/output.log" lines_diff="2" />
   </test>
 </tests> 
+
   <help>
   <![CDATA[
 **What it does** 
