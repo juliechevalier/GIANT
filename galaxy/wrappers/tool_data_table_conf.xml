@@ -1,0 +1,13 @@
+<!-- Use the file tool_data_table_conf.xml.oldlocstyle if you don't want to update your loc files as changed in revision 4550:535d276c92bc-->
+<tables>
+    <!-- Locations of files required for apt tool -->
+    <table name="aptTool" comment_char="#" allow_duplicate_entries="False">
+        <columns>value, name, pathPGF, pathCLF, pathMPS, pathBGP, pathCDF, pathAnnotTrans, pathAnnotProbe, versionInfo</columns>
+        <file path="${__HERE__}/tool-data/aptTool.loc" />
+    </table>
+    <!-- Locations of files required for LIMMA tool -->
+    <table name="LimmaTool" comment_char="#" allow_duplicate_entries="False">
+        <columns>value, name, rowTypeID, rowTypeName</columns>
+        <file path="${__HERE__}/tool-data/LimmaTool.loc" />
+    </table>
+</tables>

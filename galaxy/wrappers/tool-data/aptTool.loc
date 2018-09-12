@@ -1,0 +1,9 @@
+#This file lists the locations of all files required by apt tool
+#under the "apt" directory (a directory that contains a directory
+#for each chip). This file has the TAB delimited format :
+#
+#<shortName> <fullName> <pathPGF> <pathCLF> <pathMPS> <pathBGP> <pathCDF> <pathAnnotTrans> <pathAnnotProbe> <versionInfo> 
+#
+#
+HTA2.0	HTA 2.0 arrays	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/HTA2.0.pgf	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/HTA2.0.clf	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/HTA2.0.mps	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/HTA2.0.bgp	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/HTA2.0.cdf	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/formatedAnnotation36.transcript.csv	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/formatedAnnotation36.probeset.csv	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/HTA2.0/versionInfo.txt
+Mouse4302.0	Mouse Genome 430 2.0 arrays	null	null	null	null	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/MouseGenome430_2.0/Mouse430_2.0.cdf	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/MouseGenome430_2.0/formatedAnnotation.csv	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/MouseGenome430_2.0/formatedAnnotation.csv	/mount/galaxy/home/galaxy/Data_Storage/Galaxy_tool-data/affyChipConfig/MouseGenome430_2.0/versionInfo.txt

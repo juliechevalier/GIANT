@@ -1,0 +1,854 @@
+#This file lists the locations of all files required by apt tool
+#under the "apt" directory (a directory that contains a directory
+#for each chip). This file has the TAB delimited format :
+#
+#<organismID> <organismName> <rowTypeID> <rowTypeName>
+#
+#
+csavignyi_gene_ensembl	C.savignyi genes (CSAV 2.0)	ensembl_gene_id	Gene stable ID
+csavignyi_gene_ensembl	C.savignyi genes (CSAV 2.0)	external_gene_name	Gene name
+csavignyi_gene_ensembl	C.savignyi genes (CSAV 2.0)	entrezgene	NCBI gene ID
+xtropicalis_gene_ensembl	Xenopus genes (JGI 4.2)	affy_x_tropicalis	AFFY X tropicalis probe
+xtropicalis_gene_ensembl	Xenopus genes (JGI 4.2)	ensembl_gene_id	Gene stable ID
+xtropicalis_gene_ensembl	Xenopus genes (JGI 4.2)	external_gene_name	Gene name
+xtropicalis_gene_ensembl	Xenopus genes (JGI 4.2)	entrezgene	NCBI gene ID
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hc_g110	AFFY HC G110 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_focus	AFFY HG Focus probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u133a	AFFY HG U133A probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u133b	AFFY HG U133B probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u95a	AFFY HG U95A probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u95b	AFFY HG U95B probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u95c	AFFY HG U95C probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u95d	AFFY HG U95D probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hg_u95e	AFFY HG U95E probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hugenefl	AFFY HuGeneFL probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_primeview	AFFY PrimeView probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_rhesus	AFFY Rhesus probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	affy_u133_x3p	AFFY U133 X3P probe
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	ensembl_gene_id	Gene stable ID
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	external_gene_name	Gene name
+panubis_gene_ensembl	Olive baboon genes (Panu_3.0)	entrezgene	NCBI gene ID
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hc_g110	AFFY HC G110 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_focus	AFFY HG Focus probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u133a	AFFY HG U133A probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u133b	AFFY HG U133B probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u95a	AFFY HG U95A probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u95b	AFFY HG U95B probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u95c	AFFY HG U95C probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u95d	AFFY HG U95D probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hg_u95e	AFFY HG U95E probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hugenefl	AFFY HuGeneFL probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_primeview	AFFY PrimeView probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_rhesus	AFFY Rhesus probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	affy_u133_x3p	AFFY U133 X3P probe
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	ensembl_gene_id	Gene stable ID
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	external_gene_name	Gene name
+mnemestrina_gene_ensembl	Pig-tailed macaque genes (Mnem_1.0)	entrezgene	NCBI gene ID
+sscrofa_gene_ensembl	Pig genes (Sscrofa11.1)	affy_porcine	AFFY Porcine probe
+sscrofa_gene_ensembl	Pig genes (Sscrofa11.1)	ensembl_gene_id	Gene stable ID
+sscrofa_gene_ensembl	Pig genes (Sscrofa11.1)	external_gene_name	Gene name
+sscrofa_gene_ensembl	Pig genes (Sscrofa11.1)	entrezgene	NCBI gene ID
+ogarnettii_gene_ensembl	Bushbaby genes (OtoGar3)	ensembl_gene_id	Gene stable ID
+ogarnettii_gene_ensembl	Bushbaby genes (OtoGar3)	external_gene_name	Gene name
+ogarnettii_gene_ensembl	Bushbaby genes (OtoGar3)	entrezgene	NCBI gene ID
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hc_g110	AFFY HC G110 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_focus	AFFY HG Focus probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u133a	AFFY HG U133A probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u133b	AFFY HG U133B probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u95a	AFFY HG U95A probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u95av2	AFFY HG U95Av2 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u95b	AFFY HG U95B probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u95c	AFFY HG U95C probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u95d	AFFY HG U95D probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hg_u95e	AFFY HG U95E probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hta_2_0	AFFY HTA 2 0 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hugenefl	AFFY HuGeneFL probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_primeview	AFFY PrimeView probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_rhesus	AFFY Rhesus probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	affy_u133_x3p	AFFY U133 X3P probe
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	ensembl_gene_id	Gene stable ID
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	external_gene_name	Gene name
+mmulatta_gene_ensembl	Macaque genes (Mmul_8.0.1)	entrezgene	NCBI gene ID
+acarolinensis_gene_ensembl	Anole lizard genes (AnoCar2.0)	ensembl_gene_id	Gene stable ID
+acarolinensis_gene_ensembl	Anole lizard genes (AnoCar2.0)	external_gene_name	Gene name
+acarolinensis_gene_ensembl	Anole lizard genes (AnoCar2.0)	entrezgene	NCBI gene ID
+cchok1gshd_gene_ensembl	Chinese hamster CHOK1GS genes (CHOK1GS_HDv1)	ensembl_gene_id	Gene stable ID
+cchok1gshd_gene_ensembl	Chinese hamster CHOK1GS genes (CHOK1GS_HDv1)	external_gene_name	Gene name
+cchok1gshd_gene_ensembl	Chinese hamster CHOK1GS genes (CHOK1GS_HDv1)	entrezgene	NCBI gene ID
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hc_g110	AFFY HC G110 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_focus	AFFY HG Focus probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u133a	AFFY HG U133A probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u133b	AFFY HG U133B probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u95a	AFFY HG U95A probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u95b	AFFY HG U95B probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u95c	AFFY HG U95C probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u95d	AFFY HG U95D probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hg_u95e	AFFY HG U95E probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hugenefl	AFFY HuGeneFL probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_primeview	AFFY PrimeView probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_rhesus	AFFY Rhesus probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	affy_u133_x3p	AFFY U133 X3P probe
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	ensembl_gene_id	Gene stable ID
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	external_gene_name	Gene name
+catys_gene_ensembl	Sooty mangabey genes (Caty_1.0)	entrezgene	NCBI gene ID
+mpahari_gene_ensembl	Shrew mouse genes (PAHARI_EIJ_v1.1)	ensembl_gene_id	Gene stable ID
+mpahari_gene_ensembl	Shrew mouse genes (PAHARI_EIJ_v1.1)	external_gene_name	Gene name
+mpahari_gene_ensembl	Shrew mouse genes (PAHARI_EIJ_v1.1)	entrezgene	NCBI gene ID
+neugenii_gene_ensembl	Wallaby genes (Meug_1.0)	ensembl_gene_id	Gene stable ID
+neugenii_gene_ensembl	Wallaby genes (Meug_1.0)	external_gene_name	Gene name
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hc_g110	AFFY HC G110 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_focus	AFFY HG Focus probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u133a	AFFY HG U133A probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u133b	AFFY HG U133B probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u95a	AFFY HG U95A probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u95av2	AFFY HG U95Av2 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u95b	AFFY HG U95B probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u95c	AFFY HG U95C probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u95d	AFFY HG U95D probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hg_u95e	AFFY HG U95E probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hta_2_0	AFFY HTA 2 0 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hugenefl	AFFY HuGeneFL probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_primeview	AFFY PrimeView probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_rhesus	AFFY Rhesus probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	affy_u133_x3p	AFFY U133 X3P probe
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	ensembl_gene_id	Gene stable ID
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	external_gene_name	Gene name
+rbieti_gene_ensembl	Black snub-nosed monkey genes (ASM169854v1)	entrezgene	NCBI gene ID
+lafricana_gene_ensembl	Elephant genes (Loxafr3.0)	ensembl_gene_id	Gene stable ID
+lafricana_gene_ensembl	Elephant genes (Loxafr3.0)	external_gene_name	Gene name
+lafricana_gene_ensembl	Elephant genes (Loxafr3.0)	entrezgene	NCBI gene ID
+mdomestica_gene_ensembl	Opossum genes (monDom5)	ensembl_gene_id	Gene stable ID
+mdomestica_gene_ensembl	Opossum genes (monDom5)	external_gene_name	Gene name
+mdomestica_gene_ensembl	Opossum genes (monDom5)	entrezgene	NCBI gene ID
+mauratus_gene_ensembl	Golden Hamster genes (MesAur1.0)	ensembl_gene_id	Gene stable ID
+mauratus_gene_ensembl	Golden Hamster genes (MesAur1.0)	external_gene_name	Gene name
+mauratus_gene_ensembl	Golden Hamster genes (MesAur1.0)	entrezgene	NCBI gene ID
+etelfairi_gene_ensembl	Lesser hedgehog tenrec genes (TENREC)	ensembl_gene_id	Gene stable ID
+etelfairi_gene_ensembl	Lesser hedgehog tenrec genes (TENREC)	external_gene_name	Gene name
+etelfairi_gene_ensembl	Lesser hedgehog tenrec genes (TENREC)	entrezgene	NCBI gene ID
+tguttata_gene_ensembl	Zebra Finch genes (taeGut3.2.4)	ensembl_gene_id	Gene stable ID
+tguttata_gene_ensembl	Zebra Finch genes (taeGut3.2.4)	external_gene_name	Gene name
+tguttata_gene_ensembl	Zebra Finch genes (taeGut3.2.4)	entrezgene	NCBI gene ID
+celegans_gene_ensembl	Caenorhabditis elegans genes (WBcel235)	affy_c_elegans	AFFY C elegans probe
+celegans_gene_ensembl	Caenorhabditis elegans genes (WBcel235)	affy_gpl19230	AFFY GPL19230 probe
+celegans_gene_ensembl	Caenorhabditis elegans genes (WBcel235)	ensembl_gene_id	Gene stable ID
+celegans_gene_ensembl	Caenorhabditis elegans genes (WBcel235)	external_gene_name	Gene name
+celegans_gene_ensembl	Caenorhabditis elegans genes (WBcel235)	entrezgene	NCBI gene ID
+ngalili_gene_ensembl	Upper Galilee mountains blind mole rat genes (S.galili_v1.0)	ensembl_gene_id	Gene stable ID
+ngalili_gene_ensembl	Upper Galilee mountains blind mole rat genes (S.galili_v1.0)	external_gene_name	Gene name
+ngalili_gene_ensembl	Upper Galilee mountains blind mole rat genes (S.galili_v1.0)	entrezgene	NCBI gene ID
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mg_u74a	AFFY MG U74A probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mg_u74av2	AFFY MG U74Av2 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mg_u74b	AFFY MG U74B probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mg_u74bv2	AFFY MG U74Bv2 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mg_u74c	AFFY MG U74C probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mg_u74cv2	AFFY MG U74Cv2 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_moe430a	AFFY MOE430A probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_moe430b	AFFY MOE430B probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_moex_1_0_st_v1	AFFY MoEx 1 0 st v1 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mogene_1_0_st_v1	AFFY MoGene 1 0 st v1 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mogene_2_1_st_v1	AFFY MoGene 2 1 st v1 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mouse430a_2	AFFY Mouse430A 2 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mouse430_2	AFFY Mouse430 2 probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mu11ksuba	AFFY Mu11KsubA probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	affy_mu11ksubb	AFFY Mu11KsubB probe
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	ensembl_gene_id	Gene stable ID
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	external_gene_name	Gene name
+mmusculus_gene_ensembl	Mouse genes (GRCm38.p6)	entrezgene	NCBI gene ID
+hfemale_gene_ensembl	Naked mole-rat female genes (HetGla_female_1.0)	ensembl_gene_id	Gene stable ID
+hfemale_gene_ensembl	Naked mole-rat female genes (HetGla_female_1.0)	external_gene_name	Gene name
+hfemale_gene_ensembl	Naked mole-rat female genes (HetGla_female_1.0)	entrezgene	NCBI gene ID
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hc_g110	AFFY HC G110 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_focus	AFFY HG Focus probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u133a	AFFY HG U133A probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u133b	AFFY HG U133B probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u95a	AFFY HG U95A probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u95b	AFFY HG U95B probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u95c	AFFY HG U95C probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u95d	AFFY HG U95D probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hg_u95e	AFFY HG U95E probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hugenefl	AFFY HuGeneFL probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_primeview	AFFY PrimeView probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_rhesus	AFFY Rhesus probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	affy_u133_x3p	AFFY U133 X3P probe
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	ensembl_gene_id	Gene stable ID
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	external_gene_name	Gene name
+pcoquereli_gene_ensembl	Coquerel's sifaka genes (Pcoq_1.0)	entrezgene	NCBI gene ID
+odegus_gene_ensembl	Degu genes (OctDeg1.0)	ensembl_gene_id	Gene stable ID
+odegus_gene_ensembl	Degu genes (OctDeg1.0)	external_gene_name	Gene name
+odegus_gene_ensembl	Degu genes (OctDeg1.0)	entrezgene	NCBI gene ID
+cintestinalis_gene_ensembl	C.intestinalis genes (KH)	affy_cint06a520380f	AFFY CINT06a520380F probe
+cintestinalis_gene_ensembl	C.intestinalis genes (KH)	ensembl_gene_id	Gene stable ID
+cintestinalis_gene_ensembl	C.intestinalis genes (KH)	external_gene_name	Gene name
+cintestinalis_gene_ensembl	C.intestinalis genes (KH)	entrezgene	NCBI gene ID
+cporcellus_gene_ensembl	Guinea Pig genes (Cavpor3.0)	ensembl_gene_id	Gene stable ID
+cporcellus_gene_ensembl	Guinea Pig genes (Cavpor3.0)	external_gene_name	Gene name
+cporcellus_gene_ensembl	Guinea Pig genes (Cavpor3.0)	entrezgene	NCBI gene ID
+amelanoleuca_gene_ensembl	Panda genes (ailMel1)	ensembl_gene_id	Gene stable ID
+amelanoleuca_gene_ensembl	Panda genes (ailMel1)	external_gene_name	Gene name
+amelanoleuca_gene_ensembl	Panda genes (ailMel1)	entrezgene	NCBI gene ID
+mcaroli_gene_ensembl	Ryukyu mouse genes (CAROLI_EIJ_v1.1)	ensembl_gene_id	Gene stable ID
+mcaroli_gene_ensembl	Ryukyu mouse genes (CAROLI_EIJ_v1.1)	external_gene_name	Gene name
+mcaroli_gene_ensembl	Ryukyu mouse genes (CAROLI_EIJ_v1.1)	entrezgene	NCBI gene ID
+gaculeatus_gene_ensembl	Stickleback genes (BROAD S1)	ensembl_gene_id	Gene stable ID
+gaculeatus_gene_ensembl	Stickleback genes (BROAD S1)	external_gene_name	Gene name
+gaculeatus_gene_ensembl	Stickleback genes (BROAD S1)	entrezgene	NCBI gene ID
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hc_g110	AFFY HC G110 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_focus	AFFY HG Focus probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u133a	AFFY HG U133A probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u133b	AFFY HG U133B probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u95a	AFFY HG U95A probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u95av2	AFFY HG U95Av2 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u95b	AFFY HG U95B probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u95c	AFFY HG U95C probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u95d	AFFY HG U95D probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hg_u95e	AFFY HG U95E probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hta_2_0	AFFY HTA 2 0 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hugenefl	AFFY HuGeneFL probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_primeview	AFFY PrimeView probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_rhesus	AFFY Rhesus probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	affy_u133_x3p	AFFY U133 X3P probe
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	ensembl_gene_id	Gene stable ID
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	external_gene_name	Gene name
+rroxellana_gene_ensembl	Golden snub-nosed monkey genes (Rrox_v1)	entrezgene	NCBI gene ID
+csabaeus_gene_ensembl	Vervet-AGM genes (ChlSab1.1)	ensembl_gene_id	Gene stable ID
+csabaeus_gene_ensembl	Vervet-AGM genes (ChlSab1.1)	external_gene_name	Gene name
+csabaeus_gene_ensembl	Vervet-AGM genes (ChlSab1.1)	entrezgene	NCBI gene ID
+eeuropaeus_gene_ensembl	Hedgehog genes (eriEur1)	ensembl_gene_id	Gene stable ID
+eeuropaeus_gene_ensembl	Hedgehog genes (eriEur1)	external_gene_name	Gene name
+eeuropaeus_gene_ensembl	Hedgehog genes (eriEur1)	entrezgene	NCBI gene ID
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hc_g110	AFFY HC G110 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_focus	AFFY HG Focus probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u133a	AFFY HG U133A probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u133b	AFFY HG U133B probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u95a	AFFY HG U95A probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u95b	AFFY HG U95B probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u95c	AFFY HG U95C probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u95d	AFFY HG U95D probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hg_u95e	AFFY HG U95E probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hugenefl	AFFY HuGeneFL probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_primeview	AFFY PrimeView probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_rhesus	AFFY Rhesus probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	affy_u133_x3p	AFFY U133 X3P probe
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	ensembl_gene_id	Gene stable ID
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	external_gene_name	Gene name
+mleucophaeus_gene_ensembl	Drill genes (Mleu.le_1.0)	entrezgene	NCBI gene ID
+pformosa_gene_ensembl	Amazon molly genes (Poecilia_formosa-5.1.2)	ensembl_gene_id	Gene stable ID
+pformosa_gene_ensembl	Amazon molly genes (Poecilia_formosa-5.1.2)	external_gene_name	Gene name
+pformosa_gene_ensembl	Amazon molly genes (Poecilia_formosa-5.1.2)	entrezgene	NCBI gene ID
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hc_g110	AFFY HC G110 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_focus	AFFY HG Focus probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u133a	AFFY HG U133A probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u133b	AFFY HG U133B probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u95a	AFFY HG U95A probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u95av2	AFFY HG U95Av2 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u95b	AFFY HG U95B probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u95c	AFFY HG U95C probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u95d	AFFY HG U95D probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hg_u95e	AFFY HG U95E probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hta_2_0	AFFY HTA 2 0 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hugenefl	AFFY HuGeneFL probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_primeview	AFFY PrimeView probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_rhesus	AFFY Rhesus probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	affy_u133_x3p	AFFY U133 X3P probe
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	ensembl_gene_id	Gene stable ID
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	external_gene_name	Gene name
+csyrichta_gene_ensembl	Tarsier genes (Tarsius_syrichta-2.0.1)	entrezgene	NCBI gene ID
+falbicollis_gene_ensembl	Flycatcher genes (FicAlb_1.4)	ensembl_gene_id	Gene stable ID
+falbicollis_gene_ensembl	Flycatcher genes (FicAlb_1.4)	external_gene_name	Gene name
+falbicollis_gene_ensembl	Flycatcher genes (FicAlb_1.4)	entrezgene	NCBI gene ID
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hc_g110	AFFY HC G110 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_focus	AFFY HG Focus probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u133a	AFFY HG U133A probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u133b	AFFY HG U133B probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u95a	AFFY HG U95A probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u95av2	AFFY HG U95Av2 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u95b	AFFY HG U95B probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u95c	AFFY HG U95C probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u95d	AFFY HG U95D probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hg_u95e	AFFY HG U95E probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hta_2_0	AFFY HTA 2 0 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hugenefl	AFFY HuGeneFL probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_primeview	AFFY PrimeView probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_rhesus	AFFY Rhesus probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	affy_u133_x3p	AFFY U133 X3P probe
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	ensembl_gene_id	Gene stable ID
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	external_gene_name	Gene name
+ggorilla_gene_ensembl	Gorilla genes (gorGor4)	entrezgene	NCBI gene ID
+pmarinus_gene_ensembl	Lamprey genes (Pmarinus_7.0)	ensembl_gene_id	Gene stable ID
+pmarinus_gene_ensembl	Lamprey genes (Pmarinus_7.0)	external_gene_name	Gene name
+pmarinus_gene_ensembl	Lamprey genes (Pmarinus_7.0)	entrezgene	NCBI gene ID
+drerio_gene_ensembl	Zebrafish genes (GRCz11)	affy_zebgene_1_0_st_v1	AFFY ZebGene 1 0 st v1 probe
+drerio_gene_ensembl	Zebrafish genes (GRCz11)	affy_zebgene_1_1_st_v1	AFFY ZebGene 1 1 st v1 probe
+drerio_gene_ensembl	Zebrafish genes (GRCz11)	affy_zebrafish	AFFY Zebrafish probe
+drerio_gene_ensembl	Zebrafish genes (GRCz11)	ensembl_gene_id	Gene stable ID
+drerio_gene_ensembl	Zebrafish genes (GRCz11)	external_gene_name	Gene name
+drerio_gene_ensembl	Zebrafish genes (GRCz11)	entrezgene	NCBI gene ID
+itridecemlineatus_gene_ensembl	Squirrel genes (SpeTri2.0)	ensembl_gene_id	Gene stable ID
+itridecemlineatus_gene_ensembl	Squirrel genes (SpeTri2.0)	external_gene_name	Gene name
+itridecemlineatus_gene_ensembl	Squirrel genes (SpeTri2.0)	entrezgene	NCBI gene ID
+caperea_gene_ensembl	Brazilian guinea pig genes (CavAp1.0)	ensembl_gene_id	Gene stable ID
+caperea_gene_ensembl	Brazilian guinea pig genes (CavAp1.0)	external_gene_name	Gene name
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hc_g110	AFFY HC G110 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_focus	AFFY HG Focus probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u133a	AFFY HG U133A probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u133b	AFFY HG U133B probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u95a	AFFY HG U95A probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u95b	AFFY HG U95B probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u95c	AFFY HG U95C probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u95d	AFFY HG U95D probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hg_u95e	AFFY HG U95E probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hugenefl	AFFY HuGeneFL probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_primeview	AFFY PrimeView probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_rhesus	AFFY Rhesus probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	affy_u133_x3p	AFFY U133 X3P probe
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	ensembl_gene_id	Gene stable ID
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	external_gene_name	Gene name
+mfascicularis_gene_ensembl	Crab-eating macaque genes (Macaca_fascicularis_5.0)	entrezgene	NCBI gene ID
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hc_g110	AFFY HC G110 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_focus	AFFY HG Focus probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u133a	AFFY HG U133A probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u133b	AFFY HG U133B probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u95a	AFFY HG U95A probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u95av2	AFFY HG U95Av2 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u95b	AFFY HG U95B probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u95c	AFFY HG U95C probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u95d	AFFY HG U95D probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hg_u95e	AFFY HG U95E probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hta_2_0	AFFY HTA 2 0 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hugenefl	AFFY HuGeneFL probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_primeview	AFFY PrimeView probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_rhesus	AFFY Rhesus probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	affy_u133_x3p	AFFY U133 X3P probe
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	ensembl_gene_id	Gene stable ID
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	external_gene_name	Gene name
+ppaniscus_gene_ensembl	Bonobo genes (panpan1.1)	entrezgene	NCBI gene ID
+mfuro_gene_ensembl	Ferret genes (MusPutFur1.0)	ensembl_gene_id	Gene stable ID
+mfuro_gene_ensembl	Ferret genes (MusPutFur1.0)	external_gene_name	Gene name
+mfuro_gene_ensembl	Ferret genes (MusPutFur1.0)	entrezgene	NCBI gene ID
+tbelangeri_gene_ensembl	Tree Shrew genes (tupBel1)	ensembl_gene_id	Gene stable ID
+tbelangeri_gene_ensembl	Tree Shrew genes (tupBel1)	external_gene_name	Gene name
+tbelangeri_gene_ensembl	Tree Shrew genes (tupBel1)	entrezgene	NCBI gene ID
+ocuniculus_gene_ensembl	Rabbit genes (OryCun2.0)	ensembl_gene_id	Gene stable ID
+ocuniculus_gene_ensembl	Rabbit genes (OryCun2.0)	external_gene_name	Gene name
+ocuniculus_gene_ensembl	Rabbit genes (OryCun2.0)	entrezgene	NCBI gene ID
+mochrogaster_gene_ensembl	Prairie vole genes (MicOch1.0)	ensembl_gene_id	Gene stable ID
+mochrogaster_gene_ensembl	Prairie vole genes (MicOch1.0)	external_gene_name	Gene name
+mochrogaster_gene_ensembl	Prairie vole genes (MicOch1.0)	entrezgene	NCBI gene ID
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hc_g110	AFFY HC G110 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_focus	AFFY HG Focus probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u133a	AFFY HG U133A probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u133b	AFFY HG U133B probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u95a	AFFY HG U95A probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u95b	AFFY HG U95B probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u95c	AFFY HG U95C probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u95d	AFFY HG U95D probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hg_u95e	AFFY HG U95E probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hugenefl	AFFY HuGeneFL probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_primeview	AFFY PrimeView probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_rhesus	AFFY Rhesus probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	affy_u133_x3p	AFFY U133 X3P probe
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	ensembl_gene_id	Gene stable ID
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	external_gene_name	Gene name
+cpalliatus_gene_ensembl	Angola colobus genes (Cang.pa_1.0)	entrezgene	NCBI gene ID
+choffmanni_gene_ensembl	Sloth genes (choHof1)	ensembl_gene_id	Gene stable ID
+choffmanni_gene_ensembl	Sloth genes (choHof1)	external_gene_name	Gene name
+cfamiliaris_gene_ensembl	Dog genes (CanFam3.1)	affy_canine_2	AFFY Canine 2 probe
+cfamiliaris_gene_ensembl	Dog genes (CanFam3.1)	ensembl_gene_id	Gene stable ID
+cfamiliaris_gene_ensembl	Dog genes (CanFam3.1)	external_gene_name	Gene name
+cfamiliaris_gene_ensembl	Dog genes (CanFam3.1)	entrezgene	NCBI gene ID
+dmelanogaster_gene_ensembl	Fruitfly genes (BDGP6)	affy_drosgenome1	AFFY DrosGenome1 probe
+dmelanogaster_gene_ensembl	Fruitfly genes (BDGP6)	affy_drosophila_2	AFFY Drosophila 2 probe
+dmelanogaster_gene_ensembl	Fruitfly genes (BDGP6)	ensembl_gene_id	Gene stable ID
+dmelanogaster_gene_ensembl	Fruitfly genes (BDGP6)	external_gene_name	Gene name
+dmelanogaster_gene_ensembl	Fruitfly genes (BDGP6)	entrezgene	NCBI gene ID
+lchalumnae_gene_ensembl	Coelacanth genes (LatCha1)	ensembl_gene_id	Gene stable ID
+lchalumnae_gene_ensembl	Coelacanth genes (LatCha1)	external_gene_name	Gene name
+lchalumnae_gene_ensembl	Coelacanth genes (LatCha1)	entrezgene	NCBI gene ID
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hc_g110	AFFY HC G110 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_focus	AFFY HG Focus probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u133a	AFFY HG U133A probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u133b	AFFY HG U133B probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u95a	AFFY HG U95A probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u95av2	AFFY HG U95Av2 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u95b	AFFY HG U95B probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u95c	AFFY HG U95C probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u95d	AFFY HG U95D probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hg_u95e	AFFY HG U95E probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hta_2_0	AFFY HTA 2 0 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hugenefl	AFFY HuGeneFL probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_primeview	AFFY PrimeView probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	affy_u133_x3p	AFFY U133 X3P probe
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	ensembl_gene_id	Gene stable ID
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	external_gene_name	Gene name
+hsapiens_gene_ensembl	Human genes (GRCh38.p12)	entrezgene	NCBI gene ID
+fcatus_gene_ensembl	Cat genes (Felis_catus_8.0)	affy_felgene_1_0_st_v1	AFFY FelGene 1 0 st v1 probe
+fcatus_gene_ensembl	Cat genes (Felis_catus_8.0)	affy_felgene_1_1_st_v1	AFFY FelGene 1 1 st v1 probe
+fcatus_gene_ensembl	Cat genes (Felis_catus_8.0)	ensembl_gene_id	Gene stable ID
+fcatus_gene_ensembl	Cat genes (Felis_catus_8.0)	external_gene_name	Gene name
+fcatus_gene_ensembl	Cat genes (Felis_catus_8.0)	entrezgene	NCBI gene ID
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hc_g110	AFFY HC G110 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_focus	AFFY HG Focus probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u133a	AFFY HG U133A probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u133b	AFFY HG U133B probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u95a	AFFY HG U95A probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u95b	AFFY HG U95B probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u95c	AFFY HG U95C probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u95d	AFFY HG U95D probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hg_u95e	AFFY HG U95E probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hugenefl	AFFY HuGeneFL probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_primeview	AFFY PrimeView probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_rhesus	AFFY Rhesus probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	affy_u133_x3p	AFFY U133 X3P probe
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	ensembl_gene_id	Gene stable ID
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	external_gene_name	Gene name
+mmurinus_gene_ensembl	Mouse Lemur genes (Mmur_3.0)	entrezgene	NCBI gene ID
+amexicanus_gene_ensembl	Cave fish genes (AstMex102)	ensembl_gene_id	Gene stable ID
+amexicanus_gene_ensembl	Cave fish genes (AstMex102)	external_gene_name	Gene name
+amexicanus_gene_ensembl	Cave fish genes (AstMex102)	entrezgene	NCBI gene ID
+pabelii_gene_ensembl	Orangutan genes (PPYG2)	ensembl_gene_id	Gene stable ID
+pabelii_gene_ensembl	Orangutan genes (PPYG2)	external_gene_name	Gene name
+pabelii_gene_ensembl	Orangutan genes (PPYG2)	entrezgene	NCBI gene ID
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hc_g110	AFFY HC G110 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_focus	AFFY HG Focus probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u133a	AFFY HG U133A probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u133b	AFFY HG U133B probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u95a	AFFY HG U95A probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u95av2	AFFY HG U95Av2 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u95b	AFFY HG U95B probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u95c	AFFY HG U95C probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u95d	AFFY HG U95D probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hg_u95e	AFFY HG U95E probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hta_2_0	AFFY HTA 2 0 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hugenefl	AFFY HuGeneFL probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_primeview	AFFY PrimeView probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_rhesus	AFFY Rhesus probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	affy_u133_x3p	AFFY U133 X3P probe
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	ensembl_gene_id	Gene stable ID
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	external_gene_name	Gene name
+cjacchus_gene_ensembl	Marmoset genes (ASM275486v1)	entrezgene	NCBI gene ID
+tnigroviridis_gene_ensembl	Tetraodon genes (TETRAODON 8.0)	ensembl_gene_id	Gene stable ID
+tnigroviridis_gene_ensembl	Tetraodon genes (TETRAODON 8.0)	external_gene_name	Gene name
+tnigroviridis_gene_ensembl	Tetraodon genes (TETRAODON 8.0)	entrezgene	NCBI gene ID
+pvampyrus_gene_ensembl	Megabat genes (pteVam1)	ensembl_gene_id	Gene stable ID
+pvampyrus_gene_ensembl	Megabat genes (pteVam1)	external_gene_name	Gene name
+pvampyrus_gene_ensembl	Megabat genes (pteVam1)	entrezgene	NCBI gene ID
+ggallus_gene_ensembl	Chicken genes (Gallus_gallus-5.0)	affy_chicken	AFFY Chicken probe
+ggallus_gene_ensembl	Chicken genes (Gallus_gallus-5.0)	ensembl_gene_id	Gene stable ID
+ggallus_gene_ensembl	Chicken genes (Gallus_gallus-5.0)	external_gene_name	Gene name
+ggallus_gene_ensembl	Chicken genes (Gallus_gallus-5.0)	entrezgene	NCBI gene ID
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hc_g110	AFFY HC G110 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_focus	AFFY HG Focus probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u133a	AFFY HG U133A probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u133b	AFFY HG U133B probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u95a	AFFY HG U95A probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u95b	AFFY HG U95B probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u95c	AFFY HG U95C probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u95d	AFFY HG U95D probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hg_u95e	AFFY HG U95E probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hugenefl	AFFY HuGeneFL probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_primeview	AFFY PrimeView probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_rhesus	AFFY Rhesus probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	affy_u133_x3p	AFFY U133 X3P probe
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	ensembl_gene_id	Gene stable ID
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	external_gene_name	Gene name
+sboliviensis_gene_ensembl	Bolivian squirrel monkey genes (SaiBol1.0)	entrezgene	NCBI gene ID
+psinensis_gene_ensembl	Chinese softshell turtle genes (PelSin_1.0)	ensembl_gene_id	Gene stable ID
+psinensis_gene_ensembl	Chinese softshell turtle genes (PelSin_1.0)	external_gene_name	Gene name
+psinensis_gene_ensembl	Chinese softshell turtle genes (PelSin_1.0)	entrezgene	NCBI gene ID
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hc_g110	AFFY HC G110 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_focus	AFFY HG Focus probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u133a	AFFY HG U133A probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u133b	AFFY HG U133B probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u95a	AFFY HG U95A probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u95b	AFFY HG U95B probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u95c	AFFY HG U95C probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u95d	AFFY HG U95D probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hg_u95e	AFFY HG U95E probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hugenefl	AFFY HuGeneFL probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_primeview	AFFY PrimeView probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_rhesus	AFFY Rhesus probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	affy_u133_x3p	AFFY U133 X3P probe
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	ensembl_gene_id	Gene stable ID
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	external_gene_name	Gene name
+nleucogenys_gene_ensembl	Gibbon genes (Nleu_3.0)	entrezgene	NCBI gene ID
+mgallopavo_gene_ensembl	Turkey genes (Turkey_2.01)	ensembl_gene_id	Gene stable ID
+mgallopavo_gene_ensembl	Turkey genes (Turkey_2.01)	external_gene_name	Gene name
+mgallopavo_gene_ensembl	Turkey genes (Turkey_2.01)	entrezgene	NCBI gene ID
+gmorhua_gene_ensembl	Cod genes (gadMor1)	ensembl_gene_id	Gene stable ID
+gmorhua_gene_ensembl	Cod genes (gadMor1)	external_gene_name	Gene name
+vpacos_gene_ensembl	Alpaca genes (vicPac1)	ensembl_gene_id	Gene stable ID
+vpacos_gene_ensembl	Alpaca genes (vicPac1)	external_gene_name	Gene name
+vpacos_gene_ensembl	Alpaca genes (vicPac1)	entrezgene	NCBI gene ID
+ccrigri_gene_ensembl	Chinese hamster CriGri genes (CriGri_1.0)	ensembl_gene_id	Gene stable ID
+ccrigri_gene_ensembl	Chinese hamster CriGri genes (CriGri_1.0)	external_gene_name	Gene name
+ccrigri_gene_ensembl	Chinese hamster CriGri genes (CriGri_1.0)	entrezgene	NCBI gene ID
+oanatinus_gene_ensembl	Platypus genes (OANA5)	affy_platypus_exon	AFFY platypus exon probe
+oanatinus_gene_ensembl	Platypus genes (OANA5)	ensembl_gene_id	Gene stable ID
+oanatinus_gene_ensembl	Platypus genes (OANA5)	external_gene_name	Gene name
+oanatinus_gene_ensembl	Platypus genes (OANA5)	entrezgene	NCBI gene ID
+dordii_gene_ensembl	Kangaroo rat genes (Dord_2.0)	ensembl_gene_id	Gene stable ID
+dordii_gene_ensembl	Kangaroo rat genes (Dord_2.0)	external_gene_name	Gene name
+dordii_gene_ensembl	Kangaroo rat genes (Dord_2.0)	entrezgene	NCBI gene ID
+ttruncatus_gene_ensembl	Dolphin genes (turTru1)	ensembl_gene_id	Gene stable ID
+ttruncatus_gene_ensembl	Dolphin genes (turTru1)	external_gene_name	Gene name
+ttruncatus_gene_ensembl	Dolphin genes (turTru1)	entrezgene	NCBI gene ID
+ecaballus_gene_ensembl	Horse genes (Equ Cab 2)	ensembl_gene_id	Gene stable ID
+ecaballus_gene_ensembl	Horse genes (Equ Cab 2)	external_gene_name	Gene name
+ecaballus_gene_ensembl	Horse genes (Equ Cab 2)	entrezgene	NCBI gene ID
+oprinceps_gene_ensembl	Pika genes (OchPri2.0-Ens)	ensembl_gene_id	Gene stable ID
+oprinceps_gene_ensembl	Pika genes (OchPri2.0-Ens)	external_gene_name	Gene name
+oprinceps_gene_ensembl	Pika genes (OchPri2.0-Ens)	entrezgene	NCBI gene ID
+loculatus_gene_ensembl	Spotted gar genes (LepOcu1)	ensembl_gene_id	Gene stable ID
+loculatus_gene_ensembl	Spotted gar genes (LepOcu1)	external_gene_name	Gene name
+loculatus_gene_ensembl	Spotted gar genes (LepOcu1)	entrezgene	NCBI gene ID
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rae230a	AFFY RAE230A probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rae230b	AFFY RAE230B probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_raex_1_0_st_v1	AFFY RaEx 1 0 st v1 probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_ragene_1_0_st_v1	AFFY RaGene 1 0 st v1 probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_ragene_2_1_st_v1	AFFY RaGene 2 1 st v1 probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rat230_2	AFFY Rat230 2 probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rg_u34a	AFFY RG U34A probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rg_u34b	AFFY RG U34B probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rg_u34c	AFFY RG U34C probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rn_u34	AFFY RN U34 probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	affy_rt_u34	AFFY RT U34 probe
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	ensembl_gene_id	Gene stable ID
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	external_gene_name	Gene name
+rnorvegicus_gene_ensembl	Rat genes (Rnor_6.0)	entrezgene	NCBI gene ID
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hc_g110	AFFY HC G110 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_focus	AFFY HG Focus probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u133a	AFFY HG U133A probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u133b	AFFY HG U133B probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u95a	AFFY HG U95A probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u95b	AFFY HG U95B probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u95c	AFFY HG U95C probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u95d	AFFY HG U95D probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hg_u95e	AFFY HG U95E probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hugenefl	AFFY HuGeneFL probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_primeview	AFFY PrimeView probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_rhesus	AFFY Rhesus probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	affy_u133_x3p	AFFY U133 X3P probe
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	ensembl_gene_id	Gene stable ID
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	external_gene_name	Gene name
+ptroglodytes_gene_ensembl	Chimpanzee genes (Pan_tro_3.0)	entrezgene	NCBI gene ID
+oaries_gene_ensembl	Sheep genes (Oar_v3.1)	ensembl_gene_id	Gene stable ID
+oaries_gene_ensembl	Sheep genes (Oar_v3.1)	external_gene_name	Gene name
+oaries_gene_ensembl	Sheep genes (Oar_v3.1)	entrezgene	NCBI gene ID
+jjaculus_gene_ensembl	Lesser Egyptian jerboa genes (JacJac1.0)	ensembl_gene_id	Gene stable ID
+jjaculus_gene_ensembl	Lesser Egyptian jerboa genes (JacJac1.0)	external_gene_name	Gene name
+jjaculus_gene_ensembl	Lesser Egyptian jerboa genes (JacJac1.0)	entrezgene	NCBI gene ID
+scerevisiae_gene_ensembl	Saccharomyces cerevisiae genes (R64-1-1)	affy_yeast_2	AFFY Yeast 2 probe
+scerevisiae_gene_ensembl	Saccharomyces cerevisiae genes (R64-1-1)	affy_yg_s98	AFFY YG S98 probe
+scerevisiae_gene_ensembl	Saccharomyces cerevisiae genes (R64-1-1)	ensembl_gene_id	Gene stable ID
+scerevisiae_gene_ensembl	Saccharomyces cerevisiae genes (R64-1-1)	external_gene_name	Gene name
+scerevisiae_gene_ensembl	Saccharomyces cerevisiae genes (R64-1-1)	entrezgene	NCBI gene ID
+chircus_gene_ensembl	Goat genes (ARS1)	ensembl_gene_id	Gene stable ID
+chircus_gene_ensembl	Goat genes (ARS1)	external_gene_name	Gene name
+chircus_gene_ensembl	Goat genes (ARS1)	entrezgene	NCBI gene ID
+hmale_gene_ensembl	Naked mole-rat male genes (HetGla_1.0)	ensembl_gene_id	Gene stable ID
+hmale_gene_ensembl	Naked mole-rat male genes (HetGla_1.0)	external_gene_name	Gene name
+hmale_gene_ensembl	Naked mole-rat male genes (HetGla_1.0)	entrezgene	NCBI gene ID
+saraneus_gene_ensembl	Shrew genes (sorAra1)	ensembl_gene_id	Gene stable ID
+saraneus_gene_ensembl	Shrew genes (sorAra1)	external_gene_name	Gene name
+saraneus_gene_ensembl	Shrew genes (sorAra1)	entrezgene	NCBI gene ID
+btaurus_gene_ensembl	Cow genes (UMD3.1)	affy_bovine	AFFY Bovine probe
+btaurus_gene_ensembl	Cow genes (UMD3.1)	ensembl_gene_id	Gene stable ID
+btaurus_gene_ensembl	Cow genes (UMD3.1)	external_gene_name	Gene name
+btaurus_gene_ensembl	Cow genes (UMD3.1)	entrezgene	NCBI gene ID
+dnovemcinctus_gene_ensembl	Armadillo genes (Dasnov3.0)	ensembl_gene_id	Gene stable ID
+dnovemcinctus_gene_ensembl	Armadillo genes (Dasnov3.0)	external_gene_name	Gene name
+dnovemcinctus_gene_ensembl	Armadillo genes (Dasnov3.0)	entrezgene	NCBI gene ID
+oniloticus_gene_ensembl	Tilapia genes (Orenil1.0)	ensembl_gene_id	Gene stable ID
+oniloticus_gene_ensembl	Tilapia genes (Orenil1.0)	external_gene_name	Gene name
+oniloticus_gene_ensembl	Tilapia genes (Orenil1.0)	entrezgene	NCBI gene ID
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mg_u74a	AFFY MG U74A probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mg_u74av2	AFFY MG U74Av2 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mg_u74b	AFFY MG U74B probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mg_u74bv2	AFFY MG U74Bv2 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mg_u74c	AFFY MG U74C probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mg_u74cv2	AFFY MG U74Cv2 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_moe430a	AFFY MOE430A probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_moe430b	AFFY MOE430B probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_moex_1_0_st_v1	AFFY MoEx 1 0 st v1 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mogene_1_0_st_v1	AFFY MoGene 1 0 st v1 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mogene_2_1_st_v1	AFFY MoGene 2 1 st v1 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mouse430a_2	AFFY Mouse430A 2 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mouse430_2	AFFY Mouse430 2 probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mu11ksuba	AFFY Mu11KsubA probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	affy_mu11ksubb	AFFY Mu11KsubB probe
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	ensembl_gene_id	Gene stable ID
+mspretus_gene_ensembl	Algerian mouse genes (SPRET_EiJ_v1)	external_gene_name	Gene name
+olatipes_gene_ensembl	Medaka genes (HdrR)	ensembl_gene_id	Gene stable ID
+olatipes_gene_ensembl	Medaka genes (HdrR)	external_gene_name	Gene name
+olatipes_gene_ensembl	Medaka genes (HdrR)	entrezgene	NCBI gene ID
+pbairdii_gene_ensembl	Northern American deer mouse genes (Pman_1.0)	ensembl_gene_id	Gene stable ID
+pbairdii_gene_ensembl	Northern American deer mouse genes (Pman_1.0)	external_gene_name	Gene name
+pbairdii_gene_ensembl	Northern American deer mouse genes (Pman_1.0)	entrezgene	NCBI gene ID
+sharrisii_gene_ensembl	Tasmanian devil genes (Devil_ref v7.0)	ensembl_gene_id	Gene stable ID
+sharrisii_gene_ensembl	Tasmanian devil genes (Devil_ref v7.0)	external_gene_name	Gene name
+sharrisii_gene_ensembl	Tasmanian devil genes (Devil_ref v7.0)	entrezgene	NCBI gene ID
+xmaculatus_gene_ensembl	Platyfish genes (Xipmac4.4.2)	ensembl_gene_id	Gene stable ID
+xmaculatus_gene_ensembl	Platyfish genes (Xipmac4.4.2)	external_gene_name	Gene name
+xmaculatus_gene_ensembl	Platyfish genes (Xipmac4.4.2)	entrezgene	NCBI gene ID
+trubripes_gene_ensembl	Fugu genes (FUGU 4.0)	ensembl_gene_id	Gene stable ID
+trubripes_gene_ensembl	Fugu genes (FUGU 4.0)	external_gene_name	Gene name
+trubripes_gene_ensembl	Fugu genes (FUGU 4.0)	entrezgene	NCBI gene ID
+mlucifugus_gene_ensembl	Microbat genes (Myoluc2.0)	ensembl_gene_id	Gene stable ID
+mlucifugus_gene_ensembl	Microbat genes (Myoluc2.0)	external_gene_name	Gene name
+mlucifugus_gene_ensembl	Microbat genes (Myoluc2.0)	entrezgene	NCBI gene ID
+aplatyrhynchos_gene_ensembl	Duck genes (BGI_duck_1.0)	ensembl_gene_id	Gene stable ID
+aplatyrhynchos_gene_ensembl	Duck genes (BGI_duck_1.0)	external_gene_name	Gene name
+aplatyrhynchos_gene_ensembl	Duck genes (BGI_duck_1.0)	entrezgene	NCBI gene ID
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hc_g110	AFFY HC G110 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_focus	AFFY HG Focus probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u133a	AFFY HG U133A probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u133b	AFFY HG U133B probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u95a	AFFY HG U95A probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u95b	AFFY HG U95B probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u95c	AFFY HG U95C probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u95d	AFFY HG U95D probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hg_u95e	AFFY HG U95E probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hugenefl	AFFY HuGeneFL probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_primeview	AFFY PrimeView probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_rhesus	AFFY Rhesus probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	affy_u133_x3p	AFFY U133 X3P probe
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	ensembl_gene_id	Gene stable ID
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	external_gene_name	Gene name
+anancymaae_gene_ensembl	Ma's night monkey genes (Anan_2.0)	entrezgene	NCBI gene ID
+clanigera_gene_ensembl	Long-tailed chinchilla genes (ChiLan1.0)	ensembl_gene_id	Gene stable ID
+clanigera_gene_ensembl	Long-tailed chinchilla genes (ChiLan1.0)	external_gene_name	Gene name
+clanigera_gene_ensembl	Long-tailed chinchilla genes (ChiLan1.0)	entrezgene	NCBI gene ID
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_cyngene_1_0_st_v1	AFFY CynGene 1 0 st v1 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_cyrgene_1_0_st_v1	AFFY CyRGene 1 0 st v1 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hc_g110	AFFY HC G110 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_focus	AFFY HG Focus probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u133a	AFFY HG U133A probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u133a_2	AFFY HG U133A 2 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u133b	AFFY HG U133B probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u133_plus_2	AFFY HG U133 Plus 2 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u95a	AFFY HG U95A probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u95av2	AFFY HG U95Av2 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u95b	AFFY HG U95B probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u95c	AFFY HG U95C probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u95d	AFFY HG U95D probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hg_u95e	AFFY HG U95E probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hta_2_0	AFFY HTA 2 0 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_huex_1_0_st_v2	AFFY HuEx 1 0 st v2 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hugenefl	AFFY HuGeneFL probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hugene_1_0_st_v1	AFFY HuGene 1 0 st v1 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_hugene_2_0_st_v1	AFFY HuGene 2 0 st v1 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_primeview	AFFY PrimeView probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_rhegene_1_0_st_v1	AFFY RheGene 1 0 st v1 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_rhegene_1_1_st_v1	AFFY RheGene 1 1 st v1 probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_rhesus	AFFY Rhesus probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	affy_u133_x3p	AFFY U133 X3P probe
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	ensembl_gene_id	Gene stable ID
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	external_gene_name	Gene name
+ccapucinus_gene_ensembl	Capuchin genes (Cebus_imitator-1.0)	entrezgene	NCBI gene ID
+pcapensis_gene_ensembl	Hyrax genes (proCap1)	ensembl_gene_id	Gene stable ID
+pcapensis_gene_ensembl	Hyrax genes (proCap1)	external_gene_name	Gene name
+pcapensis_gene_ensembl	Hyrax genes (proCap1)	entrezgene	NCBI gene ID
+fdamarensis_gene_ensembl	Damara mole rat genes (DMR_v1.0)	ensembl_gene_id	Gene stable ID
+fdamarensis_gene_ensembl	Damara mole rat genes (DMR_v1.0)	external_gene_name	Gene name
+fdamarensis_gene_ensembl	Damara mole rat genes (DMR_v1.0)	entrezgene	NCBI gene ID
