@@ -504,22 +504,4 @@ This tool use the LIMMA function from R package limma.
 - **LOG file** for job log. If you see errors, please attached this in the bug report
   </help>
 
- <citations>
-  <citation type="bibtex">@article{doi:10.1093/nar/gkv007,
-  author = {Ritchie, Matthew E. and Phipson, Belinda and Wu, Di and Hu, Yifang and Law, Charity W. and Shi, Wei and Smyth, Gordon K.},
-  title = {limma powers differential expression analyses for RNA-sequencing and microarray studies},
-  journal = {Nucleic Acids Research},
-  volume = {43},
-  number = {7},
-  pages = {e47},
-  year = {2015},
-  doi = {10.1093/nar/gkv007},
-  URL = {http://dx.doi.org/10.1093/nar/gkv007},
-  eprint = {/oup/backfile/content_public/journal/nar/43/7/10.1093_nar_gkv007/2/gkv007.pdf}
-  }</citation>
-
-  <citation type="bibtex">@online{plotly, author = {Plotly Technologies Inc.}, title = {Collaborative data science}, publisher = {Plotly Technologies Inc.}, address = {Montreal, QC}, year = {2015}, url = {https://plot.ly}
-  }</citation>
- </citations>
-
 </tool>
