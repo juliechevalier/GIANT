@@ -597,37 +597,5 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 ]]> 
   </help>
- <citations>
-    <citation type="bibtex">@article{,
-    author = {Galili, Tal and O'Callaghan, Alan and
-      Sidi, Jonathan and Sievert, Carson},
-    title = {heatmaply: an R package for creating interactive cluster
-      heatmaps for online publishing},
-    journal = {Bioinformatics},
-    year = {2017},
-    doi = {10.1093/bioinformatics/btx657},
-    url = {http://dx.doi.org/10.1093/bioinformatics/btx657},
-    eprint =
-      {https://academic.oup.com/bioinformatics/article-pdf/doi/10.1093/bioinformatics/btx657/21358327/btx657.pdf}
-  }</citation>
-
-  <citation type="bibtex">@article{doi:10.1093/bioinformatics/btu393,
-    author = {Gu, Zuguang and Gu, Lei and Eils, Roland and Schlesner, Matthias and Brors, Benedikt},
-    title = {circlize implements and enhances circular visualization in R },
-    journal = {Bioinformatics},
-    volume = {30},
-    number = {19},
-    pages = {2811-2812},
-    year = {2014},
-    doi = {10.1093/bioinformatics/btu393},
-    URL = {http://dx.doi.org/10.1093/bioinformatics/btu393},
-    eprint = {/oup/backfile/content_public/journal/bioinformatics/30/19/10.1093_bioinformatics_btu393/2/btu393.pdf}
-  }</citation>
-
-  <citation type="bibtex">@online{plotly, author = {Plotly Technologies Inc.}, title = {Collaborative data science}, publisher = {Plotly Technologies Inc.}, address = {Montreal, QC}, year = {2015}, url = {https://plot.ly}
-  }</citation>
-
-
- </citations>
 
 </tool>
