@@ -340,4 +340,10 @@ Extract of annotation file::
 
 ]]> 
   </help>
+
+
+ <citations>
+  <citation type="bibtex">@online{apt, author = {Thermo Fisher Scientific}, title = {Affymetrix Power Tools}, publisher = {Life Technologies Corp.}, address = {USA, MA}, version = {2.10.2}, year = {2018}, url = {https://www.affymetrix.com/support/developer/powertools/changelog/index.html}
+  }</citation>
+ </citations>
 </tool>
