@@ -539,4 +539,9 @@ OR
 - **LOG file** for job logs. In case of job failure, please attached this file to bug report
 ]]>  </help>
 
+ <citations>
+  <citation type="bibtex">@online{plotly, author = {Plotly Technologies Inc.}, title = {Collaborative data science}, publisher = {Plotly Technologies Inc.}, address = {Montreal, QC}, year = {2015}, url = {https://plot.ly}
+  }</citation>
+ </citations>
+
 </tool>
