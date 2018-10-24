@@ -472,21 +472,27 @@ printf  "</body>\n</html>" >> $html_file
   </configfiles>
   
  <tests>
-  <test maxseconds="3600">
-    <param name="wfile" value="wiggle.wig" />
-    <param name="bfile" value="bedfile.bed" />
-    <param name="span" value="3000" />
-    <param name="pfres" value="50" />
-    <param name="lowersize" value="1000" />
-    <param name="middlesize" value="2000" />
-    <param name="uppersize" value="3000" />
-    <param name="lowerbisize" value="2500" />
-    <param name="upperbisize" value="5000" />
-    <param name="reldist" value="3000" />
-    <param name="genome" value="hg18" />
-    <param name="imagetype" value="PDF" />
-    <param name="enable" value="no" />
-    <output name="outputData" file="ceas_1/ceas_1.pdf" />
+  <test maxseconds="7200">
+    <param name="dataToCluster_selector" value="expression" />
+    <param name="expressionData" value="./NormalizedData.tabular" />
+    <param name="filtering_step_selector" value="input" />
+    <param name="filtering_stepBis_selector" value="diffExpParam" />
+    <param name="differentialAnalysis" value="./LIMMAstatistics.tabular" />
+    <param name="comparisonsToInclude" value="WT*WY14643-KO*WY14643" />
+    <param name="FCthreshold" value="1.2" />
+    <param name="pvalThreshold" value="0.05" />
+    <output name="log" file="./HierarchicalClustering/ExpressionClustering.log" lines_diff="6" />
+  </test>
+  <test maxseconds="7200">
+    <param name="dataToCluster_selector" value="foldChange" />
+    <param name="differentialAnalysis" value="./LIMMAstatistics.tabular" />
+    <param name="comparisonsToInclude" value="WT*WY14643+KO*WY14643-WT*Control-KO*Control,WT*WY14643+WT*Control-KO*WY14643-KO*Control" />
+    <param name="filtering_step_selector" value="output" />
+    <param name="filtering_stepBis_selector" value="diffExpParam" />
+    <param name="FCthreshold" value="1.2" />
+    <param name="pvalThreshold" value="0.05" />
+    <output name="outputData" file="./HierarchicalClustering/foldChangeClustering.tabular" />
+    <output name="log" file="./HierarchicalClustering/foldChangeClustering.log" lines_diff="6" />
   </test>
 </tests> 
   <help>
