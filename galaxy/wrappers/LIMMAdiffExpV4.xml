@@ -479,30 +479,95 @@ printf  "</body>\n</html>" >> $html_file
   </test>
 </tests> 
   <help>
-To compute differential expressions for a set of genes.
+<![CDATA[
+**What it does ?**
+
+This tool compute differential expressions for a set of genes.
 This tool use the LIMMA function from R package limma.
-
-.. class:: warningmark
-
-**SANDBOX TOOL**
 
 -----
 
 **Parameters**
 
-\- **Title** to personalize output file names (please avoid special characters).
+\- **Input Files**
 
-- **Normalized tabular file** tab delimited matrix with first row containing names of conditions and first column containing the name of genes (expression are supposed to be allready log2 transformed)
-- **Factor information** indicate if factor information of each condition is included in the tabluar file, in this case each factor should be indicated in rows starting from 2nd row, factor values should not be interpreted as a pure numeric value or will be wrongly integrated in dataset as expression values 
+- **Title** to personalize output file names (please avoid special characters).
+- **Normalized expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers). Expressions are supposed to be already log2 transformed.
 
+    ::
+
+        Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
+        DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+        MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+        OR4F5       3.737956                3.011586                 3.424494                   3.497545
+        VWA1        5.189621                5.129595                 4.806793                   5.227014
+
+- **Factor information tabular file**  with factors as columns and samples as rows (header row contains factor names and first column sample names).
+
+    ::
+
+        Conditions                Sex   Treatment Reaction
+        138_(HuGene-2_0-st).CEL   1     TreatA    Pos
+        148_(HuGene-2_0-st).CEL   0     NoTreat   Pos
+        139_(HuGene-2_0-st).CEL   0     TreatB    Neg
+        149_(HuGene-2_0-st).CEL   0     NoTreat   Neg
+
+\- **Contrast Definition**
+
+- **Select all factors to include in the global model** : proposed from factor information file (Treatment,Strain ...). DO NOT select confounding factors or paired-analysis information (replicates number,dates...)
+
+- **Contrast**
+
+    \- **Contrast Name** retrieved in output file (as short as possible)
+
+    \- **Select factor levels of 1st group** : the contrast will be computed with the formula "1st group versus 2nd group" so "1st group - 2nd group".
+
+    \- **Select factor levels of 2nd group** : see below some usage examples
+
+
+    ::
+
+	Nb Factors	List of Factors 	Factor levels		Expected Contrast				Select as 1st gr		Select as 2nd gr
+	1		Strain			WT, KO			KO vs WT					KO			 	WT
+	2		Strain, Treatment	WT, KO, NoTreat,TreatA	TreatA vs NoTreat in WT mice			TreatA*WT			NoTreat*WT
+	2		Strain, Treatment	WT, KO, NoTreat,TreatA	Treatment effect on Strain dependent genes	See results of interaction contrast
+
+- **Add Interaction Contrasts** : to compute automatically each level of interaction (no need to enter formula)
+
+\- **Paired analysis / confounding factors**
+
+- **Add confounding factors** : Any information which create "blocks" on your data other than blocks created by Principal Factors: batch effect (dates...) or paired-analysis information (replicates number...)
+
+\- **Output section**
+
+- **Output FDR p-val threshold** : only genes passing this threshold (in at least one of requested contrasts) will be in result tab. Used in volcano plot too.
+
+- **Plot histograms** : if yes, plot histograms of unadjusted p-values for each requested contrast.
+
+- **Plot volcanos** : if yes, plot volcanos for each requested contrast with FDR p-val threshold & FC threshold chosen.
+
+- **Fold change threshold for volcanos** : Used only for volcano plots, not for result tab. (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)
+
+- **Add gene/probe information** : if yes, Add description of genes to the result tab.
+
+- **Html snapshot format** : format of plot images taken from interactive view
+
+\- **Advanced Parameters**
+
+- **Confounding effect policy** : DO NOT modify this parameter unless you know what you are doing! See Limma documentation for more information.
 
 -----
 
 **Outputs**
 
 - **tabular file** is the result for LIMMA, represented as tab delimited matrix where each colum contain DE statistics between groups for each gene (in rows).
+
+- **HTML file** to access interactive version of histograms, F-Ratio barplots and volcanos through PlotLy html pages and tabulated differential results.
+
 - **LOG file** for job log. If you see errors, please attached this in the bug report
-  </help>
+
+]]>  </help>
+
 
  <citations>
   <citation type="bibtex">@article{doi:10.1093/nar/gkv007,
