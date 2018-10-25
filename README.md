@@ -1,5 +1,7 @@
 # GIANT
+[![DOI](https://zenodo.org/badge/141709375.svg)](https://zenodo.org/badge/latestdoi/141709375)
 Galaxy-based Interactive tools for ANalysis of Transcriptomic data
+
 
 ## User-friendly tools suite for micro-arrays analyses and for exploring RNA-seq & Micro-Arrays differential results
 
