@@ -10,7 +10,8 @@ Some description (see abstract JOBIM2018)
 
 ### Citation
 
-Please cite the authors (J. Vandel, C. Gheeraert, J. Eeckhoute, B. Staels, P. Lefebvre, J. Dubois-Chevalier) and this repository with the associated DOI when you use GIANT tools.
+Vandel, Jimmy, Gheeraert, Céline, Eeckhoute, Jérôme, Staels, Bart, Lefebvre, Philippe, & Dubois-Chevalier, Julie. (2018, October 25). juliechevalier/GIANT: First Release of GIANT (Version v0.0.1). Zenodo. http://doi.org/10.5281/zenodo.1471427
+
 Each tool wraps R/Bioconductor tool, cite them as indicated in citations section of the wrappers
 
 ### Documentation
