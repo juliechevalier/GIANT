@@ -1,4 +1,4 @@
-<tool name="GIANT-Plot Functions" id="GIANT_Plot-Functions" version="0.1">
+<tool name="GIANT-QC Plots" id="GIANT_Plot-Functions" version="0.1">
   <description>Descriptive plots of .CEL collections or normalized expression data</description>
   <requirements>
 	  <requirement type="package" version="1.42.0">bioconductor-oligo</requirement>
@@ -479,7 +479,7 @@ printf  "</body>\n</html>" >> $html_file
 <![CDATA[
 **What it does ?**
 
-This tool generate descriptive plots for Affymetrix raw data (.CEL file) or any tabular file containing expression data.
+This tool generate descriptive plots for Affymetrix raw data (.CEL file) or any tabular file containing expression data (from arrays or RNA-seq).
 
 -----
 
