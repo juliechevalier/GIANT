@@ -570,6 +570,9 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 
 
  <citations>
+  <citation type="bibtex">@misc{vandel_jimmy_2018_1477855, author = {Vandel, J. and Gheeraert, C. and Eeckhoute, J. and Staels, B. and Lefebvre, P. and Dubois-Chevalier, J.}, title = {GIANT: Galaxy-based Interactive tools for ANalaysis of Transcriptomic data}, month = nov, year = 2018, doi = {10.5281/zenodo.1477855}, url = {https://doi.org/10.5281/zenodo.1477855}
+  }</citation>
+
   <citation type="bibtex">@article{doi:10.1093/nar/gkv007,
   author = {Ritchie, Matthew E. and Phipson, Belinda and Wu, Di and Hu, Yifang and Law, Charity W. and Shi, Wei and Smyth, Gordon K.},
   title = {limma powers differential expression analyses for RNA-sequencing and microarray studies},

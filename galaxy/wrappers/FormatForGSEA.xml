@@ -205,6 +205,9 @@ For all configurations:
   </help>
 
  <citations>
+  <citation type="bibtex">@misc{vandel_jimmy_2018_1477855, author = {Vandel, J. and Gheeraert, C. and Eeckhoute, J. and Staels, B. and Lefebvre, P. and Dubois-Chevalier, J.}, title = {GIANT: Galaxy-based Interactive tools for ANalaysis of Transcriptomic data}, month = nov, year = 2018, doi = {10.5281/zenodo.1477855}, url = {https://doi.org/10.5281/zenodo.1477855}
+  }</citation>
+
   <citation type="bibtex">@article {Subramanian15545,
   author = {Subramanian, Aravind and Tamayo, Pablo and Mootha, Vamsi K. and Mukherjee, Sayan and Ebert, Benjamin L. and Gillette, Michael A. and Paulovich, Amanda and Pomeroy, Scott L. and Golub, Todd R. and Lander, Eric S. and Mesirov, Jill P.},
   title = {Gene set enrichment analysis: A knowledge-based approach for interpreting genome-wide expression profiles},

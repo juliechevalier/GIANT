@@ -540,6 +540,9 @@ OR
 ]]>  </help>
 
  <citations>
+  <citation type="bibtex">@misc{vandel_jimmy_2018_1477855, author = {Vandel, J. and Gheeraert, C. and Eeckhoute, J. and Staels, B. and Lefebvre, P. and Dubois-Chevalier, J.}, title = {GIANT: Galaxy-based Interactive tools for ANalaysis of Transcriptomic data}, month = nov, year = 2018, doi = {10.5281/zenodo.1477855}, url = {https://doi.org/10.5281/zenodo.1477855}
+  }</citation>
+
   <citation type="bibtex">@online{plotly, author = {Plotly Technologies Inc.}, title = {Collaborative data science}, publisher = {Plotly Technologies Inc.}, address = {Montreal, QC}, year = {2015}, url = {https://plot.ly}
   }</citation>
  </citations>
