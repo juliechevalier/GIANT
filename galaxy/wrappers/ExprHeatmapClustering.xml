@@ -1,4 +1,4 @@
-<tool name="GIANT-Hierarchical clustering" id="GIANT_Hierarchical-clustering" version="0.1">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="GIANT_Hierarchical-clustering" version="0.1">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.5.6">r-plotly</requirement>
@@ -499,11 +499,7 @@ printf  "</body>\n</html>" >> $html_file
   	<![CDATA[
 **What it does** 
 
-Run hierarchical clustering on gene expression data or differential expression analysis and diplay correponding heatmap.
-
-.. class:: warningmark
-
-**SANDBOX TOOL** this program is still in developement 
+Run hierarchical clustering on gene expression data or differential expression analysis (from arrays and RNA-seq studies) and diplay correponding heatmap.
 
 -----
 
