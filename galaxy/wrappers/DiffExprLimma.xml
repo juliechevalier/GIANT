@@ -1,4 +1,4 @@
-<tool name="GIANT-LIMMA Analysis" id="GIANT_LIMMA-Analysis" version="0.1">
+<tool name="GIANT-Differential Expression with LIMMA" id="GIANT_LIMMA-Analysis" version="0.1">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -483,7 +483,7 @@ printf  "</body>\n</html>" >> $html_file
 **What it does ?**
 
 This tool compute differential expressions for a set of genes.
-This tool use the LIMMA function from R package limma.
+This tool use the LIMMA function from R package limma. (only adapted for arrays data)
 
 -----
 
