@@ -31,11 +31,12 @@ Galaxy Installation
 toolshed version soon
 
 
-This tools suite is developed by Team_ `"Molecular analysis of gene regulation in cardiometabolic diseases"`__ at U1011_`-Nuclear receptors, cardiovascular diseases and diabetes`
+This tools suite is developed by Team_ `"Molecular analysis of gene regulation in cardiometabolic diseases"`__ 
 
 .. _Team: https://u1011.pasteur-lille.fr/lunite/theme-4-analyse-moleculaire-de-la-regulation-des-genes-dans-le-syndrome-cardiometabolique/
 __ Team_
 
+at U1011_`-Nuclear receptors, cardiovascular diseases and diabetes`
 
 .. _U1011: http://u1011.pasteur-lille.fr/accueil/
 __ U1011_
