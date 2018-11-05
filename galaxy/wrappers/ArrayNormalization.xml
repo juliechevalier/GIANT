@@ -273,11 +273,6 @@ fi
 
 To normalize expression data from Affymetrix GeneChip arrays through Affymetrix Power Tools software.
 
-
-.. class:: warningmark
-
-**SANDBOX TOOL** this program is still in developement 
-
 -----
 
 **Parameters**
