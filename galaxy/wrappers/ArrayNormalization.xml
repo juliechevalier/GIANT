@@ -1,4 +1,4 @@
-<tool name="GIANT-Normalization with APT Summarize" id="GIANT_APT-Summarize" version="0.1">
+<tool name="GIANT-Normalization with APT Summarize" id="giant_aptsummarize" version="0.1">
   <description>Apply Affymetrix Power Tool summarize function to .CEL collection</description>
   <requirements>
     <requirement type="package" version="2.10.0">apt-probeset-summarize</requirement>
