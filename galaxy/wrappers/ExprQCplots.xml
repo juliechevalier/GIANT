@@ -1,4 +1,4 @@
-<tool name="GIANT-QC Plots" id="GIANT_Plot-Functions" version="0.1">
+<tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1">
   <description>Descriptive plots of .CEL collections or normalized expression data</description>
   <requirements>
 	  <requirement type="package" version="1.42.0">bioconductor-oligo</requirement>
