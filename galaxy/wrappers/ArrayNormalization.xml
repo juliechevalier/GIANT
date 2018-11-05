@@ -338,7 +338,7 @@ Extract of annotation file::
 
 
  <citations>
-   <citation type="bibtex">@misc{vandel_jimmy_2018_1477870, author = {Vandel, J. and Gheeraert, C. and Eeckhoute, J. and Staels, B. and Lefebvre, P. and Dubois-Chevalier, J.}, title = {GIANT: Galaxy-based Interactive tools for ANalaysis of Transcriptomic data}, month = nov, year = 2018, doi = {10.5281/zenodo.1477855}, url = {https://doi.org/10.5281/zenodo.1477870}
+   <citation type="bibtex">@misc{vandel_jimmy_2018_1477870, author = {Vandel, J. and Gheeraert, C. and Eeckhoute, J. and Staels, B. and Lefebvre, P. and Dubois-Chevalier, J.}, title = {GIANT: Galaxy-based Interactive tools for ANalaysis of Transcriptomic data}, month = nov, year = 2018, doi = {10.5281/zenodo.1477870}, url = {https://doi.org/10.5281/zenodo.1477870}
   }</citation>
 
   <citation type="bibtex">@online{apt, author = {Thermo Fisher Scientific}, title = {Affymetrix Power Tools}, publisher = {Life Technologies Corp.}, address = {USA, MA}, version = {2.10.2}, year = {2018}, url = {https://www.affymetrix.com/support/developer/powertools/changelog/index.html}
