@@ -129,7 +129,6 @@ suppressPackageStartupMessages({
   library("limma")
   library("ggplot2")
   library("plotly")
-  library("webshot")
   library("stringr")
 })
 
