@@ -1,0 +1,49 @@
+owner: vandelj
+name: giant
+description: "Galaxy-based Interactive tools for ANalysis of Transcriptomic data"
+long_description: "blablabla tool"
+remote_repository_url: https://github.com/juliechevalier/GIANT/tree/master
+type: unrestricted
+categories:
+- Micro-array Analysis
+- Transcriptomics
+- RNA
+- Statistics
+- Visualization
+repositories:
+  giant_gsea_format:
+    description: "Wrapper for the GIANT tool giant_gsea_format"
+    include:
+      - ./galaxy/wrappers/FormatForGSEA.xml
+      - ./src
+  giant_aptsummarize:
+    description: "Wrapper for the GIANT tool giant_aptsummarize"
+    include:
+      - ./galaxy/wrappers/ArrayNormalization.xml
+      - source: ./galaxy/wrappers/tool_data_table_conf.xml
+        destination: ./galaxy/wrappers/tool_data_table_conf.xml.sample
+      - source: ./galaxy/wrappers/tool-data/aptTool.loc
+        destination: ./galaxy/wrappers/tool-data/aptTool.loc.sample
+      - ./src
+  giant_limma_analysis:
+    description: "Wrapper for the GIANT tool giant_limma_analysis"
+    include:
+      - ./galaxy/wrappers/DiffExprLimma.xml
+      - source: ./galaxy/wrappers/tool_data_table_conf.xml
+        destination: ./galaxy/wrappers/tool_data_table_conf.xml.sample
+      - source: ./galaxy/wrappers/tool-data/LimmaTool.loc
+        destination: ./galaxy/wrappers/tool-data/LimmaTool.loc.sample
+      - ./src
+  giant_hierarchical_clustering:
+    description: "Wrapper for the GIANT tool giant_hierarchical_clustering"
+    include:
+      - ./galaxy/wrappers/ExprHeatmapClustering.xml
+      - ./src
+  giant_plot_functions:
+    description: "Wrapper for the GIANT tool giant_plot_functions"
+    include:
+      - ./galaxy/wrappers/ExprQCplots.xml
+      - ./src
+suite:
+  name: suite_giant
+  description: "Galaxy-based Interactive tool suite for ANalysis of Transcriptomic data"
