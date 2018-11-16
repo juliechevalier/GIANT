@@ -1,7 +1,7 @@
 <tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1">
   <description>Descriptive plots of .CEL collections or normalized expression data</description>
   <requirements>
-	  <requirement type="package" version="1.42.0">bioconductor-oligo</requirement>
+	  <requirement type="package" version="1.40.1">bioconductor-oligo</requirement>
 	  <requirement type="package" version="2.2_13">r-ff</requirement>
 	  <requirement type="package" version="2.2.1">r-ggplot2</requirement>
 	  <requirement type="package" version="4.5.6">r-plotly</requirement>
@@ -29,7 +29,7 @@
         ret_code=\$?;
         if [ \$ret_code != 0 ]; then
           exit \$ret_code;
-        fi 
+        fi; 
      #end if
 
 	   #if ($dataType == "cel" and len($dataFile)>1) or ($dataType == "tabular" and len($dataFile)==1):
