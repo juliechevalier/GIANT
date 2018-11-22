@@ -356,10 +356,11 @@ estimatedCoeff=which(!is.na(data.fit$coefficients[1,]))
 addComment("[INFO]Lmfit done",T,opt$log,display=F)
 
 #catch situation where some coefficients cannot be estimated, probably due to dependances between design columns 
-if(length(setdiff(estimableCoeff,estimatedCoeff))>0){
-  addComment("[ERROR]Error in design matrix, check your group definitions",T,opt$log)
-  q( "no", 1, F )
-}
+#if(length(setdiff(estimableCoeff,estimatedCoeff))>0){
+#  addComment("[ERROR]Error in design matrix, check your group definitions",T,opt$log)
+#  q( "no", 1, F )
+#}
+#to strong condition, should return ERROR only when coefficients relative to principal factors cannot be estimated, otherwise, return a simple WARNING
   
 #define requested contrasts 
 requiredContrasts=c()
