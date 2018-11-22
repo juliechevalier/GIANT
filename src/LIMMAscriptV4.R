@@ -127,6 +127,7 @@ dir.create(file.path(getwd(), "plotLyDir"))
 suppressPackageStartupMessages({
   library("methods")
   library("limma")
+  library("biomaRt")
   library("ggplot2")
   library("plotly")
   library("stringr")
@@ -819,11 +820,11 @@ if (!is.null(opt$volcano)) {
 rowItemInfo=NULL
 if(!is.null(opt$rowNameType) && !is.null(opt$organismID)){
 ##get gene information from BioMart
-if(!require("biomaRt")){
-    source("https://bioconductor.org/biocLite.R")
-    biocLite("biomaRt")
-}
-library("biomaRt")
+#if(!require("biomaRt")){
+#    source("https://bioconductor.org/biocLite.R")
+#    biocLite("biomaRt")
+#}
+
 ensembl_hs_mart <- useMart(biomart="ensembl", dataset=opt$organismID)
 ensembl_df <- getBM(attributes=c(opt$rowNameType,"description"),mart=ensembl_hs_mart)
 rowItemInfo=ensembl_df[which(ensembl_df[,1]!=""),2]
