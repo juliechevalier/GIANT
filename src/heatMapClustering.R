@@ -403,7 +403,8 @@ if(expressionToCluster){
   }else{
     for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow," | Condition: ",iCol,"\n FC: ",round(2^effectiveDataToHeatMap[iRow,iCol],2)),collapse="")}}
   }
-  
+  #while option is not correctly managed by heatmap apply, put personalized_hoverinfo to NULL
+  personalized_hoverinfo=NULL
   if(is.null(opt$personalColors)){
     pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,Rowv=effectiveRowClust,Colv=colClust,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = viridis(n = 101, alpha = 1, begin = 0, end = 1, option = "inferno"),margins = c(9*max(unlist(lapply(colnames(effectiveDataToHeatMap),nchar))),9*max(unlist(lapply(rownames(effectiveDataToHeatMap),nchar))),0,0))
   }else{

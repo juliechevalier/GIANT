@@ -1,12 +1,12 @@
 <tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.1">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
-    <requirement type="package" version="4.5.6">r-plotly</requirement>
-    <requirement type="package" version="1.1.2">r-dendextend</requirement>
-    <requirement type="package" version="2.2.1">r-ggplot2</requirement>
+    <requirement type="package" version="4.8.0">r-plotly</requirement>
+    <requirement type="package" version="1.8.0">r-dendextend</requirement>
+    <requirement type="package" version="3.1.0">r-ggplot2</requirement>
     <requirement type="package" version="0.15.2">r-heatmaply</requirement>
     <requirement type="package" version="0.4.4">r-circlize</requirement>
-    <requirement type="package" version="1.17.1">bioconductor-complexheatmap</requirement>
+    <requirement type="package" version="1.18.1">bioconductor-complexheatmap</requirement>
     <requirement type="package" version="2.2.2">pandoc</requirement>
   </requirements>
   <code file='../../src/General_functions.py'/>
