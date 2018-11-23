@@ -542,7 +542,7 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="output"){
   if(is.null(opt$geneListFiltering)){
     rowToKeep=rownames(comparisonMatrix)[which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),4)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),4)])>=log2(opt$FCthreshold))))!=0)))]
   }else{
-    geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1)
+    geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1,header=F)
     rowToKeep=unlist(c(geneListFiltering))
     if(!is.null(opt$comparisonName)){
       rowToKeep=intersect(rowToKeep,rownames(comparisonMatrix))
