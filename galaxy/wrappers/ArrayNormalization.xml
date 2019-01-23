@@ -51,6 +51,7 @@ apt-probeset-summarize -a $commandLine
 #else:
   
   #if $mainCondition.arrayID.fields.pathPGF!="null" and $mainCondition.arrayID.fields.pathCLF!="null":
+  --use-pgf-names 
   -p $mainCondition.arrayID.fields.pathPGF
   -c $mainCondition.arrayID.fields.pathCLF
   #else:
