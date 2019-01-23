@@ -403,7 +403,8 @@ if(expressionToCluster){
   }else{
     for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow," | Condition: ",iCol,"\n FC: ",round(2^effectiveDataToHeatMap[iRow,iCol],2)),collapse="")}}
   }
-  
+  #while option is not correctly managed by heatmap apply, put personalized_hoverinfo to NULL
+  personalized_hoverinfo=NULL
   if(is.null(opt$personalColors)){
     pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,Rowv=effectiveRowClust,Colv=colClust,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = viridis(n = 101, alpha = 1, begin = 0, end = 1, option = "inferno"),margins = c(9*max(unlist(lapply(colnames(effectiveDataToHeatMap),nchar))),9*max(unlist(lapply(rownames(effectiveDataToHeatMap),nchar))),0,0))
   }else{
@@ -541,7 +542,7 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="output"){
   if(is.null(opt$geneListFiltering)){
     rowToKeep=rownames(comparisonMatrix)[which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),4)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),4)])>=log2(opt$FCthreshold))))!=0)))]
   }else{
-    geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1)
+    geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1,header=F)
     rowToKeep=unlist(c(geneListFiltering))
     if(!is.null(opt$comparisonName)){
       rowToKeep=intersect(rowToKeep,rownames(comparisonMatrix))
