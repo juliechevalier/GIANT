@@ -1,0 +1,142 @@
+<tool name="GIANT-Factor file generator" id="giant_factor_generator" version="0.1.0">
+  <description>Generate factor file used by other GIANT tools</description>
+  <requirements>
+  </requirements>
+  <code file="../../src/General_functions.py"/>
+  <stdio>
+    <regex match="Execution halted"
+           source="both"
+           level="fatal"
+           description="Execution halted, please contact tool developer or administrators." />
+    <regex match="Error in"
+           source="both"
+           level="fatal"
+           description="An error occured during R execution, please contact tool developer." />
+    <exit_code range="1:9" level="fatal" description="Error during factor file generation, see log file for more information." />
+  </stdio>
+  <command>	<![CDATA[
+
+  #import imp
+  #set $general_functions=$imp.load_source('General_functions', $__tool_directory__+'/../../src/General_functions.py')
+
+  #set $ret_code=$general_functions.generateFactorFile($inputCondition['inputData'],$factorsSection['factorList'],$outputData.file_name,$log.file_name)
+
+  if [ $ret_code != 0 ]; then
+    printf "[ERROR]Error during factor file generation\n" >> $log;
+    exit $ret_code;
+  fi;
+
+  printf "[INFO]End of tool script" >> $log; 
+	]]>
+  </command>
+  <inputs>
+  <param type="text" name="title" value="ConditionsGenerator_toPersonalize" label="Title for output"/>
+
+  <conditional name="inputCondition">
+      <param name="selection" type="select" label="Input data type for sample names" force_select="true">
+        <option value="normalizedData">Expression tabular file</option>
+        <option value="CELcollection">.CEL files</option>
+      </param>
+      <when value="normalizedData">
+        <param type="data" name="inputData" format="tabular" label="Select file" optional="false" multiple="false"/>
+      </when>
+      <when value="CELcollection">
+        <param type="data" name="inputData" format="cel" label="Select files" optional="false" multiple="true">
+        <validator type="empty_dataset" message="At least one data file should be selected"></validator>
+        </param>
+      </when>
+  </conditional>
+
+  <section name="factorsSection" title="Factor definition" expanded="True">
+     <repeat name="factorList" title="Factor">
+        <param type="text" name="factorName" value="" label="Factor name"/>
+        <repeat name="valueList" title="Value">
+          <param type="text" name="valueName" value="" label="Value name"/>
+          <param name="valueConditions" type="select" optional="false" multiple="true" label="Select sample sharing this value"
+            refresh_on_change="true"  dynamic_options="get_condition_file_names(inputCondition['inputData'])">
+          </param>
+        </repeat>
+    </repeat>
+  </section>
+	
+  </inputs>
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${title}_conditionsFile"/>
+
+    <data format="txt" name="log" label="${title}_Log" />
+  </outputs>
+  
+ <tests>
+  <test maxseconds="3600">
+    <param name="wfile" value="wiggle.wig" />
+    <param name="bfile" value="bedfile.bed" />
+    <param name="span" value="3000" />
+    <param name="pfres" value="50" />
+    <param name="lowersize" value="1000" />
+    <param name="middlesize" value="2000" />
+    <param name="uppersize" value="3000" />
+    <param name="lowerbisize" value="2500" />
+    <param name="upperbisize" value="5000" />
+    <param name="reldist" value="3000" />
+    <param name="genome" value="hg18" />
+    <param name="imagetype" value="PDF" />
+    <param name="enable" value="no" />
+    <output name="outputData" file="ceas_1/ceas_1.pdf" />
+  </test>
+</tests> 
+  <help>
+<![CDATA[
+**What it does ?**
+
+This tool generates factor information file used by other tools of GIANT tool suite.
+
+-----
+
+**Parameters**
+
+\- **Title** to personalize output file names (please avoid special characters and spaces).
+
+\- **Input Data** used only to extract sample names
+
+- **Expression tabular file** with samples as columns and genes as rows (only the header row will be used to extract sample names).
+
+    ::
+
+        Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
+        DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+        MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+        OR4F5       3.737956                3.011586                 3.424494                   3.497545
+        VWA1        5.189621                5.129595                 4.806793                   5.227014
+
+OR
+
+- **.CEL files** of your study (you should select multiple .CEL files or unique collection file).
+
+\- **Factor definition**
+
+- **Factor name** to discriminate between samples as 'Treatments', 'Year', 'Strain' (please avoid special characters)
+
+- **Value name** of different states for the current factor as 'KO' or 'WT' for 'Strain' factor (please avoid special characters)
+
+- **Select sample** to assign to current value
+
+-----
+
+**Outputs**
+
+- **Factor information tabular file**  with factors as columns and samples as rows (header row contains factor names and first column sample names).
+
+    ::
+
+        Conditions                Sex   Treatment Reaction
+        138_(HuGene-2_0-st).CEL   1     TreatA    Pos
+        148_(HuGene-2_0-st).CEL   0     NoTreat   Pos
+        139_(HuGene-2_0-st).CEL   0     TreatB    Neg
+        149_(HuGene-2_0-st).CEL   0     NoTreat   Neg
+
+- **LOG file** for job log. If you see errors, please attached this in the bug report
+
+]]>  </help>
+
+</tool>
