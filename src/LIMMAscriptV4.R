@@ -70,8 +70,8 @@ if (is.null(opt$dicoRenaming)) {
   addComment("[ERROR]renaming dictionnary is missing",T,opt$log)
   q( "no", 1, F )
 }
-if (is.null(opt$factorsContrast) && is.null(opt$firstGroupContrast) && is.null(opt$secondGroupContrast)) {
-  addComment("[ERROR]factor and contrast informations are missing",T,opt$log)
+if (is.null(opt$factorsContrast)) {
+  addComment("[ERROR]factor informations are missing",T,opt$log)
   q( "no", 1, F )
 }
 if (length(opt$firstGroupContrast)!=length(opt$secondGroupContrast)) {
@@ -131,6 +131,7 @@ suppressPackageStartupMessages({
   library("ggplot2")
   library("plotly")
   library("stringr")
+  library("RColorBrewer")
 })
 
 
@@ -259,15 +260,24 @@ if(!is.null(opt$blockingInfo)){
 ##rename different input parameters using renamingDictionary
 opt$factorsContrast=renamingDico[unlist(lapply(unlist(strsplit(opt$factorsContrast,",")),function(x)which(renamingDico[,1]==x))),2]
 
-for(iContrast in 1:length(opt$firstGroupContrast)){
-  opt$firstGroupContrast[iContrast]=paste(unlist(lapply(unlist(strsplit(opt$firstGroupContrast[iContrast],",")),function(x)paste(renamingDico[unlist(lapply(unlist(strsplit(x,"\\*")),function(x)which(renamingDico[,1]==x))),2],collapse="*"))),collapse=",")
-  opt$secondGroupContrast[iContrast]=paste(unlist(lapply(unlist(strsplit(opt$secondGroupContrast[iContrast],",")),function(x)paste(renamingDico[unlist(lapply(unlist(strsplit(x,"\\*")),function(x)which(renamingDico[,1]==x))),2],collapse="*"))),collapse=",")
+userDefinedContrasts=FALSE
+if(!is.null(opt$firstGroupContrast) && !is.null(opt$secondGroupContrast)){
+  userDefinedContrasts=TRUE
+  for(iContrast in 1:length(opt$firstGroupContrast)){
+    opt$firstGroupContrast[iContrast]=paste(unlist(lapply(unlist(strsplit(opt$firstGroupContrast[iContrast],",")),function(x)paste(renamingDico[unlist(lapply(unlist(strsplit(x,"\\*")),function(x)which(renamingDico[,1]==x))),2],collapse="*"))),collapse=",")
+    opt$secondGroupContrast[iContrast]=paste(unlist(lapply(unlist(strsplit(opt$secondGroupContrast[iContrast],",")),function(x)paste(renamingDico[unlist(lapply(unlist(strsplit(x,"\\*")),function(x)which(renamingDico[,1]==x))),2],collapse="*"))),collapse=",")
   }
+}
 
 if(!is.null(opt$controlGroups)){
   renamedGroups=c()
   for(iGroup in unlist(strsplit(opt$controlGroups,","))){
-    renamedGroups=c(renamedGroups,paste(renamingDico[unlist(lapply(unlist(strsplit(iGroup,":")),function(x)which(renamingDico[,1]==x))),2],collapse=":"))
+    renamedControlGroup=paste(renamingDico[unlist(lapply(unlist(strsplit(iGroup,":")),function(x)which(renamingDico[,1]==x))),2],collapse=":")
+    if(length(renamedControlGroup)==0 || any(which(unlist(gregexpr(text = renamedControlGroup,pattern = ":"))==-1))){
+      addComment("[ERROR]Control groups for interaction seem to mismatch, please check them.",T,opt$log)
+      q( "no", 1, F )
+    }
+    renamedGroups=c(renamedGroups,renamedControlGroup)
   }
   opt$controlGroups=renamedGroups
 }
@@ -367,6 +377,7 @@ addComment("[INFO]Lmfit done",T,opt$log,display=F)
 requiredContrasts=c()
 humanReadingContrasts=c()
 persoContrastName=c()
+if(userDefinedContrasts){
   for(iContrast in 1:length(opt$firstGroupContrast)){
     posGroup=unlist(lapply(unlist(strsplit(opt$firstGroupContrast[iContrast],",")),function(x)paste(paste(opt$factorsContrast,unlist(strsplit(x,"\\*")),sep="_"),collapse=".")))
     negGroup=unlist(lapply(unlist(strsplit(opt$secondGroupContrast[iContrast],",")),function(x)paste(paste(opt$factorsContrast,unlist(strsplit(x,"\\*")),sep="_"),collapse=".")))
@@ -388,10 +399,10 @@ persoContrastName=c()
       currentHumanContrast=paste(c(currentHumanContrast,unlist(strsplit(opt$secondGroupContrast[iContrast],","))),collapse="-")
     }
     if(length(posGroup)==0 || length(negGroup)==0 ){
-      addComment(c("[WARNING]Contrast",posGroup,"-",negGroup,"cannot be estimated due to empty group"),T,opt$log,display=FALSE)
+      addComment(c("[WARNING]Contrast",currentHumanContrast,"cannot be estimated due to empty group"),T,opt$log,display=FALSE)
     }else{
       if(all(posGroup%in%negGroup) && all(negGroup%in%posGroup)){
-        addComment(c("[WARNING]Contrast",posGroup,"-",negGroup,"cannot be estimated due to null contrast"),T,opt$log,display=FALSE)
+        addComment(c("[WARNING]Contrast",currentHumanContrast,"cannot be estimated due to null contrast"),T,opt$log,display=FALSE)
       }else{
         #get coefficients required for first group added as positive
         positiveCoeffWeights=sampleSizeFactor[posGroup]/sum(sampleSizeFactor[posGroup])
@@ -419,6 +430,7 @@ persoContrastName=c()
       }
     }
   }
+}
   
   
   #define the true formula with interactions to get interaction coefficients
@@ -460,7 +472,7 @@ persoContrastName=c()
         q( "no", 1, F )
       }
       if(!is.na(controlGroup[splitGroup[1]])){
-        addComment("[ERROR]Several control groups are defined for the same factor",T,opt$log)
+        addComment("[ERROR]Several control groups are defined for the same factor, please select only one control group for each factor if you want to compute interaction contrasts",T,opt$log)
         q( "no", 1, F )
       }
       controlGroup[splitGroup[1]]=splitGroup[2]
@@ -468,7 +480,7 @@ persoContrastName=c()
     
     #check if all factor have a defined control group
     if(any(is.na(controlGroup))){
-      addComment("[ERROR]Missing control group for some factors",T,opt$log)
+      addComment("[ERROR]Missing control group for some factors, please check them if you want to compute interaction contrasts",T,opt$log)
       q( "no", 1, F )
     }
     
@@ -566,7 +578,8 @@ persoContrastName=c()
       humanReadingContrasts=c(humanReadingContrasts,humanReadingInteraction)
       persoContrastName=c(persoContrastName,rep("",length(humanReadingInteraction)))
     }
-  }
+  }#end of intreaction contrasts
+  
   
   #remove from requiredContrasts contrasts that cannot be estimated
   toRemove=unique(unlist(lapply(setdiff(coeffMeaning,names(estimatedCoeff)),function(x)grep(x,requiredContrasts))))
@@ -575,6 +588,11 @@ persoContrastName=c()
     requiredContrasts=requiredContrasts[-toRemove]
     humanReadingContrasts=humanReadingContrasts[-toRemove]
     persoContrastName=persoContrastName[-toRemove]
+  }
+  
+  if(length(requiredContrasts)==0){
+    addComment("[ERROR]No contrast to compute, please check your contrast definition.",T,opt$log)
+    q( "no", 1, F )
   }
   
   #compute for each contrast mean of coefficients in posGroup and negGroup for FC computation of log(FC) with LSmean as in Partek
@@ -704,7 +722,7 @@ if(!is.null(allFtestMeanSquare)){
   dataToPlot=data.frame(Fratio=apply(allFtestMeanSquare,2,mean),Factors=factor(colnames(allFtestMeanSquare),levels = colnames(allFtestMeanSquare)))
 
   p <- ggplot(data=dataToPlot, aes(x=Factors, y=Fratio, fill=Factors)) +
-    geom_bar(stat="identity") + scale_fill_brewer(palette="Set1") + ylab(label="mean F-ratio") +
+    geom_bar(stat="identity") + scale_fill_manual(values = colorRampPalette(brewer.pal(9,"Set1"))(ncol(allFtestMeanSquare))[sample(ncol(allFtestMeanSquare))]) + ylab(label="mean F-ratio") +
     theme_bw() + theme(panel.border=element_blank(),plot.title = element_text(hjust = 0.5)) + ggtitle("Source of variation")
   
    if(opt$format=="pdf"){

@@ -269,7 +269,7 @@ if (!is.null(opt$boxplot)) {
     #plot boxplots without outliers
     p <- ggplot(data=dataToPlot, aes(y = intensities, x=Experiment ,color=Experiment)) + geom_boxplot(outlier.colour=NA,outlier.shape =NA) +
       ggtitle("Intensities") + theme_bw() + xlab(label="") + 
-      theme(panel.border=element_blank(),plot.title = element_text(hjust = 0.5),axis.text.x = element_text(angle = 45, hjust = 1))
+      theme(panel.border=element_blank(),plot.title = element_text(hjust = 0.5),axis.text.x = element_text(angle = 45, hjust = 1),plot.margin=unit(c(10,10,max(unlist(lapply(dataToPlot$Experiment,function(x)nchar(as.character(x))))),15+max(unlist(lapply(dataToPlot$Experiment,function(x)nchar(as.character(x)))))),"mm"))
     #add to plot sampled outliers
     p <- p + geom_point(data=dataOutliers,aes(x=xVal,y=yVal,color=xVal),inherit.aes = F)
     if(dataAreFromCel){
