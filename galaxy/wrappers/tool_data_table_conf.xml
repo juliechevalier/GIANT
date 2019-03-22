@@ -10,7 +10,7 @@
         <columns>value, name, rowTypeID, rowTypeName</columns>
         <file path="${__HERE__}/tool-data/LimmaTool.loc" />
     </table>
-    <!-- Locations of files required for LIMMA tool -->
+    <!-- Locations of files required for Volcano tool -->
     <table name="VolcanoTool" comment_char="#" allow_duplicate_entries="False">
         <columns>value, name, rowTypeID, rowTypeName</columns>
         <file path="${__HERE__}/tool-data/LimmaTool.loc" />

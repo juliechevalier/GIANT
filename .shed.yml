@@ -53,6 +53,10 @@ repositories:
     description: "Wrapper for the GIANT tool giant_volcano_plot"
     include:
       - ./galaxy/wrappers/VolcanoPlotTool.xml
+      - source: ./galaxy/wrappers/tool_data_table_conf.xml
+        destination: ./galaxy/wrappers/tool_data_table_conf.xml.sample
+      - source: ./galaxy/wrappers/tool-data/LimmaTool.loc
+        destination: ./galaxy/wrappers/tool-data/LimmaTool.loc.sample
       - ./src
 suite:
   name: suite_giant
