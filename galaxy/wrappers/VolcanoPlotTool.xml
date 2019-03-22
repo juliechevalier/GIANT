@@ -1,0 +1,400 @@
+<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.1.0">
+  <description>Plot volcano from tabular file</description>
+  <requirements>
+    <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
+    <requirement type="package" version="2.36.1">bioconductor-biomart</requirement>
+    <requirement type="package" version="3.0.0">r-ggplot2</requirement>
+    <requirement type="package" version="4.8.0">r-plotly</requirement>
+    <requirement type="package" version="1.3.1">r-stringr</requirement>
+  </requirements>
+  <code file="../../src/General_functions.py"/>
+  <stdio>
+    <regex match="Execution halted"
+           source="both"
+           level="fatal"
+           description="Execution halted, please contact tool developer or administrators." />
+    <regex match="Error in"
+           source="both"
+           level="fatal"
+           description="An error occured during R execution, please contact tool developer." />
+    <exit_code range="15" level="fatal" description="Error during input file formatting step, see log file for more information." />
+    <exit_code range="10" level="fatal" description="Missing file during html report, see log file for more information." />
+    <exit_code range="1:9" level="fatal" description="Error in R execution, see log file for more information." />
+  </stdio>
+  <command>	<![CDATA[
+    #import imp
+    #set $general_functions=$imp.load_source('General_functions', $__tool_directory__+'/../../src/General_functions.py')
+    #set $ret_code=$general_functions.selectSubSetTable($inputSection['inputData'].file_name,$inputSection['headerNumber'].value,[0],$volcanoSection['volcanoList'],$__new_file_path__+'/'+$__user_id__+'_statisticsFormated.csv',$log.file_name)
+
+    if [ $ret_code != 0 ]; then
+      printf "[ERROR]Error during formated statistics file generation\n" >> $log;
+      exit $ret_code;
+    fi; 
+
+    mv ${__new_file_path__}/${__user_id__}_statisticsFormated.csv ./statisticsFormated.csv;
+
+    #for $i, $s in enumerate( $volcanoSection.volcanoList )
+    #if $s.volcanoName!='':
+      printf "\$(($i+1))\t${s.volcanoName}\n" >> ./correspondanceVolcanoNames.csv;
+    #else:
+      printf "\$(($i+1))\t\$(($i+1))_${s.pvalColumn}\n" >> ./correspondanceVolcanoNames.csv;
+    #end if
+    #end for
+
+
+    Rscript '$__tool_directory__/../../src/VolcanoPlotsScript.R' -i './statisticsFormated.csv' -l '$log' -o '$outputData' -f 'pdf'
+      #for $i, $s in enumerate( $volcanoSection.volcanoList )
+        -n '${s.volcanoName}'
+        -p '${s.pvalColumn}'
+        -c '${s.fcColumn}'
+      #end for
+        -d '$plotSection.fcKind'
+        -s $plotSection.FDRthreshold
+        -e $plotSection.FCthreshold
+      #if $plotSection.geneInformation.addGeneInfo:
+        -x '$plotSection.geneInformation.organismID'
+        -y '$plotSection.geneInformation.infoInRowType'
+      #end if
+    ;
+     ret_code=\$?;
+     if [ \$ret_code != 0 ]; then
+      exit \$ret_code;
+     else
+      bash $scriptTransfer;
+      ret_code=\$?;
+      if [ \$ret_code != 0 ]; then
+        exit \$ret_code;
+      fi 
+     fi;
+
+  printf "[INFO]End of tool script" >> $log; 
+	]]>
+  </command>
+  <inputs>
+  <section name="inputSection" title="Input files" expanded="True">
+    <param type="text" name="title" value="Volcano_toPersonalize" label="Title for output"/>
+
+    <param type="data" name="inputData" format="tabular" label="Differential results file" optional="false" multiple="false" refresh_on_change="true"/>
+
+    <param name="headerNumber" type="select" label="Select number of header lines in file" refresh_on_change="true">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2" selected="true">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </param>
+  </section>
+
+  <section name="volcanoSection" title="Volcano definition" expanded="True">
+
+
+    <repeat name="volcanoList" title="Volcano">
+
+      <param type="text" name="volcanoName" value="" label="Volcano name"/>
+
+      <param name="pvalColumn" type="select" label="Select column containing p-val statistics" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="Do not use ajusted p-val for Volcano plot"/>
+
+      <param name="fcColumn" type="select" label="Select column containing log2(FoldChange) values" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If only FC are available, please select corresponding column and check options below." />
+
+    </repeat>
+
+  </section>
+
+
+	<section name="plotSection" title="Output section" expanded="True">
+
+    <param name="fcKind" type="select" display="radio" label="Select FC values selected in input columns" help="log2(FC) will be displayed in volcano plots">
+      <option value="log2FC" selected="true">log2(FC)</option>
+      <option value="FC">FC</option>
+    </param>
+
+    <param name="FDRthreshold" type="float" value="0.05" label="Output FDR p-val threshold" >
+      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+    </param>
+
+    <param name="FCthreshold" type="float" value="2" label="Fold change threshold for volcanos (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
+      <validator type="in_range" min="1" exclude_min="true" message="Threshold should be greater than 1"/>
+    </param>
+
+    <conditional name="geneInformation">
+    <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
+      <when value="true">
+        <param name="organismID" label="Organism" type="select">
+          <options from_data_table="LimmaTool" >
+            <column name="name" index="1"/>
+            <column name="value" index="0"/>
+            <filter type="unique_value" column="0"/>
+          </options>
+        </param>
+        <param name="infoInRowType" label="Nature of row names" type="select">
+            <options from_data_table="LimmaTool" >
+              <column name="name" index="3"/>
+              <column name="value" index="2"/>
+              <filter type="param_value" ref="organismID" column="0"/>
+            </options>
+        </param>
+      </when>
+    </conditional>
+
+    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
+      <option value="png">PNG format</option>
+      <option value="svg">SVG format</option>
+    </param>
+	</section>
+
+  </inputs>
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${inputSection.title}_LIMMAstatistics"/>
+	
+	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
+	<!--
+	<collection name="outputHistogramsList" label="${inputSection.title}_HistogramsList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['histogramToPlot']</filter>
+	</collection>
+	
+	<collection name="outputVolcanosList" label="${inputSection.title}_VolcanosList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Volcanos\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['volcanoToPlot']</filter>
+	</collection>
+
+  <data name="fRatioOutput" format="png" label="${inputSection.title}_F-ratio">
+        <change_format>
+            <when input="plotSection['imageFormat']" value="pdf" format="pdf" />
+        </change_format>
+  </data>
+	-->
+    <data format="txt" name="log" label="${inputSection.title}_Log" />
+  </outputs>
+
+ <configfiles>
+   <configfile name="scriptTableToHtml">
+<![CDATA[
+printf  "<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv=\"Content-type\" content=\"text/html; charset=utf-8\">
+<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css\">
+<script type=\"text/javascript\" language=\"javascript\" src=\"https://code.jquery.com/jquery-1.12.4.js\">
+</script>
+<script type=\"text/javascript\" language=\"javascript\" src=\"https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js\">
+</script>
+<script type=\"text/javascript\" class=\"init\">
+\\$(document).ready(function() {
+	\\$(\'\#example\').DataTable( {
+        \"columnDefs\": [ {
+            \"visible\": false,
+            \"targets\": -1
+        } ]
+    } );
+} );
+</script>
+</head>
+<body style=\"background-color:white;\">
+<table id=\"example\" class=\"display\" cellspacing=\"0\">
+" > ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "<colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<col span=\"2\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=3;i<=NF;i=i+4){if(odd==1){odd=0;printf "<col span=\"4\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"4\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+
+printf "<thead>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th rowspan=\"2\">Gene</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th rowspan=\"2\">Info</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR==1{for(i=3;i<=NF;i=i+4)printf "<th colspan=\"4\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tr>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR==2{for(i=3;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tr>\n</thead>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "<tfoot>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR==2{for(i=1;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tr>\n</tfoot>\n">> ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "<tbody>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR>2{printf "<tr>\n";for(i=1;i<=NF;i++){printf "<th>"\$i"</th>\n"};printf "<th></th>\n";printf "</tr>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "</tbody>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+printf "</table>
+</body>
+</html>" >> ${html_file.extra_files_path}/outputLIMMA.html
+
+]]>
+  </configfile>
+   <configfile name="scriptTransfer">
+<![CDATA[
+
+
+##for LIMMA output table
+
+mkdir -p $html_file.extra_files_path
+
+##create HTML file for limma output table
+source $scriptTableToHtml
+
+##check outputLIMMA.html is here
+if ! [ -e ${html_file.extra_files_path}/outputLIMMA.html ]; then
+  printf "[ERROR]outputLIMMA.html is missing" >> $log; 
+  exit 10
+fi
+
+##create header of main HTML file
+printf  "<!DOCTYPE html>\n<html>\n<body>"  > $html_file
+
+##first add reference of the LIMMA output table
+printf "<h3>LIMMA statistics (p.val, FC)</h3>\n" >> $html_file
+printf "<a href=\"outputLIMMA.html\">LIMMA results</a>\n"  >> $html_file
+
+
+
+printf "<h3>Volcanos</h3>\n" >> $html_file
+
+##create folders in media
+counter=1
+for volcano in \$(ls ./plotLyDir/Volcanos_*html)
+do
+volcanoShort=\${volcano%\.*}
+volcanoShort=\${volcanoShort\#\#*/}
+
+conditionName=\${volcano%\.*}
+conditionName=\${conditionName\#\#*Volcanos_}
+
+##modify HTML to point to plotLy folder
+sed -i "s/\${volcanoShort}_files/PlotLy_Volcano_scripts/g" \$volcano
+
+##copy HTML files in both folders
+cp \$volcano ${html_file.extra_files_path}/Volcano_\$conditionName.html
+
+##get user name of Volcano
+echo \$conditionName > ./temporaryConditionName
+conditionFormatedName=\$(awk 'BEGIN{FS="\t"} ARGIND==1{dico[\$1]=\$2} ARGIND==2{print dico[\$1]}' ./correspondanceVolcanoNames.csv ./temporaryConditionName)
+
+##add HTML link
+printf "<p>\n<a href=\"Volcano_\$conditionName.html\">Volcano \$conditionFormatedName</a>\n</p>\n"  >> $html_file
+
+if [ \$counter = 1 ]; then
+
+#if $plotSection.imagePlotlyFormat=="svg":
+##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
+cd ./plotLyDir/\${volcanoShort}_files/plotlyjs-*/
+awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
+rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+##now copy only scripts folder for the first volcano and rename
+cp -r ./plotLyDir/\${volcanoShort}_files $html_file.extra_files_path
+mv ${html_file.extra_files_path}/\${volcanoShort}_files ${html_file.extra_files_path}/PlotLy_Volcano_scripts
+fi
+
+((counter++))
+done
+
+if [ \$counter = 1 ]; then
+  printf "[ERROR]Volcano plots are missing" >> $log; 
+  exit 10
+fi
+
+
+
+##create footer of HTML file
+printf  "</body>\n</html>" >> $html_file
+]]>
+   </configfile>
+ </configfiles>
+  
+ <tests>
+  <test maxseconds="3600">
+    <param name="wfile" value="wiggle.wig" />
+    <param name="bfile" value="bedfile.bed" />
+    <param name="span" value="3000" />
+    <param name="pfres" value="50" />
+    <param name="lowersize" value="1000" />
+    <param name="middlesize" value="2000" />
+    <param name="uppersize" value="3000" />
+    <param name="lowerbisize" value="2500" />
+    <param name="upperbisize" value="5000" />
+    <param name="reldist" value="3000" />
+    <param name="genome" value="hg18" />
+    <param name="imagetype" value="PDF" />
+    <param name="enable" value="no" />
+    <output name="outputData" file="ceas_1/ceas_1.pdf" />
+  </test>
+</tests> 
+  <help>
+<![CDATA[
+**What it does ?**
+
+This tool plot volcanos from previous differential expression analysis results containing at least Fold Change and p-val statistics for all measured genes.
+
+-----
+
+**Parameters**
+
+\- **Input files**
+
+- **Title** to personalize output file names (avoiding special characters).
+
+- **Differential expression analysis results** with at least contrast statistics (p-val and FC or log2(FC)) as columns and genes as rows. GIANT-Differential Expression Analysis with LIMMA tool output can be used as a model.
+
+    ::
+
+        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+        Gene     Info        p-val     FDR.p-val FC        log2(FC)
+        ARSD     na          0.0057    0.41      0.8389   -0.2534  
+        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
+        MIR548AL na          0.072     0.2914    1.711     0.775 
+
+- **Header lines number** to skip in the differential results file, i.e lines containing column content descripion.
+
+
+\- **Volcano definition** (add as many volcanos as needed)
+
+    - **Volcano name** for better ouput identification (avoiding special characters).
+
+    - **Select p-val statistics column** : p-val statistics should be available for all measured genes in experiments as FDR correction will be automatically applied.
+
+    - **Select log2(FoldChange) or FoldChange column** : log2(FC) or FC values corresponding to the same contrast as previous p-val column. 
+
+
+\- **Output section**
+
+- **FC information available as input** : select if FoldChange columns selected during volcanos definition are allready log2 transformed.
+
+- **Output FDR p-val threshold** : only genes passing this threshold (in at least one of requested volcanos) will be in result tab.
+
+- **Fold change threshold for volcanos** : used only for volcano plots, not for result tab. (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)
+
+- **Add gene/probe information** : if yes, add description of genes to the result tab.
+
+- **Html snapshot format** : format of plot images taken from interactive view
+
+-----
+
+**Outputs**
+
+- **tabular file** containing statistics used for volcano plots, represented as a tab delimited matrix where each colum contains statistics for each gene (in rows).
+
+- **HTML file** to access interactive version of volcanos through PlotLy html pages and tabulated volcano statistics.
+
+- **LOG file** for job log. If you see errors, please attached this in the bug report
+
+]]>  </help>
+
+
+ <citations>
+  <citation type="bibtex">@misc{vandel_jimmy_2018_1477870, author = {Vandel, J. and Gheeraert, C. and Eeckhoute, J. and Staels, B. and Lefebvre, P. and Dubois-Chevalier, J.}, title = {GIANT: Galaxy-based Interactive tools for ANalaysis of Transcriptomic data}, month = nov, year = 2018, doi = {10.5281/zenodo.1477870}, url = {https://doi.org/10.5281/zenodo.1477870}
+  }</citation>
+
+  <citation type="bibtex">@online{plotly, author = {Plotly Technologies Inc.}, title = {Collaborative data science}, publisher = {Plotly Technologies Inc.}, address = {Montreal, QC}, year = {2015}, url = {https://plot.ly}
+  }</citation>
+ </citations>
+
+</tool>

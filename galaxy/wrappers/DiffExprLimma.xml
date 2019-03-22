@@ -1,4 +1,4 @@
-<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.1">
+<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.2.0">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -7,6 +7,7 @@
     <requirement type="package" version="3.0.0">r-ggplot2</requirement>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
     <requirement type="package" version="1.3.1">r-stringr</requirement>
+    <requirement type="package" version="1.1_2">r-rcolorbrewer</requirement>
   </requirements>
   <code file="../../src/LIMMA_options.py"/>
   <stdio>
@@ -91,24 +92,21 @@
 
     <param type="data" name="inputData" format="tabular" label="Normalized expression tabular file" optional="false" multiple="false"/>
 
-    <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="true" multiple="false">
-      <validator type="empty_dataset" message="You should specify a dataset"></validator>
+    <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="false" multiple="false">
     </param>
   </section>
 
   <section name="contrastSection" title="Contrast definition" expanded="True">
 
-    <param name="factorSelection" type="select" label="Select all factors to include in the global model (excepting confounding factors)" refresh_on_change="true" display="checkboxes" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)" help="Confounding factors are selected in the coresponding section below." />
+    <param name="factorSelection" type="select" label="Select all factors to include in the global model (excepting confounding factors)" refresh_on_change="true" display="checkboxes" optional="false" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)" help="Confounding factors are selected in the coresponding section below." />
 
      <repeat name="contrastList" title="Contrast">
         <param type="text" name="groupName" value="" label="Contrast name"/>
 
         <param name="firstGroupToCompare" type="select" label="Select factor levels of 1st group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
-          <validator type="empty_field" message="You should select at least one level"></validator>
         </param>
 
         <param name="secondGroupToCompare" type="select" label="Select factor levels of 2nd group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
-          <validator type="empty_field" message="You should select at least one level"></validator>
         </param>
     </repeat>
 
@@ -116,7 +114,6 @@
     <param name="interactionContrast" type="boolean" label="Add interaction contrasts" checked="false" help="If you have selected two factors at least."/>
       <when value="true">
          <param name="controlSelection" type="select" label="Select one control group for each factor (and only one)" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_allrow_names(inputSection['conditionInformation'].file_name,factorSelection)">
-          <validator type="empty_field" message="You should select at least one group"></validator>
         </param>
       </when>
     </conditional>
@@ -548,7 +545,7 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 
 - **Fold change threshold for volcanos** : Used only for volcano plots, not for result tab. (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)
 
-- **Add gene/probe information** : if yes, Add description of genes to the result tab.
+- **Add gene/probe information** : if yes, add description of genes to the result tab.
 
 - **Html snapshot format** : format of plot images taken from interactive view
 
@@ -560,7 +557,7 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 
 **Outputs**
 
-- **tabular file** is the result for LIMMA, represented as tab delimited matrix where each colum contain DE statistics between groups for each gene (in rows).
+- **tabular file** is the result for LIMMA, represented as tab delimited matrix where each colum contains DE statistics between groups for each gene (in rows).
 
 - **HTML file** to access interactive version of histograms, F-Ratio barplots and volcanos through PlotLy html pages and tabulated differential results.
 
