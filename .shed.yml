@@ -44,6 +44,16 @@ repositories:
     include:
       - ./galaxy/wrappers/ExprQCplots.xml
       - ./src
+  giant_factor_generator:
+    description: "Wrapper for the GIANT tool giant_factor_generator"
+    include:
+      - ./galaxy/wrappers/FactorFileGenerator
+      - ./src
+  giant_volcano_plot:
+    description: "Wrapper for the GIANT tool giant_volcano_plot"
+    include:
+      - ./galaxy/wrappers/VolcanoPlotTool
+      - ./src
 suite:
   name: suite_giant
   description: "Galaxy-based Interactive tool suite for ANalysis of Transcriptomic data"
