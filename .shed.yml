@@ -47,12 +47,12 @@ repositories:
   giant_factor_generator:
     description: "Wrapper for the GIANT tool giant_factor_generator"
     include:
-      - ./galaxy/wrappers/FactorFileGenerator
+      - ./galaxy/wrappers/FactorFileGenerator.xml
       - ./src
   giant_volcano_plot:
     description: "Wrapper for the GIANT tool giant_volcano_plot"
     include:
-      - ./galaxy/wrappers/VolcanoPlotTool
+      - ./galaxy/wrappers/VolcanoPlotTool.xml
       - ./src
 suite:
   name: suite_giant
