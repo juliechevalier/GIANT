@@ -121,14 +121,14 @@
     <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
       <when value="true">
         <param name="organismID" label="Organism" type="select">
-          <options from_data_table="LimmaTool" >
+          <options from_data_table="VolcanoTool" >
             <column name="name" index="1"/>
             <column name="value" index="0"/>
             <filter type="unique_value" column="0"/>
           </options>
         </param>
         <param name="infoInRowType" label="Nature of row names" type="select">
-            <options from_data_table="LimmaTool" >
+            <options from_data_table="VolcanoTool" >
               <column name="name" index="3"/>
               <column name="value" index="2"/>
               <filter type="param_value" ref="organismID" column="0"/>
