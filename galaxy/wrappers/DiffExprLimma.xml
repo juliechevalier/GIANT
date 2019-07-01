@@ -41,7 +41,7 @@
 
   if [ -f ./dictionnaryRenamed.csv ]; then
     printf "[INFO]Renaming is done\n" >> $log;
-    Rscript '$__tool_directory__/../../src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -f 'pdf'
+    Rscript '$__tool_directory__/../../src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -z '$outputDfData' -f 'pdf'
       -a 'factorTableRenamed.csv' -s 'sumSquareFtest' -g 'dictionnaryRenamed.csv'
       #if $blockingSection.blockingConditional.addBlocking == "true":
         -b 'blockingTableRenamed.csv'
@@ -182,6 +182,8 @@
 
   <outputs>
     <data format="tabular" name="outputData" label="${inputSection.title}_LIMMAstatistics"/>
+
+    <data format="tabular" name="outputDfData" label="${inputSection.title}_LIMMAdetailed"/>
 	
 	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
 	<!--
@@ -255,14 +257,14 @@ printf  "<!DOCTYPE html>
 
 printf "<colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
 printf "<col span=\"2\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=3;i<=NF;i=i+4){if(odd==1){odd=0;printf "<col span=\"4\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"4\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=3;i<=NF;i=i+5){if(odd==1){odd=0;printf "<col span=\"5\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"5\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
 printf "</colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
 
 
 printf "<thead>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
 printf "<th rowspan=\"2\">Gene</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
 printf "<th rowspan=\"2\">Info</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-awk 'BEGIN{FS="\t"} NR==1{for(i=3;i<=NF;i=i+4)printf "<th colspan=\"4\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
+awk 'BEGIN{FS="\t"} NR==1{for(i=3;i<=NF;i=i+5)printf "<th colspan=\"5\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
 printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
 printf "</tr>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
 awk 'BEGIN{FS="\t"} NR==2{for(i=3;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
@@ -473,6 +475,7 @@ printf  "</body>\n</html>" >> $html_file
     <param name="imagetype" value="PDF" />
     <param name="enable" value="no" />
     <output name="outputData" file="ceas_1/ceas_1.pdf" />
+    <output name="outputDfData" file="ceas_1/ceas_1.pdf" />
   </test>
 </tests> 
   <help>
@@ -557,7 +560,9 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 
 **Outputs**
 
-- **tabular file** is the result for LIMMA, represented as tab delimited matrix where each colum contains DE statistics between groups for each gene (in rows).
+- **LIMMA statistic tabular** is the main result file for LIMMA, represented as tab delimited matrix where each colum contains differential expression statistics (p.val, FDR, FC, log2FC and t-statistic) between groups for each gene (in rows).
+
+- **LIMMA detailed tabular** contains specific statistics required for additional analysis tools (eg SMAGEXP), represented as tab delimited matrix where each colum contains specific statistics (residual, eBayes prior and total degree of freedom) between groups for each gene (in rows).
 
 - **HTML file** to access interactive version of histograms, F-Ratio barplots and volcanos through PlotLy html pages and tabulated differential results.
 

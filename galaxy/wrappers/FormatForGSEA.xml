@@ -27,13 +27,15 @@
   ;
 #else:
 
-  awk -v comparison="$mainCondition.comparisonsToUse" -v rkIndice="$mainCondition.rankingIndice" -v pvalTh="$mainCondition.pvalThreshold" 'BEGIN{FS="\t"} NR==1{if(rkIndice=="pval"){start=4}else{start=6};for(i=start;i<=NF;i=i+4){if(\$i==comparison)refCol=i};} NR>2{if(rkIndice=="pval"){if(\$refCol<pvalTh){val=\$refCol;print \$1"\t"val}}else{if(\$(refCol-2)<pvalTh){if(\$refCol>0){val=\$refCol}else{val=-\$refCol};print \$1"\t"val}}}' $mainCondition.differentialAnalysis > ./temp.txt;
+  if [ \$(awk 'NR==1{print (NF-2)%5}' $mainCondition.differentialAnalysis ) -ne 0 ]; then
+    printf "[ERROR] please check that differential analysis file respect requested input format especially concerning the column number" >> $log;
+    exit 10;
+  fi
+  ;
+
+  awk -v comparison="$mainCondition.comparisonsToUse" -v rkIndice="$mainCondition.rankingIndice" -v pvalTh="$mainCondition.pvalThreshold" 'BEGIN{FS="\t"} NR==1{if(rkIndice=="Tstat" || rkIndice=="absTstat"){start=7}else{start=6};for(i=start;i<=NF;i=i+5){if(\$i==comparison)refCol=i};} NR>2{if(rkIndice=="Tstat" || rkIndice=="absTstat"){if(\$(refCol-3)<pvalTh){if(rkIndice=="Tstat"){val=\$refCol}else{if(\$refCol>0){val=\$refCol}else{val=-\$refCol}};print \$1"\t"val}}else{if(\$(refCol-2)<pvalTh){if(rkIndice=="FC"){val=\$refCol}else{if(\$refCol>0){val=\$refCol}else{val=-\$refCol}};print \$1"\t"val}}}' $mainCondition.differentialAnalysis > ./temp.txt;
   printf "#NAME\tSCORE\n" > $outRankedGenes;
-  #if $mainCondition.rankingIndice=="pval":
-  LC_ALL=C sort -t$'\t' -k2,2 -g ./temp.txt >> $outRankedGenes;
-  #else:
   LC_ALL=C sort -t$'\t' -k2,2 -gr ./temp.txt >> $outRankedGenes;
-  #end if
   rm ./temp.txt;
 
   if [ ! -e $outRankedGenes ]; then
@@ -65,12 +67,14 @@
       <when value="rankedGSEA">
       	<param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" multiple="false" help="This file should contain only annotated gene names or only probe identifiers as rows but no both kinds.">
         </param>
-        <param name="comparisonsToUse" type="select" label="Reference contrast" optional="false" multiple="false" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(mainCondition['differentialAnalysis'].file_name,[0,1],4)">
+        <param name="comparisonsToUse" type="select" label="Reference contrast" optional="false" multiple="false" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(mainCondition['differentialAnalysis'].file_name,[0,1],5)">
           <validator type="empty_field" message="You should specify one factor"></validator>
         </param>
         <param type="select" name="rankingIndice" display="radio" label="Reference statistic">
-            <option value="FC">Absolute value of Log2(Fold Change)  (decreasing sort)</option>
-            <option value="pval">FDR p-val (increasing sort)</option>
+            <option value="FC">Relative value of Log2(Fold Change)</option>
+            <option value="absFC">Absolute value of Log2(Fold Change)</option>
+            <option value="Tstat">Relative value of moderated t-statistic</option>
+            <option value="absTstat">Absolute value of moderated t-statistic</option>
         </param>
          <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold">
                    <validator type="in_range" min="0" max="1" exclude_min="true" message="Threshold should be between 0 and 1"/>
@@ -164,20 +168,20 @@ Generate input files required for GSEA analysis.
 
 - **Pre-ranked GSEA Analysis**
 
-    \- **Differential analysis tabular file** with contrasts statistics (p-val, FDR p-val, FC and log2(FC)) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations).
+    \- **Differential analysis tabular file** with contrasts statistics (p-val, FDR p-val, FC, log2(FC) and moderated t-statistic) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations).  Please respect the GIANT-Differential Expression Analysis with LIMMA tool output format.
 
       ::
 
-        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
-        Gene     Info        p-val     FDR.p-val FC        log2(FC)
-        ARSD     na          0.0057    0.41      0.8389   -0.2534  
-        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
-        MIR548AL na          0.072     0.2914    1.711     0.775 
+        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+        Gene     Info        p-val     FDR.p-val FC        log2(FC)  t-stat
+        ARSD     na          0.0057    0.41      0.8389   -0.2534   -5.175
+        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432   -6.122
+        MIR548AL na          0.072     0.2914    1.711     0.775     10.43
 
 
     \- **Reference contrast** from available contrasts in differential analysis file to use for gene ranking.
 
-    \- **Reference statistic** from reference contrast used to rank genes. Absolute value of log2(FC) is used to sort genes in a decreasing way or FDR p-val in an increasing way.
+    \- **Reference statistic** from reference contrast used to rank genes. Relative or absolute value of log2(FC) or moderated t-statistic is used to sort genes in a decreasing way.
 
     \- **FDR p-val threshold** to discard genes with higher FDR p-val than specific threshold [0.05 recommended]. Genes with high FDR p-val are not significant for differential expression in reference contrast.
 

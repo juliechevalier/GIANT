@@ -48,7 +48,8 @@ spec <- matrix(c(
   "rowNameType","y",1,"character",
   "quiet", "q", 0, "logical",
   "log", "l", 1, "character",
-  "outputFile" , "o", 1, "character"),
+  "outputFile" , "o", 1, "character",
+  "outputDfFile" , "z", 1, "character"),
   byrow=TRUE, ncol=4)
 opt <- getopt(spec)
 
@@ -90,8 +91,8 @@ if (is.null(opt$thresholdPval)) {
   addComment("[ERROR]'p-val threshold' is required",T,opt$log)
   q( "no", 1, F )
 }
-if (is.null(opt$outputFile)) {
-  addComment("[ERROR]'output file' is required",T,opt$log)
+if (is.null(opt$outputFile) || is.null(opt$outputDfFile)){
+  addComment("[ERROR]'output files' are required",T,opt$log)
   q( "no", 1, F )
 }
 if (!is.null(opt$volcano) && is.null(opt$thresholdFC)){
@@ -852,6 +853,12 @@ names(rowItemInfo)=ensembl_df[which(ensembl_df[,1]!=""),1]
   
 #write(unlist(dimnames(data.fit.eb$adj_p.value)),opt$log,append = T)
 
+#prepare additional output containing df informations
+dfMatrix=matrix(0,ncol=3,nrow = nrow(data.fit.eb$coefficients),dimnames = list(rownames(data.fit.eb$coefficients),c("df.residual","df.prior","df.total")))
+dfMatrix[,"df.residual"]=data.fit.eb$df.residual[rownames(data.fit.eb$coefficients)]
+dfMatrix[,"df.prior"]=data.fit.eb$df.prior
+dfMatrix[,"df.total"]=data.fit.eb$df.total[rownames(data.fit.eb$coefficients)]
+
 #filter out genes with higher p-values for all comparisons
 genesToKeep=names(which(apply(data.fit.eb$adj_p.value,1,function(x)length(which(x<=opt$thresholdPval))>0)))
 if(length(genesToKeep)>0){
@@ -866,8 +873,15 @@ if(length(genesToKeep)>0){
   data.fit.eb$coefficients=matrix(data.fit.eb$coefficients[genesToKeep,],ncol=ncol(data.fit.eb$coefficients))
   rownames(data.fit.eb$coefficients)=genesToKeep
   colnames(data.fit.eb$coefficients)=colnames(data.fit.eb$adj_p.value)
+  
+  data.fit.eb$t=matrix(data.fit.eb$t[genesToKeep,],ncol=ncol(data.fit.eb$t))
+  rownames(data.fit.eb$t)=genesToKeep
+  colnames(data.fit.eb$t)=colnames(data.fit.eb$adj_p.value)
+  
+  dfMatrix=dfMatrix[genesToKeep,,drop=FALSE]
+  
 }else{
-  addComment("[WARNING]No significative genes",T,opt$log,display=FALSE)
+  addComment(c("[WARNING]No significative genes considering the given FDR threshold : ",opt$thresholdPval),T,opt$log,display=FALSE)
 }
 
 addComment("[INFO]Significant genes filtering done",T,opt$log,T,display=FALSE)
@@ -902,40 +916,60 @@ if(length(genesToKeep)>1){
   data.fit.eb$coefficients=matrix(data.fit.eb$coefficients[newOrder,],ncol=ncol(data.fit.eb$coefficients))
   rownames(data.fit.eb$coefficients)=rownames(data.fit.eb$adj_p.value)
   colnames(data.fit.eb$coefficients)=colnames(data.fit.eb$adj_p.value)
+  
+  data.fit.eb$t=matrix(data.fit.eb$t[newOrder,],ncol=ncol(data.fit.eb$t))
+  rownames(data.fit.eb$t)=rownames(data.fit.eb$adj_p.value)
+  colnames(data.fit.eb$t)=colnames(data.fit.eb$adj_p.value)
+  
+  dfMatrix=dfMatrix[newOrder,,drop=FALSE]
 }
 
 
-#formating output matrix depending on genes to keep
+#formating output matrices depending on genes to keep
 if(length(genesToKeep)==0){
-  outputData=matrix(0,ncol=ncol(data.fit.eb$adj_p.value)*4+2,nrow=3)
-  outputData[1,]=c("X","X",rep(humanReadingContrastsRenamed,each=4))
-  outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)"),ncol(data.fit.eb$adj_p.value)))
+  outputData=matrix(0,ncol=ncol(data.fit.eb$adj_p.value)*5+2,nrow=3)
+  outputData[1,]=c("X","X",rep(humanReadingContrastsRenamed,each=5))
+  outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)","t-stat"),ncol(data.fit.eb$adj_p.value)))
   outputData[,1]=c("LIMMA","Gene","noGene")
   outputData[,2]=c("Comparison","Info","noInfo")
+  
+  outputDfData=matrix(0,ncol=3+1,nrow=2)
+  outputDfData[1,]=c("X","df.residual","df.prior","df.total")
+  outputDfData[,1]=c("Statistics","noGene")
 }else{
   if(length(genesToKeep)==1){
-    outputData=matrix(0,ncol=ncol(data.fit.eb$adj_p.value)*4+2,nrow=3)
-    outputData[1,]=c("X","X",rep(humanReadingContrastsRenamed,each=4))
-    outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)"),ncol(data.fit.eb$adj_p.value)))
+    outputData=matrix(0,ncol=ncol(data.fit.eb$adj_p.value)*5+2,nrow=3)
+    outputData[1,]=c("X","X",rep(humanReadingContrastsRenamed,each=5))
+    outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)","t-stat"),ncol(data.fit.eb$adj_p.value)))
     outputData[,1]=c("LIMMA","Gene",genesToKeep)
     outputData[,2]=c("Comparison","Info","na")
     if(!is.null(rowItemInfo))outputData[3,2]=rowItemInfo[genesToKeep]
-    outputData[3,seq(3,ncol(outputData),4)]=prettyNum(data.fit.eb$p.value,digits=4)
-    outputData[3,seq(4,ncol(outputData),4)]=prettyNum(data.fit.eb$adj_p.value,digits=4)
-    outputData[3,seq(5,ncol(outputData),4)]=prettyNum(2^data.fit.eb$coefficients,digits=4)
-    outputData[3,seq(6,ncol(outputData),4)]=prettyNum(data.fit.eb$coefficients,digits=4)
+    outputData[3,seq(3,ncol(outputData),5)]=prettyNum(data.fit.eb$p.value,digits=4)
+    outputData[3,seq(4,ncol(outputData),5)]=prettyNum(data.fit.eb$adj_p.value,digits=4)
+    outputData[3,seq(5,ncol(outputData),5)]=prettyNum(2^data.fit.eb$coefficients,digits=4)
+    outputData[3,seq(6,ncol(outputData),5)]=prettyNum(data.fit.eb$coefficients,digits=4)
+    outputData[3,seq(7,ncol(outputData),5)]=prettyNum(data.fit.eb$t,digits=4)
+    
+    outputDfData=matrix(0,ncol=3+1,nrow=1+nrow(dfMatrix))
+    outputDfData[1,]=c("Statistics","df.residual","df.prior","df.total")
+    outputDfData[2,]=c(rownames(dfMatrix),prettyNum(dfMatrix[,c("df.residual","df.prior","df.total")],digits=4))
   }else{
     #format matrix to be correctly read by galaxy (move headers in first column and row)
-    outputData=matrix(0,ncol=ncol(data.fit.eb$adj_p.value)*4+2,nrow=nrow(data.fit.eb$adj_p.value)+2)
-    outputData[1,]=c("X","X",rep(humanReadingContrastsRenamed,each=4))
-    outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)"),ncol(data.fit.eb$adj_p.value)))
+    outputData=matrix(0,ncol=ncol(data.fit.eb$adj_p.value)*5+2,nrow=nrow(data.fit.eb$adj_p.value)+2)
+    outputData[1,]=c("X","X",rep(humanReadingContrastsRenamed,each=5))
+    outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)","t-stat"),ncol(data.fit.eb$adj_p.value)))
     outputData[,1]=c("LIMMA","Gene",rownames(data.fit.eb$adj_p.value))
     outputData[,2]=c("Comparison","Info",rep("na",nrow(data.fit.eb$adj_p.value)))
     if(!is.null(rowItemInfo))outputData[3:nrow(outputData),2]=rowItemInfo[rownames(data.fit.eb$adj_p.value)]
-    outputData[3:nrow(outputData),seq(3,ncol(outputData),4)]=prettyNum(data.fit.eb$p.value,digits=4)
-    outputData[3:nrow(outputData),seq(4,ncol(outputData),4)]=prettyNum(data.fit.eb$adj_p.value,digits=4)
-    outputData[3:nrow(outputData),seq(5,ncol(outputData),4)]=prettyNum(2^data.fit.eb$coefficients,digits=4)
-    outputData[3:nrow(outputData),seq(6,ncol(outputData),4)]=prettyNum(data.fit.eb$coefficients,digits=4)
+    outputData[3:nrow(outputData),seq(3,ncol(outputData),5)]=prettyNum(data.fit.eb$p.value,digits=4)
+    outputData[3:nrow(outputData),seq(4,ncol(outputData),5)]=prettyNum(data.fit.eb$adj_p.value,digits=4)
+    outputData[3:nrow(outputData),seq(5,ncol(outputData),5)]=prettyNum(2^data.fit.eb$coefficients,digits=4)
+    outputData[3:nrow(outputData),seq(6,ncol(outputData),5)]=prettyNum(data.fit.eb$coefficients,digits=4)
+    outputData[3:nrow(outputData),seq(7,ncol(outputData),5)]=prettyNum(data.fit.eb$t,digits=4)
+    
+    outputDfData=matrix(0,ncol=3+1,nrow=1+nrow(dfMatrix))
+    outputDfData[1,]=c("Statistics","df.residual","df.prior","df.total")
+    outputDfData[2:(1+nrow(dfMatrix)),]=cbind(rownames(dfMatrix),prettyNum(dfMatrix[,c("df.residual")],digits=4),prettyNum(dfMatrix[,c("df.prior")],digits=4),prettyNum(dfMatrix[,c("df.total")],digits=4))
   }
 }
 addComment("[INFO]Formated output",T,opt$log,display=FALSE) 
@@ -943,11 +977,15 @@ addComment("[INFO]Formated output",T,opt$log,display=FALSE)
 #write output results
 write.table(outputData,file=opt$outputFile,quote=FALSE,sep="\t",col.names = F,row.names = F)
 
+#write df info file
+write.table(outputDfData,file=opt$outputDfFile,quote=FALSE,sep="\t",col.names = F,row.names = F)
+
 end.time <- Sys.time()
 addComment(c("[INFO]Total execution time for R script:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=FALSE)
 
 addComment("[INFO]End of R script",T,opt$log,display=FALSE)
 
+printSessionInfo(opt$log)
 #sessionInfo()
 
 

@@ -457,4 +457,6 @@ end.time <- Sys.time()
 addComment(c("[INFO]Total execution time for R script:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=FALSE)
 
 addComment("[INFO]End of R script",T,opt$log,display=FALSE)
+
+printSessionInfo(opt$log)
 #sessionInfo()

@@ -133,7 +133,7 @@ if(ncol(statDataMatrix)!=2*nbVolcanosToPlot){
 dataFrame=data.frame(row.names = rownames(statDataMatrix))
 dataFrame$p.value=statDataMatrix[,seq(1,nbVolcanosToPlot*2,2),drop=FALSE]
 dataFrame$adj_p.value=dataFrame$p.value
-for(iCol in ncol(dataFrame$adj_p.value)){
+for(iCol in 1:ncol(dataFrame$adj_p.value)){
   dataFrame$adj_p.value[,iCol]=p.adjust(dataFrame$adj_p.value[,iCol,drop=FALSE],"fdr") 
 }
 if(opt$fcKind=="FC"){
@@ -150,6 +150,7 @@ volcanoPerPage=1
 FCthreshold=log2(opt$fcThreshold)
 iToPlot=1
 plotVector=list()
+volcanoNameList=c()
 for (iVolcano in 1:nbVolcanosToPlot){
   
   if(nchar(opt$volcanoName[iVolcano])>0){
@@ -157,6 +158,10 @@ for (iVolcano in 1:nbVolcanosToPlot){
   }else{
     curentVolcanoName=paste(iVolcano,opt$pvalColumnName[iVolcano],sep="_")
   }
+  
+  #save volcano name
+  volcanoNameList=c(volcanoNameList,curentVolcanoName)
+  
   #remove characters possibly troubling
   volcanoFileName=iVolcano
   
@@ -322,18 +327,17 @@ if(length(genesToKeep)>1){
   colnames(dataFrame$coefficients)=colnames(dataFrame$adj_p.value)
 }
 
-
 #formating output matrix depending on genes to keep
 if(length(genesToKeep)==0){
   outputData=matrix(0,ncol=ncol(dataFrame$adj_p.value)*4+2,nrow=3)
-  outputData[1,]=c("X","X",rep(curentVolcanoName,each=4))
+  outputData[1,]=c("X","X",rep(volcanoNameList,each=4))
   outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)"),ncol(dataFrame$adj_p.value)))
   outputData[,1]=c("LIMMA","Gene","noGene")
   outputData[,2]=c("Comparison","Info","noInfo")
 }else{
   if(length(genesToKeep)==1){
     outputData=matrix(0,ncol=ncol(dataFrame$adj_p.value)*4+2,nrow=3)
-    outputData[1,]=c("X","X",rep(curentVolcanoName,each=4))
+    outputData[1,]=c("X","X",rep(volcanoNameList,each=4))
     outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)"),ncol(dataFrame$adj_p.value)))
     outputData[,1]=c("LIMMA","Gene",genesToKeep)
     outputData[,2]=c("Comparison","Info","na")
@@ -345,7 +349,7 @@ if(length(genesToKeep)==0){
   }else{
     #format matrix to be correctly read by galaxy (move headers in first column and row)
     outputData=matrix(0,ncol=ncol(dataFrame$adj_p.value)*4+2,nrow=nrow(dataFrame$adj_p.value)+2)
-    outputData[1,]=c("X","X",rep(curentVolcanoName,each=4))
+    outputData[1,]=c("X","X",rep(volcanoNameList,each=4))
     outputData[2,]=c("X","X",rep(c("p-val","FDR.p-val","FC","log2(FC)"),ncol(dataFrame$adj_p.value)))
     outputData[,1]=c("Volcano","Gene",rownames(dataFrame$adj_p.value))
     outputData[,2]=c("Comparison","Info",rep("na",nrow(dataFrame$adj_p.value)))
@@ -366,5 +370,7 @@ end.time <- Sys.time()
 addComment(c("[INFO]Total execution time for R script:",as.numeric(end.time - start.time,units="mins"),"mins"),T,opt$log,display=FALSE)
 
 addComment("[INFO]End of R script",T,opt$log,display=FALSE)
+
+printSessionInfo(opt$log)
 
 #sessionInfo()

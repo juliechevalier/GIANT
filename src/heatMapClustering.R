@@ -120,6 +120,7 @@ suppressPackageStartupMessages({
   #source("https://bioconductor.org/biocLite.R")
   #biocLite("ComplexHeatmap")
   library("ComplexHeatmap")
+  #library("processx")
 })
 
 expressionToCluster=!is.null(opt$expressionFile)
@@ -176,9 +177,10 @@ if(!is.null(opt$factorInfo)){
 }
 
 nbComparisons=0
+nbColPerContrast=5
 #if available comparisons
 if(!is.null(opt$comparisonName)){
-  
+
   #load results from differential expression analysis
   #consider first row contains column names
   comparisonMatrix=read.csv(file=opt$diffAnalyseFile,header=F,sep="\t")
@@ -193,6 +195,16 @@ if(!is.null(opt$comparisonName)){
   comparisonMatrix=comparisonMatrix[,-c(1,2)]
   
   comparisonMatrix=matrix(as.numeric(as.matrix(comparisonMatrix)),ncol=ncol(comparisonMatrix),dimnames = dimnames(comparisonMatrix))
+  
+  if (ncol(comparisonMatrix)%%nbColPerContrast != 0) {
+    addComment("[ERROR]Diff. exp. data does not contain good number of columns per contrast, should contains in this order:p-val,FDR.p-val,FC,log2(FC) and t-stat",T,opt$log,display=FALSE)
+    q( "no", 1, F )
+  }
+  
+  if(max(comparisonMatrix[,c(seq(1,ncol(comparisonMatrix),nbColPerContrast),seq(2,ncol(comparisonMatrix),nbColPerContrast))])>1 || min(comparisonMatrix[,c(seq(1,ncol(comparisonMatrix),nbColPerContrast),seq(2,ncol(comparisonMatrix),nbColPerContrast))])<0){
+    addComment("[ERROR]Seem that diff. exp. data does not contain correct values for p-val and FDR.p-val columns, should be including in [0,1] interval",T,opt$log,display=FALSE)
+    q( "no", 1, F )
+  }
   
   if (!is.numeric(comparisonMatrix)) {
     addComment("[ERROR]Diff. exp. data is not fully numeric!",T,opt$log,display=FALSE)
@@ -215,7 +227,7 @@ if(!is.null(opt$comparisonName)){
   addComment(c("[INFO]Dim of effective comparison matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
 
   #get number of required comparisons
-  nbComparisons=ncol(comparisonMatrix)/4 
+  nbComparisons=ncol(comparisonMatrix)/nbColPerContrast 
 }
 
 if(!is.null(opt$personalColors)){
@@ -239,7 +251,7 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="input"){
     if(is.null(opt$geneListFiltering)){
       #filtering using stat thresholds
       #rowToKeep=intersect(which(comparisonMatrix[,seq(2,ncol(comparisonMatrix),4)]<=opt$pvalThreshold),which(abs(comparisonMatrix[,seq(4,ncol(comparisonMatrix),4)])>=log2(opt$FCthreshold)))
-      rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),4)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),4)])>=log2(opt$FCthreshold))))!=0))))
+      rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),nbColPerContrast)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),nbColPerContrast)])>=log2(opt$FCthreshold))))!=0))))
     }else{
       #filtering using gene list
       geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1,header=F)
@@ -284,7 +296,7 @@ if(expressionToCluster){
     valueMeaning="Intensities"
   }else{
     #will make clustering on log2(FC) values
-    dataToHeatMap=matrix(comparisonMatrix[,seq(4,ncol(comparisonMatrix),4)],ncol=nbComparisons,dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),4)]))
+    dataToHeatMap=matrix(comparisonMatrix[,seq(4,ncol(comparisonMatrix),nbColPerContrast)],ncol=nbComparisons,dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),nbColPerContrast)]))
     valueMeaning="Log2(FC)"
   }
   addComment(c("[INFO]Dim of heatmap matrix:",dim(dataToHeatMap)),T,opt$log,display=FALSE)
@@ -414,6 +426,9 @@ if(expressionToCluster){
   
   #save image file
   export(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
+  #rise a bug due to token stuf
+  #orca(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
+  
   
   #save plotLy file
   htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/Heatmap.html"),collapse=""),selfcontained = F)
@@ -540,7 +555,7 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="output"){
   #rowToKeep=intersect(which(comparisonMatrix[,seq(2,ncol(comparisonMatrix),4)]<=opt$pvalThreshold),which(abs(comparisonMatrix[,seq(4,ncol(comparisonMatrix),4)])>=log2(opt$FCthreshold)))
   
   if(is.null(opt$geneListFiltering)){
-    rowToKeep=rownames(comparisonMatrix)[which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),4)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),4)])>=log2(opt$FCthreshold))))!=0)))]
+    rowToKeep=rownames(comparisonMatrix)[which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),nbColPerContrast)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),nbColPerContrast)])>=log2(opt$FCthreshold))))!=0)))]
   }else{
     geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1,header=F)
     rowToKeep=unlist(c(geneListFiltering))
@@ -559,15 +574,15 @@ addingDiffExpStat=nbComparisons>=1
 #formating output matrix depending on genes to keep
 if(length(rowToKeep)==0){
   addComment("[WARNING]No more gene after output filtering step, tabular output will be empty",T,opt$log,display=FALSE)
-  outputData=matrix(0,ncol=nbComparisons*4+3,nrow=3-!addingDiffExpStat)
-  if(addingDiffExpStat)outputData[1,]=c("","","Comparison",rep(colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),4)],each=4))
-  outputData[2-!addingDiffExpStat,]=c("Gene","Info","Cluster",rep(c("p-val","FDR.p-val","FC","log2(FC)"),nbComparisons))
+  outputData=matrix(0,ncol=nbComparisons*nbColPerContrast+3,nrow=3-!addingDiffExpStat)
+  if(addingDiffExpStat)outputData[1,]=c("","","Comparison",rep(colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),nbColPerContrast)],each=nbColPerContrast))
+  outputData[2-!addingDiffExpStat,]=c("Gene","Info","Cluster",rep(c("p-val","FDR.p-val","FC","log2(FC)","t-stat"),nbComparisons))
   outputData[3-!addingDiffExpStat,1:3]=c("noGene","noInfo","noClustering")
 }else{
   if(addingDiffExpStat){
-    outputData=matrix(0,ncol=nbComparisons*4+3,nrow=length(rowToKeep)+2)
-    outputData[1,]=c("","","Comparison",rep(colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),4)],each=4))
-    outputData[2,]=c("Gene","Info","Cluster",rep(c("p-val","FDR.p-val","FC","log2(FC)"),nbComparisons))
+    outputData=matrix(0,ncol=nbComparisons*nbColPerContrast+3,nrow=length(rowToKeep)+2)
+    outputData[1,]=c("","","Comparison",rep(colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),nbColPerContrast)],each=nbColPerContrast))
+    outputData[2,]=c("Gene","Info","Cluster",rep(c("p-val","FDR.p-val","FC","log2(FC)","t-stat"),nbComparisons))
     outputData[3:(length(rowToKeep)+2),1]=rowToKeep
     outputData[3:(length(rowToKeep)+2),2]=comparisonMatrixInfoGene[rowToKeep]
     if(class(rowClust)!="logical" ){outputData[3:(length(rowToKeep)+2),3]=cutree(rowClust,nbClusters)[rowToKeep]
@@ -591,6 +606,8 @@ addComment(c("[INFO]Total execution time for R script:",as.numeric(end.time - st
 
 
 addComment("[INFO]End of R script",T,opt$log,display=FALSE)
+
+printSessionInfo(opt$log)
 
 #sessionInfo()
 

@@ -110,7 +110,7 @@
               <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
               </param>
 
-              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],4)">
+              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],5)">
                  <validator type="empty_field" message="You should specify one factor"></validator>
               </param>
 
@@ -137,7 +137,7 @@
               <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
               </param>
 
-              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],4)">
+              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],5)">
                  <validator type="empty_field" message="You should specify one factor"></validator>
               </param>
 
@@ -162,7 +162,7 @@
         <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
         </param>
 
-        <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to cluster" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(dataToCluster['differentialAnalysis'].file_name,[0,1],4)">
+        <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to cluster" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(dataToCluster['differentialAnalysis'].file_name,[0,1],5)">
                  <validator type="empty_field" message="You should specify one factor"></validator>
         </param>
 
@@ -302,7 +302,7 @@ printf  "<!DOCTYPE html>
 printf "<colgroup>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<col span=\"2\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<col span=\"1\" style=\"background-color:rgb(250,235,235)\">\n" >> ${html_file.extra_files_path}/outputClustering.html
-awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=4;i<=NF;i=i+4){if(odd==1){odd=0;printf "<col span=\"4\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"4\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
+awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=4;i<=NF;i=i+5){if(odd==1){odd=0;printf "<col span=\"5\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"5\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
 printf "</colgroup>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<thead>\n<tr>\n" >> ${html_file.extra_files_path}/outputClustering.html
 
@@ -313,7 +313,7 @@ printf "<th rowspan=\"1\">Cluster</th>\n" >> ${html_file.extra_files_path}/outpu
 printf "<th rowspan=\"2\">Gene</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<th rowspan=\"2\">Info</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<th rowspan=\"2\">Cluster</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
-awk 'BEGIN{FS="\t"} NR==1{for(i=4;i<=NF;i=i+4)printf "<th colspan=\"4\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
+awk 'BEGIN{FS="\t"} NR==1{for(i=4;i<=NF;i=i+5)printf "<th colspan=\"5\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
 printf "<th></th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "</tr>\n<tr>\n" >> ${html_file.extra_files_path}/outputClustering.html
 awk 'BEGIN{FS="\t"} NR==2{for(i=4;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
@@ -521,15 +521,15 @@ Run hierarchical clustering on gene expression data or differential expression a
         VWA1        5.189621                5.129595                 4.806793                   5.227014
 
 
-- **Differential expression analysis results** with contrasts statistics (p-val, FDR p-val, FC and log2(FC)) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations).
+- **Differential expression analysis results** with contrasts statistics (p-val, FDR p-val, FC, log2(FC) and t-statistic) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations). Please respect the GIANT-Differential Expression Analysis with LIMMA tool output format.
 
     ::
 
-        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
-        Gene     Info        p-val     FDR.p-val FC        log2(FC)
-        ARSD     na          0.0057    0.41      0.8389   -0.2534  
-        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
-        MIR548AL na          0.072     0.2914    1.711     0.775 
+        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+        Gene     Info        p-val     FDR.p-val FC        log2(FC)  t-stat
+        ARSD     na          0.0057    0.41      0.8389   -0.2534   -5.175
+        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432   -6.122
+        MIR548AL na          0.072     0.2914    1.711     0.775     10.43
 
     \- **Comparisons to cluster** when differential results are used to cluster, log2(FC) values of selected comparisons will be used for clustering.
 

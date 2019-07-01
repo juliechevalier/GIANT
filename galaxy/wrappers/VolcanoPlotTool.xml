@@ -95,7 +95,7 @@
 
       <param name="pvalColumn" type="select" label="Select column containing p-val statistics" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="Do not use ajusted p-val for Volcano plot"/>
 
-      <param name="fcColumn" type="select" label="Select column containing log2(FoldChange) values" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If only FC are available, please select corresponding column and check options below." />
+      <param name="fcColumn" type="select" label="Select column containing log2(FoldChange) values" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If only FC are available as input, please select FC column and check options below." />
 
     </repeat>
 
@@ -104,7 +104,7 @@
 
 	<section name="plotSection" title="Output section" expanded="True">
 
-    <param name="fcKind" type="select" display="radio" label="Select FC values selected in input columns" help="log2(FC) will be displayed in volcano plots">
+    <param name="fcKind" type="select" display="radio" label="Select FC values kind selected as input column" help="Info:log2(FC) will be displayed in volcano plots">
       <option value="log2FC" selected="true">log2(FC)</option>
       <option value="FC">FC</option>
     </param>
@@ -346,11 +346,11 @@ This tool plot volcanos from previous differential expression analysis results c
 
     ::
 
-        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat
-        Gene     Info        p-val     FDR.p-val FC        log2(FC)
-        ARSD     na          0.0057    0.41      0.8389   -0.2534  
-        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432
-        MIR548AL na          0.072     0.2914    1.711     0.775 
+        LIMMA    comparison  WT*Treat  WT*Treat  WT*Treat  WT*Treat  WT*Treat
+        Gene     Info        p-val     FDR.p-val FC        log2(FC)  t-stat
+        ARSD     na          0.0057    0.41      0.8389   -0.2534   -5.175
+        TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432   -6.122
+        MIR548AL na          0.072     0.2914    1.711     0.775     10.43
 
 - **Header lines number** to skip in the differential results file, i.e lines containing column content descripion.
 

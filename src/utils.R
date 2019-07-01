@@ -21,6 +21,30 @@ addComment <- function(text,addToFile=FALSE,fileName=NULL,append=TRUE,display=TR
   if(addToFile)write(paste(text,collapse = " "),fileName,append=append)
 }
 
+printSessionInfo <- function(fileName=NULL,append=TRUE){
+  addComment("[INFO]R session info :",T,fileName,display=FALSE)
+  tempInfo=sessionInfo()
+  write(paste(tempInfo$R.version$version.string),fileName,append=append)
+  write(paste("Platform",tempInfo$platform,sep = " : "),fileName,append=append)
+  write(paste("Running under",tempInfo$running,sep = " : "),fileName,append=append)
+  write(paste("Local variables",tempInfo$locale,sep = " : "),fileName,append=append)
+  write(paste("Attached base packages",paste(tempInfo$basePkgs,collapse = "; "),sep = " : "),fileName,append=append)
+  if(length(tempInfo$otherPkgs)>0){
+    lineToPrint=""
+    for(iPack in tempInfo$otherPkgs){
+      lineToPrint=paste(lineToPrint,iPack$Package," ",iPack$Version,"; ",sep = "")
+    }
+    write(paste("Other attached packages",lineToPrint,sep = " : "),fileName,append=append)
+  }
+  if(length(tempInfo$loadedOnly)>0){
+    lineToPrint=""
+    for(iPack in tempInfo$loadedOnly){
+      lineToPrint=paste(lineToPrint,iPack$Package," ",iPack$Version,"; ",sep = "")
+    }
+    write(paste("Loaded packages",lineToPrint,sep = " : "),fileName,append=append)
+  }
+}
+
 ##negative of a mathematical expression
 negativeExpression <- function(expression){
   expression=gsub("\\+","_toMinus_",expression)
