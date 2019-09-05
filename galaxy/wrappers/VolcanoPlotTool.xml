@@ -1,4 +1,4 @@
-<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.1.0">
+<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.2.0">
   <description>Plot volcano from tabular file</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
