@@ -855,9 +855,9 @@ names(rowItemInfo)=ensembl_df[which(ensembl_df[,1]!=""),1]
 
 #prepare additional output containing df informations
 dfMatrix=matrix(0,ncol=3,nrow = nrow(data.fit.eb$coefficients),dimnames = list(rownames(data.fit.eb$coefficients),c("df.residual","df.prior","df.total")))
-dfMatrix[,"df.residual"]=data.fit.eb$df.residual[rownames(data.fit.eb$coefficients)]
+dfMatrix[,"df.residual"]=data.fit.eb$df.residual
 dfMatrix[,"df.prior"]=data.fit.eb$df.prior
-dfMatrix[,"df.total"]=data.fit.eb$df.total[rownames(data.fit.eb$coefficients)]
+dfMatrix[,"df.total"]=data.fit.eb$df.total
 
 #filter out genes with higher p-values for all comparisons
 genesToKeep=names(which(apply(data.fit.eb$adj_p.value,1,function(x)length(which(x<=opt$thresholdPval))>0)))

@@ -1,4 +1,4 @@
-<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.0">
+<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.1">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -341,7 +341,7 @@ printf "<p>\n<a href=\"Histogram_\$conditionName.html\">Histogram \$conditionFor
 if [ \$counter = 1 ]; then
 #if $plotSection.imagePlotlyFormat=="svg":
 ##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
-cd ./plotLyDir/\${histogramShort}_files/plotlyjs-*/
+cd ./plotLyDir/\${histogramShort}_files/plotly-main-*/
 awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
 awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
 rm ./plotly-latest.minTemp.js
@@ -379,7 +379,7 @@ printf "<a href=\"sumSquareFtest.html\">F-ratio barplot</a>\n"  >> $html_file
 
 #if $plotSection.imagePlotlyFormat=="svg":
 ##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
-cd ./plotLyDir/sumSquareFtest_files/plotlyjs-*/
+cd ./plotLyDir/sumSquareFtest_files/plotly-main-*/
 awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
 awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
 rm ./plotly-latest.minTemp.js
@@ -430,7 +430,7 @@ if [ \$counter = 1 ]; then
 
 #if $plotSection.imagePlotlyFormat=="svg":
 ##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
-cd ./plotLyDir/\${volcanoShort}_files/plotlyjs-*/
+cd ./plotLyDir/\${volcanoShort}_files/plotly-main-*/
 awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
 awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
 rm ./plotly-latest.minTemp.js

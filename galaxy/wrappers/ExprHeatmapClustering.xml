@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.2.0">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.2.1">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
@@ -391,7 +391,7 @@ printf "<a href=\"Heatmap.html\">Heatmap</a>\n"  >> $html_file
 
 #if $advSection.imagePlotlyFormat=="svg":
 ##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
-cd ./plotLyDir/Heatmap_files/plotlyjs-*/
+cd ./plotLyDir/Heatmap_files/plotly-main-*/
 awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
 awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
 rm ./plotly-latest.minTemp.js
@@ -428,7 +428,7 @@ printf "<a href=\"screePlot.html\">Scree plot</a>\n"  >> $html_file
 
 #if $advSection.imagePlotlyFormat=="svg":
 ##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
-cd ./plotLyDir/screePlot_files/plotlyjs-*/
+cd ./plotLyDir/screePlot_files/plotly-main-*/
 awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
 awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
 rm ./plotly-latest.minTemp.js
