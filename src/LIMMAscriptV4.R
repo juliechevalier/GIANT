@@ -742,8 +742,8 @@ if(!is.null(allFtestMeanSquare)){
 #plot VOLCANO plot
 #volcanoplot(data.fit.eb,coef=1,highlight=10)
 volcanoPerPage=1
-FCthreshold=log2(opt$thresholdFC)
 if (!is.null(opt$volcano)) {
+  FCthreshold=log2(opt$thresholdFC)
   iToPlot=1
   plotVector=list()
   nbComparisons=ncol(data.fit.eb$adj_p.value)
