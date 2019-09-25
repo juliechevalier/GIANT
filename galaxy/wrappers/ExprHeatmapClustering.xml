@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.2.1">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.2.2">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
@@ -252,6 +252,9 @@
       <option value="png">PNG format</option>
       <option value="svg">SVG format</option>
     </param>
+    <param name="scaleSnapshot" type="float" value="1.0" label="Scale html snapshots to increase resolution" help="Minimum value is 1.0 (default resolution)" >
+        <validator type="in_range" min="1" exclude_min="false" message="Scale should be greater than 1"/>
+    </param>
   </section>
 
 </inputs>
@@ -392,9 +395,17 @@ printf "<a href=\"Heatmap.html\">Heatmap</a>\n"  >> $html_file
 #if $advSection.imagePlotlyFormat=="svg":
 ##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
 cd ./plotLyDir/Heatmap_files/plotly-main-*/
-awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("\"png\"","\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
 awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
 rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+#if $advSection.scaleSnapshot!="1.0":
+##before copying scripts folder modify scale parameter (not proud of solution but seems to work)
+cd ./plotLyDir/Heatmap_files/plotly-main-*/
+awk '{gsub("h=t\\.scale\\|\\|1","h=$advSection.scaleSnapshot",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+mv -f ./plotly-latest.minTemp.js ./plotly-latest.min.js
 cd ../../../
 #end if
 
@@ -429,9 +440,17 @@ printf "<a href=\"screePlot.html\">Scree plot</a>\n"  >> $html_file
 #if $advSection.imagePlotlyFormat=="svg":
 ##before copying scripts folder modify them to replace png snapshot with svg (not proud of solution but seems to work)
 cd ./plotLyDir/screePlot_files/plotly-main-*/
-awk '{gsub("e=\"png\"","e=\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+awk '{gsub("\"png\"","\"svg\"",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
 awk '{gsub("Download plot as a png","Download plot as a svg",\$0);print \$0}' ./plotly-latest.minTemp.js > ./plotly-latest.min.js
 rm ./plotly-latest.minTemp.js
+cd ../../../
+#end if
+
+#if $advSection.scaleSnapshot!="1.0":
+##before copying scripts folder modify scale parameter (not proud of solution but seems to work)
+cd ./plotLyDir/screePlot_files/plotly-main-*/
+awk '{gsub("h=t\\.scale\\|\\|1","h=$advSection.scaleSnapshot",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
+mv -f ./plotly-latest.minTemp.js ./plotly-latest.min.js
 cd ../../../
 #end if
 
@@ -577,9 +596,11 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 \- **Personalized color** to build color gradient choosing start, middle and end colors.
 
-\- **Output format** for circular plots.
+\- **Output format** for circular plots only.
 
 \- **Html snapshot format** for interactive plotly plots.
+
+\- **Scale html snapshots** to increase resolution of snapshots taken from interactive plotly plots.
 
 -----
 
