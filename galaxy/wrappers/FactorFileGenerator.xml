@@ -1,4 +1,4 @@
-<tool name="GIANT-Factor file generator" id="giant_factor_generator" version="0.1.0">
+<tool name="GIANT-Factor file generator" id="giant_factor_generator" version="0.1.1">
   <description>Generate factor file used by other GIANT tools</description>
   <requirements>
   </requirements>

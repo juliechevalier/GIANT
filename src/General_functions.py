@@ -88,9 +88,13 @@ def get_condition_file_names( file_list, toNotConsider=-1, each=1):
 				if cpt==each:
 					cpt=0
 		inputfile.close()
-	else:#if input file is a .cel file list
-		for i, field_component in enumerate( file_list ):
-			options.append( ( field_component.name, field_component.name, False ) )
+	else:#if input file is a .cel file list or a collection
+		if not hasattr(file_list[0],'collection'):#if it is not a collection, get name easily
+			for i, field_component in enumerate( file_list ):
+				options.append( ( field_component.name, field_component.name, False ) )
+		else:#if the file is a collection, have to get deeper in the corresponding HistoryDatasetCollectionAssociation object
+			for i, field_component in enumerate( file_list[0].collection.elements ):
+				options.append( ( field_component.element_identifier, field_component.element_identifier, False ) )
 	return options
 
 def generateFactorFile( file_list, factor_list, outputFileName, logFile):
@@ -99,9 +103,9 @@ def generateFactorFile( file_list, factor_list, outputFileName, logFile):
 	outputLog = open(logFile, 'w')
 	sampleList=[]
 	if not isinstance(file_list,list):
-		conditionNames=get_condition_file_names(file_list,0)
+		conditionNames=get_condition_file_names(file_list,0) #unique expression file, remove the first column (index=0)
 	else :
-		conditionNames=get_condition_file_names(file_list)	
+		conditionNames=get_condition_file_names(file_list) #.CEL files
 	for iSample, sample_component in enumerate (conditionNames):
 		sampleList.append(str(sample_component[1]))
 	outputLog.write("[INFO] "+str(len(sampleList))+" sample are detected as input\n")
