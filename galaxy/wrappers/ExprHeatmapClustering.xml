@@ -47,7 +47,7 @@
         cp $dataToCluster.differentialAnalysis ./filteredDifferentialAnalysis;
       #end if
 
-	  Rscript '$__tool_directory__/../../src/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
+	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
       #if $advSection.clusterConditions=="true":
      -s 
       #end if
@@ -247,7 +247,7 @@
       <validator type="in_range" min="2" message="Cluster number should be greater than 1"/>
     </param>
 
-    <param type="boolean" name="clusterConditions" checked="true" label="Cluster samples" help="To apply hierarchical clustering to samples/conditions">
+    <param type="boolean" name="clusterConditions" checked="true" label="Cluster samples" help="To apply hierarchical clustering to samples/comparisons">
     </param>
 
     <param name="maxSampleToPlot" type="integer" value="1000" label="Maximum gene number to plot">
@@ -426,7 +426,7 @@ rm ./plotly-latest.minTemp.js
 cd ../../../
 #end if
 
-#if $advSection.scaleSnapshot!="1":
+#if $advSection.scaleSnapshot!="1.0":
 ##before copying scripts folder modify scale parameter (not proud of solution but seems to work)
 cd ./plotLyDir/Heatmap_files/plotly-main-*/
 awk '{gsub("h=t\\.scale\\|\\|1","h=$advSection.scaleSnapshot",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
@@ -471,7 +471,7 @@ rm ./plotly-latest.minTemp.js
 cd ../../../
 #end if
 
-#if $advSection.scaleSnapshot!="1":
+#if $advSection.scaleSnapshot!="1.0":
 ##before copying scripts folder modify scale parameter (not proud of solution but seems to work)
 cd ./plotLyDir/screePlot_files/plotly-main-*/
 awk '{gsub("h=t\\.scale\\|\\|1","h=$advSection.scaleSnapshot",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
@@ -577,6 +577,10 @@ Run hierarchical clustering on gene expression data or differential expression a
 
     \- **Comparisons to cluster** when differential results are used to cluster, log2(FC) values of selected comparisons will be used for clustering.
 
+
+\- **Reorder samples** (only available for expression data clustering).
+
+- **Based on factors file** samples will be sorted in an alphabetical/numerical way for the selected factors.
 
 \- **Genes filtering** can be applied before or after clustering step.
 
