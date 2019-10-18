@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.2.2">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.3.0">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
@@ -25,8 +25,21 @@
   <command>	<![CDATA[
 
       #if $dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.expressionData:
-        cp $dataToCluster.expressionData ./filteredExpressionData;
+        #if $dataToCluster.reorder_sample.reordering_selector=="factorFile" and $dataToCluster.reorder_sample.factorFileData and $dataToCluster.reorder_sample.factorToUse:
+          awk -v factors="$dataToCluster.reorder_sample.factorToUse" 'BEGIN{FS="\t";OFS="";ORS="";split(factors,factorsTab,",")} FNR==1{for(iFactor=1;iFactor<=length(factorsTab);iFactor++)for(iField=2;iField<=NF;iField++){if(\$iField==factorsTab[iFactor])colsToSelect[iFactor]=iField}} FNR>1{line=\$1;for(iFactor=1;iFactor<=length(factorsTab);iFactor++)line=line"\t"\$colsToSelect[iFactor];print line"\n";}' $dataToCluster.reorder_sample.factorFileData > ./orderingFactor;
+
+          sort -V +1 ./orderingFactor > ./orderingSample;
+
+          awk 'BEGIN{FS="\t";OFS="";ORS=""} ARGIND==1{sampleOrdered[FNR]=\$1} ARGIND==2 && FNR==1{for(iElemt=1;iElemt<NF;iElemt++)for(iPosit=2;iPosit<=NF;iPosit++)if(\$iPosit==sampleOrdered[iElemt])positOrdered[iElemt]=iPosit} ARGIND==2{line=\$1;for(iElemt=1;iElemt<NF;iElemt++)line=line"\t"\$positOrdered[iElemt];print line"\n"}' ./orderingSample $dataToCluster.expressionData > ./filteredExpressionData;
+
+          #if $advSection.clusterConditions=="true":
+            printf "[WARNING]Sample clustering option is selected, sample reordering will not be preserved!\n" >> $log; 
+          #end if
+        #else:
+          cp $dataToCluster.expressionData ./filteredExpressionData;
+        #end if
       #end if
+
       #if $dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam" and $dataToCluster.filtering_step.select_filtering.differentialAnalysis:
         cp  ${dataToCluster.filtering_step.select_filtering.differentialAnalysis} ./filteredDifferentialAnalysis;
       #end if
@@ -34,7 +47,7 @@
         cp $dataToCluster.differentialAnalysis ./filteredDifferentialAnalysis;
       #end if
 
-	   Rscript '$__tool_directory__/../../src/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
+	  Rscript '$__tool_directory__/../../src/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
       #if $advSection.clusterConditions=="true":
      -s 
       #end if
@@ -93,6 +106,18 @@
 
       <param type="data" name="expressionData" format="tabular" label="Normalized expression tabular file" multiple="false"/>
 
+      <conditional name="reorder_sample">
+        <param name="reordering_selector" type="select" label="Reorder samples">
+            <option value="no" selected="true">No reordering</option>
+            <option value="factorFile">Reorder sample based on factors file</option>
+        </param>
+        <when value="factorFile">
+          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Please uncheck the 'Cluster samples' option in advanced parameters !"/>
+          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
+                 <validator type="empty_field" message="You should specify one factor"></validator>
+          </param>
+        </when>
+      </conditional>
 
       <conditional name="filtering_step">
         <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
@@ -222,7 +247,7 @@
       <validator type="in_range" min="2" message="Cluster number should be greater than 1"/>
     </param>
 
-    <param type="boolean" name="clusterConditions" checked="true" label="Cluster samples" help="To apply hierarchical clustering to samples">
+    <param type="boolean" name="clusterConditions" checked="true" label="Cluster samples" help="To apply hierarchical clustering to samples/conditions">
     </param>
 
     <param name="maxSampleToPlot" type="integer" value="1000" label="Maximum gene number to plot">
@@ -401,7 +426,7 @@ rm ./plotly-latest.minTemp.js
 cd ../../../
 #end if
 
-#if $advSection.scaleSnapshot!="1.0":
+#if $advSection.scaleSnapshot!="1":
 ##before copying scripts folder modify scale parameter (not proud of solution but seems to work)
 cd ./plotLyDir/Heatmap_files/plotly-main-*/
 awk '{gsub("h=t\\.scale\\|\\|1","h=$advSection.scaleSnapshot",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
@@ -446,7 +471,7 @@ rm ./plotly-latest.minTemp.js
 cd ../../../
 #end if
 
-#if $advSection.scaleSnapshot!="1.0":
+#if $advSection.scaleSnapshot!="1":
 ##before copying scripts folder modify scale parameter (not proud of solution but seems to work)
 cd ./plotLyDir/screePlot_files/plotly-main-*/
 awk '{gsub("h=t\\.scale\\|\\|1","h=$advSection.scaleSnapshot",\$0);print \$0}' ./plotly-latest.min.js > ./plotly-latest.minTemp.js
