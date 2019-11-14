@@ -1,11 +1,12 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.3.0">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.3.1">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
-    <requirement type="package" version="1.8.0">r-dendextend</requirement>
-    <requirement type="package" version="3.1.0">r-ggplot2</requirement>
-    <requirement type="package" version="0.15.2">r-heatmaply</requirement>
-    <requirement type="package" version="0.4.4">r-circlize</requirement>
+    <requirement type="package" version="1.12.0">r-dendextend</requirement>
+    <requirement type="package" version="0.1_20">r-ggdendro</requirement>
+    <requirement type="package" version="3.2.1">r-ggplot2</requirement>
+    <requirement type="package" version="0.16.0">r-heatmaply</requirement>
+    <requirement type="package" version="0.4.8">r-circlize</requirement>
     <requirement type="package" version="1.18.1">bioconductor-complexheatmap</requirement>
     <requirement type="package" version="2.2.2">pandoc</requirement>
   </requirements>
@@ -32,7 +33,7 @@
 
           awk 'BEGIN{FS="\t";OFS="";ORS=""} ARGIND==1{sampleOrdered[FNR]=\$1} ARGIND==2 && FNR==1{for(iElemt=1;iElemt<NF;iElemt++)for(iPosit=2;iPosit<=NF;iPosit++)if(\$iPosit==sampleOrdered[iElemt])positOrdered[iElemt]=iPosit} ARGIND==2{line=\$1;for(iElemt=1;iElemt<NF;iElemt++)line=line"\t"\$positOrdered[iElemt];print line"\n"}' ./orderingSample $dataToCluster.expressionData > ./filteredExpressionData;
 
-          #if $advSection.clusterConditions=="true":
+          #if $advSection.conditionClusterNumber>1:
             printf "[WARNING]Sample clustering option is selected, sample reordering will not be preserved!\n" >> $log; 
           #end if
         #else:
@@ -47,12 +48,17 @@
         cp $dataToCluster.differentialAnalysis ./filteredDifferentialAnalysis;
       #end if
 
-	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
-      #if $advSection.clusterConditions=="true":
-     -s 
+      #if $advSection.conditionBarColor.conditionBarColor_selector=="yes"  and $advSection.conditionBarColor.factorFileDataBarPlot and $advSection.conditionBarColor.factorToUse:
+       awk -v factor="$advSection.conditionBarColor.factorToUse" 'BEGIN{FS="\t";OFS="";ORS=""} NR==1{for(i=2;i<=NF;i++)if(\$i==factor)colToKeep=i} {print \$1"\t"\$colToKeep"\n"}' $advSection.conditionBarColor.factorFileDataBarPlot > ./barPlotFactor;
       #end if
+
+	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' -l '$log' -o '$outputData' -f '$advSection.imageFormat' -n '$advSection.clusterNumber' -m '$advSection.maxSampleToPlot'
+      -s '$advSection.conditionClusterNumber'
       #if $advSection.select_color.specifyColors=="true":
       -k '$advSection.select_color.featureMin_color,$advSection.select_color.featureMedium_color,$advSection.select_color.featureMax_color'
+      #end if
+      #if $advSection.conditionBarColor.conditionBarColor_selector=="yes" and $advSection.conditionBarColor.factorFileDataBarPlot and $advSection.conditionBarColor.factorToUse:
+      -g './barPlotFactor'
       #end if
       #if $dataToCluster.dataToCluster_selector=="expression":
       -i './filteredExpressionData'
@@ -112,9 +118,9 @@
             <option value="factorFile">Reorder sample based on factors file</option>
         </param>
         <when value="factorFile">
-          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Please uncheck the 'Cluster samples' option in advanced parameters !"/>
-          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
-                 <validator type="empty_field" message="You should specify one factor"></validator>
+          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number in advanced parameters is set to 1."/>
+          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor(s) to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
+                 <validator type="empty_field" message="You should specify at least one factor"></validator>
           </param>
         </when>
       </conditional>
@@ -243,12 +249,26 @@
 
 	<section name="advSection" title="Advanced parameters" expanded="false">
 
-    <param name="clusterNumber" type="integer" value="5" label="Requested cluster number" help="Use scree plot to adjust number of clusters">
+    <param name="clusterNumber" type="integer" value="5" label="Requested number of genes clusters" help="Use scree plot to adjust the number of genes clusters">
       <validator type="in_range" min="2" message="Cluster number should be greater than 1"/>
     </param>
 
-    <param type="boolean" name="clusterConditions" checked="true" label="Cluster samples" help="To apply hierarchical clustering to samples/comparisons">
-    </param>
+    <param name="conditionClusterNumber" type="integer" value="1" label="Requested number of conditions clusters (1 = no clustering)">
+        <validator type="in_range" min="1" message="Cluster number should be greater than 0"/>
+  </param>
+
+  <conditional name="conditionBarColor">
+          <param name="conditionBarColor_selector" type="select" label="Add bar color for samples/comparisons">
+              <option value="no" selected="true">No</option>
+              <option value="yes">Yes please</option>
+          </param>
+          <when value="yes">
+            <param type="data" name="factorFileDataBarPlot" format="tabular" label="Factors file" multiple="false" help="Available only for expression data clustering"/>
+            <param name="factorToUse" type="select" optional="false" multiple="false" label="Select factor to use for coloring" refresh_on_change="true"  dynamic_options="get_column_names(conditionBarColor['factorFileDataBarPlot'].file_name,0)">
+                <validator type="empty_field" message="You should specify one factor"></validator>
+            </param>
+          </when>
+    </conditional>
 
     <param name="maxSampleToPlot" type="integer" value="1000" label="Maximum gene number to plot">
       <validator type="in_range" min="2" message="The number should be greater than 1"/>
@@ -278,7 +298,7 @@
       <option value="svg">SVG format</option>
     </param>
     <param name="scaleSnapshot" type="float" value="1.0" label="Scale html snapshots to increase resolution" help="Minimum value is 1.0 (default resolution)" >
-        <validator type="in_range" min="1" exclude_min="false" message="Scale should be greater than 1"/>
+        <validator type="in_range" min="1.0" exclude_min="false" message="Scale should be greater than 1"/>
     </param>
   </section>
 
@@ -388,7 +408,7 @@ source $scriptTableToHtml
 
 ##check outputClustering.html is here
 if ! [ -e ${html_file.extra_files_path}/outputClustering.html ]; then
-	printf "[ERROR]outputClustering.html is missing" >> $log; 
+	printf "[ERROR]outputClustering.html is missing.\n" >> $log; 
 	exit 10
 fi
 
@@ -439,7 +459,7 @@ cp -r ./plotLyDir/Heatmap_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/Heatmap_files ${html_file.extra_files_path}/PlotLy_Heatmap_scripts
 
 else
-	printf "[ERROR]Heatmap.html is missing" >> $log; 
+	printf "[ERROR]Heatmap.html is missing.\n" >> $log; 
 	exit 10
 fi
 
@@ -484,8 +504,7 @@ cp -r ./plotLyDir/screePlot_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/screePlot_files ${html_file.extra_files_path}/PlotLy_screePlot_scripts
 
 else
-	printf "[ERROR]screeplot.html is missing" >> $log; 
-	exit 10
+	printf "[WARNING]screeplot.html is missing, probably due to limited number of genes.\n" >> $log; 
 fi
 
 
@@ -502,8 +521,7 @@ printf "<h3>Circular plot</h3>\n" >> $html_file
 printf "<a href=\"circularPlot.${advSection.imageFormat}\">Circular plot</a>\n"  >> $html_file
 
 else
-	printf "[ERROR]circularPlot file is missing" >> $log; 
-	exit 10
+	printf "[WARNING]circularPlot file is missing, probably due to limited number of genes.\n" >> $log; 
 fi
 
 
@@ -617,11 +635,11 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 **Advanced parameters**
 
-\- **Cluster number** fixed for hierarchical clustering. Use generated screeplot to adjust this number before re-run clustering.
+\- **Genes clusters number** fixed for hierarchical clustering. Use generated screeplot to adjust this number before re-run clustering.
 
-\- **Cluster samples** option allows to apply additional clustering on samples/comparisons. Disable this option if you need to conserve input sample/comparison order for visualization purposes. Sample/comparison cluster information is not included (yet) in output text file.
+\- **Cluster samples/comparisons** option allows to apply additional clustering on samples/comparisons. Disable this option if you need to conserve input sample/comparison order for visualization purposes. Sample/comparison cluster information is not included (yet) in output text file.
 
-\- **Maximum gene number** : for readability and running time, number of displayed rows (genes) in heatmaps/circular plot can be limited. If clustering information in tabular file and scree plot are generated from a global clustering considering all genes (except those filtered before), heatmap and circular plot are displayed for a random gene selection. To avoid such random selection we advise you to use input filtering option before clustering.
+\- **Maximum genes number** : for readability and running time, number of displayed rows (genes) in heatmaps/circular plot can be limited. If clustering information in tabular file and scree plot are generated from a global clustering considering all genes (except those filtered before), heatmap and circular plot are displayed for a random gene selection. To avoid such random selection we advise you to use input filtering option before clustering.
 
 \- **Personalized color** to build color gradient choosing start, middle and end colors.
 

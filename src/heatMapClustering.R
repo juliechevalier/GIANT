@@ -41,7 +41,7 @@ spec <- matrix(c(
   "geneListFiltering","e",1,"character",
   "clusterNumber","n",1,"integer",
   "maxRows","m",1,"integer",
-  "sampleClustering","s",0,"logical",
+  "sampleClusterNumber","s",1,"integer",
   "personalColors","k",1,"character",
   "format", "f", 1, "character",
   "quiet", "q", 0, "logical",
@@ -66,17 +66,22 @@ if (is.null(opt$outputFile)) {
 }
 
 if (is.null(opt$clusterNumber) || opt$clusterNumber<2) {
-  addComment("[ERROR]'valid cluster number' is required",T,opt$log)
+  addComment("[ERROR]valid genes clusters number is required",T,opt$log)
+  q( "no", 1, F )
+}
+
+if (is.null(opt$sampleClusterNumber) || opt$sampleClusterNumber<1) {
+  addComment("[ERROR]valid samples clusters number is required",T,opt$log)
   q( "no", 1, F )
 }
 
 if (is.null(opt$maxRows) || opt$maxRows<2) {
-  addComment("[ERROR]'valid plotted row number' is required",T,opt$log)
+  addComment("[ERROR]valid plotted row number is required",T,opt$log)
   q( "no", 1, F )
 }
 
 if (!is.null(opt$comparisonName) && nchar(opt$comparisonName)==0){
-  addComment("[ERROR]'you have to specify comparison",T,opt$log)
+  addComment("[ERROR]you have to specify comparison",T,opt$log)
   q( "no", 1, F )
 }
 
@@ -113,6 +118,8 @@ dir.create(file.path(getwd(), "plotLyDir"))
 suppressPackageStartupMessages({
   library("plotly")
   library("dendextend")
+  #library("ggdendro")
+  #library("plyr")
   library("ggplot2")
   library("heatmaply")
   library("circlize")
@@ -150,30 +157,6 @@ if(expressionToCluster){
   
   addComment("[INFO]Expression data loaded and checked")
   addComment(c("[INFO]Dim of expression matrix:",dim(expressionMatrix)),T,opt$log,display=FALSE)
-}
-
-
-if(!is.null(opt$factorInfo)){
-  #get group information
-  #chargement du fichier des facteurs
-  factorInfoMatrix=read.csv(file=opt$factorInfo,header=F,sep="\t",colClasses="character")
-  #remove first row to convert it as colnames
-  colnames(factorInfoMatrix)=factorInfoMatrix[1,]
-  factorInfoMatrix=factorInfoMatrix[-1,]
-  #use first colum to convert it as rownames but not removing it to avoid conversion as vector in unique factor case
-  rownames(factorInfoMatrix)=factorInfoMatrix[,1]
-  
-  
-  if(expressionToCluster && length(setdiff(colnames(expressionMatrix),rownames(factorInfoMatrix)))!=0){
-    addComment("[ERROR]Missing samples in factor file",T,opt$log,display=FALSE)
-    q( "no", 1, F )
-  }
-  
-  #order sample as in expression matrix and remove spurious sample
-  if(expressionToCluster)factorInfoMatrix=factorInfoMatrix[colnames(expressionMatrix),]
-  
-  addComment("[INFO]Factors OK",T,opt$log,display=FALSE)
-  addComment(c("[INFO]Dim of factorInfo matrix:",dim(factorInfoMatrix)),T,opt$log,display=FALSE)
 }
 
 nbComparisons=0
@@ -230,6 +213,38 @@ if(!is.null(opt$comparisonName)){
   nbComparisons=ncol(comparisonMatrix)/nbColPerContrast 
 }
 
+factorInfoMatrix=NULL
+if(!is.null(opt$factorInfo)){
+  #get group information
+  #load factors file
+  factorInfoMatrix=read.csv(file=opt$factorInfo,header=F,sep="\t",colClasses="character")
+  #remove first row to convert it as colnames
+  colnames(factorInfoMatrix)=factorInfoMatrix[1,]
+  factorInfoMatrix=factorInfoMatrix[-1,]
+  #use first colum to convert it as rownames but not removing it to avoid conversion as vector in unique factor case
+  rownames(factorInfoMatrix)=factorInfoMatrix[,1]
+  
+  factorBarColor=colnames(factorInfoMatrix)[2]
+  
+  if(ncol(factorInfoMatrix)>2){
+    addComment("[ERROR]Factors file should not contain more than 2 columns",T,opt$log,display=FALSE)
+    q( "no", 1, F )
+  }
+  
+  if(expressionToCluster && length(setdiff(colnames(expressionMatrix),rownames(factorInfoMatrix)))!=0){
+    addComment("[ERROR]Missing samples in factor file",T,opt$log,display=FALSE)
+    q( "no", 1, F )
+  }
+  
+  if(!expressionToCluster && length(setdiff(colnames(comparisonMatrix),rownames(factorInfoMatrix)))!=0){
+    addComment("[ERROR]Missing conditions in factor file",T,opt$log,display=FALSE)
+    q( "no", 1, F )
+  }
+  
+  addComment("[INFO]Factors OK",T,opt$log,display=FALSE)
+  addComment(c("[INFO]Dim of factorInfo matrix:",dim(factorInfoMatrix)),T,opt$log,display=FALSE)
+}
+
 if(!is.null(opt$personalColors)){
  ##parse personal colors
   personalColors=unlist(strsplit(opt$personalColors,","))
@@ -264,7 +279,8 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="input"){
     }
     
     if(length(rowToKeep)==0){
-      addComment("[ERROR]No gene survive from input filtering, execution will be aborted.",T,opt$log)
+      addComment("[ERROR]No gene survived to the input filtering thresholds, execution will be aborted.
+                 Please consider to change threshold values and re-run the tool.",T,opt$log)
       q( "no", 1, F )
     }
     
@@ -293,7 +309,7 @@ addComment("[INFO]Ready to plot",T,opt$log,display=FALSE)
 if(expressionToCluster){
     #will make clustering based on expression value
     dataToHeatMap=expressionMatrix
-    valueMeaning="Intensities"
+    valueMeaning="Intensity"
   }else{
     #will make clustering on log2(FC) values
     dataToHeatMap=matrix(comparisonMatrix[,seq(4,ncol(comparisonMatrix),nbColPerContrast)],ncol=nbComparisons,dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),nbColPerContrast)]))
@@ -306,88 +322,28 @@ if(expressionToCluster){
     q( "no", 1, F )
   }
   
-  
-  #heatMapGenesToKeep=genesToKeep
-  #if(length(heatMapGenesToKeep)>5000){
-  #  heatMapGenesToKeep=sample(genesToKeep,5000)
-  #  addComment("WARNING limit signifiaddCommentive genes to 5000 for heatmap!")
-  #}
-  
-
-  
-  #define dendogram shapes
-  #dd.col <- as.dendrogram(hclust(dist(dataToHeatMap)))
-  #dd.row <- as.dendrogram(hclust(dist(t(dataToHeatMap))))
-  #dx <- dendro_data(dd.row)
-  #dy <- dendro_data(dd.col)
-  
-  #ggdend <- function(df) {
-  #  ggplot() +
-  #    geom_segment(data = df, aes(x=x, y=y, xend=xend, yend=yend)) +
-  #    labs(x = "", y = "") + theme_minimal() +
-  #    theme(axis.text = element_blank(), axis.ticks = element_blank(),
-  #          panel.grid = element_blank())
-  #}
-  
-  # x/y dendograms
-  #px <- ggdend(dx$segments)
-  #py <- ggdend(dy$segments) + coord_flip()
-  
-  # reshape data matrix
-  #col.ord <- order.dendrogram(dd.col)
-  #row.ord <- order.dendrogram(dd.row)
-  #xx <- scale(dataToHeatMap)[col.ord, row.ord]
-  #xx_names <- attr(xx, "dimnames")
-  #df <- as.data.frame(xx)
-  #colnames(df) <- xx_names[[2]]
-  #df$gene <- xx_names[[1]]
-  #df$gene <- with(df, factor(gene, levels=gene, ordered=TRUE))
-  #mdf <- reshape2::melt(df, id.vars="gene")
-  
-  #plot heatmap
-  #p <- ggplot(mdf, aes(x = variable, y = gene)) + geom_tile(aes(fill = value))
-  
-  #mat <- matrix(unlist(dplyr::select(df,-gene)),nrow=nrow(df))
-  #colnames(mat) <- colnames(df)[1:ncol(df)-1]
-  
-  # hide axis ticks and grid lines
-  #eaxis <- list(
-  #  showticklabels = FALSE,
-  #  showgrid = FALSE,
-  #  zeroline = FALSE
-  #)
-  
-  #make the empty plot
-  # p_empty <- plot_ly() %>%
-  # note that margin applies to entire plot, so we can
-  # add it here to make tick labels more readable
-  #  layout(margin = list(l = 200),
-  #          xaxis = eaxis,
-  #          yaxis = eaxis)
-  
-  #make the heatmap through plotLy
-  #heatmap.plotly <- plot_ly() %>% add_heatmap(z=~xx,x=factor(colnames(xx),lev=colnames(xx)),y=factor(rownames(xx),lev=rownames(xx)))
-  
-  ###pp <- subplot(px, p_empty, p, py, nrows = 2, margin = 0.01)
-  #pp <- subplot(px, p_empty, heatmap.plotly, py, nrows = 2, margin = 0.01)
-  
-
-  #heatmaply seems to make all the job by its own
   maxRowsToDisplay=opt$maxRows
   
   nbClusters=opt$clusterNumber
   if(nbClusters>nrow(dataToHeatMap)){
-    #correct number of cluster if needed
+    #correct number of clusters if needed
     nbClusters=nrow(dataToHeatMap)
-    addComment(c("[WARNING]Not enough rows to reach required cluster number, it is reduced to number of rows:",nbClusters),T,opt$log,display=FALSE)
+    addComment(c("[WARNING]Not enough rows to reach required clusters number, it is reduced to number of rows:",nbClusters),T,opt$log,display=FALSE)
+  }
+  
+  nbSampleClusters=opt$sampleClusterNumber
+  if(nbSampleClusters>ncol(dataToHeatMap)){
+    #correct number of clusters if needed
+    nbSampleClusters=ncol(dataToHeatMap)
+    addComment(c("[WARNING]Not enough columns to reach required conditions clusters number, it is reduced to number of columns:",nbSampleClusters),T,opt$log,display=FALSE)
   }
   
   colClust=FALSE
   rowClust=FALSE
   
   #make appropriate clustering if needed
-  if(nrow(dataToHeatMap)>1)rowClust=hclust(dist(dataToHeatMap))
-  if(ncol(dataToHeatMap)>1 && !is.null(opt$sampleClustering))colClust=hclust(dist(t(dataToHeatMap)))
+  if(nrow(dataToHeatMap)>1 && nbClusters>1)rowClust=hclust(dist(dataToHeatMap))
+  if(ncol(dataToHeatMap)>1 && nbSampleClusters>1)colClust=hclust(dist(t(dataToHeatMap)))
   
   if(nrow(dataToHeatMap)>maxRowsToDisplay){
     #make subsampling based on preliminary global clustering
@@ -411,30 +367,152 @@ if(expressionToCluster){
   
   personalized_hoverinfo=matrix("",ncol = ncol(effectiveDataToHeatMap),nrow = nrow(effectiveDataToHeatMap),dimnames = dimnames(effectiveDataToHeatMap))
   if(expressionToCluster){
-    for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow," | Condition: ",iCol,"\n Intensity: ",effectiveDataToHeatMap[iRow,iCol]),collapse="")}}
+    for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow,"\nCondition: ",iCol,"\nIntensity: ",effectiveDataToHeatMap[iRow,iCol]),collapse="")}}
   }else{
-    for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow," | Condition: ",iCol,"\n FC: ",round(2^effectiveDataToHeatMap[iRow,iCol],2)),collapse="")}}
-  }
-  #while option is not correctly managed by heatmap apply, put personalized_hoverinfo to NULL
-  personalized_hoverinfo=NULL
-  if(is.null(opt$personalColors)){
-    #pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,Rowv=effectiveRowClust,Colv=colClust,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = viridis(n = 101, alpha = 1, begin = 0, end = 1, option = "inferno"),margins = c(9*max(unlist(lapply(colnames(effectiveDataToHeatMap),nchar))),9*max(unlist(lapply(rownames(effectiveDataToHeatMap),nchar))),0,0))
-    pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,Rowv=effectiveRowClust,Colv=colClust,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = viridis(n = 101, alpha = 1, begin = 0, end = 1, option = "inferno"))
-  }else{
-    #pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,Rowv=effectiveRowClust,Colv=colClust,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = personalColors,margins = c(9*max(unlist(lapply(colnames(effectiveDataToHeatMap),nchar))),9*max(unlist(lapply(rownames(effectiveDataToHeatMap),nchar))),0,0))
-    pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,Rowv=effectiveRowClust,Colv=colClust,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = personalColors)
+    for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow,"\nCondition: ",iCol,"\nFC: ",round(2^effectiveDataToHeatMap[iRow,iCol],2)),collapse="")}}
   }
   
-  
-  #save image file
-  export(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
-  #rise a bug due to token stuf
-  #orca(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
-  
-  
-  #save plotLy file
-  htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/Heatmap.html"),collapse=""),selfcontained = F)
-  
+  #trying to overcome limitation of heatmaply package to modify xtick and ytick label, using directly plotly functions, but for now plotly do not permit to have personalized color for each x/y tick separately
+  test=FALSE
+  if(test==TRUE){
+    
+    #define dendogram shapes
+    dd.row <- as.dendrogram(effectiveRowClust)
+    dd.col <- as.dendrogram(colClust)
+
+    #and color them
+    dd.row=color_branches(dd.row, k = effectiveNbClusters, groupLabels = T)
+    dd.col=color_branches(dd.col, k = nbSampleClusters, groupLabels = T)
+    
+    #generating function for dendogram from segment list
+    ggdend <- function(df) {
+      ggplot() +
+        geom_segment(data = df, aes(x=x, y=y, xend=xend, yend=yend)) +
+        labs(x = "", y = "") + theme_minimal() +
+        theme(axis.text = element_blank(), axis.ticks = element_blank(),
+              panel.grid = element_blank())
+    }
+    
+    # generate x/y dendogram plots
+    px <- ggdend(dendro_data(dd.col)$segments)
+    py <- ggdend(dendro_data(dd.row)$segments) + coord_flip()
+    
+    # reshape data matrix
+    col.ord <- order.dendrogram(dd.col)
+    row.ord <- order.dendrogram(dd.row)
+    xx <- effectiveDataToHeatMap[row.ord, col.ord]
+    # and also personalized_hoverinfo
+    personalized_hoverinfo=personalized_hoverinfo[row.ord, col.ord]
+    
+    # hide axis ticks and grid lines
+    eaxis <- list(
+      showticklabels = FALSE,
+      showgrid = FALSE,
+      zeroline = FALSE
+    )
+    
+    #make the empty plot
+    p_empty <- plot_ly() %>%
+      layout(margin = list(l = 200),
+             xaxis = eaxis,
+             yaxis = eaxis)
+    
+    heatmap.plotly <- plot_ly(
+      z = xx, x = 1:ncol(xx), y = 1:nrow(xx), colors = viridis(n = 101, alpha = 1, begin = 0, end = 1, option = "inferno"),
+      type = "heatmap", showlegend = FALSE, text = personalized_hoverinfo, hoverinfo = "text",
+      colorbar = list(
+        # Capitalise first letter
+        title = valueMeaning,
+        tickmode = "array",
+        len = 0.3
+      )
+    ) %>%
+      layout(
+        xaxis = list(
+          tickfont = list(size = 10,color=get_leaves_branches_col(dd.row)),
+          tickangle = 45,
+          tickvals = 1:ncol(xx), ticktext = colnames(xx),
+          linecolor = "#ffffff",
+          range = c(0.5, ncol(xx) + 0.5),
+          showticklabels = TRUE
+        ),
+        yaxis = list(
+          tickfont = list(size = 10, color=get_leaves_branches_col(dd.col)),
+          tickangle = 0,
+          tickvals = 1:nrow(xx), ticktext = rownames(xx),
+          linecolor = "#ffffff",
+          range = c(0.5, nrow(xx) + 0.5),
+          showticklabels = TRUE
+        )
+      )
+    
+    #generate plotly 
+    pp <- subplot(px, p_empty, heatmap.plotly, py, nrows = 2, margin = 0,widths = c(0.8,0.2),heights = c(0.2,0.8), shareX = TRUE, 
+                  shareY = TRUE)
+    
+    #save image file
+    export(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
+    #rise a bug due to token stuf
+    #orca(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
+    
+    
+    #save plotLy file
+    htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/Heatmap.html"),collapse=""),selfcontained = F)
+    
+    #htmlwidgets::saveWidget(as_widget(pp),"~/Bureau/test.html",selfcontained = F)
+    
+  }else{ #test
+    label_names=c("Probe","Condition",valueMeaning)
+    
+    # #color hclust objects
+    # dd.row=color_branches(effectiveRowClust, k = effectiveNbClusters)
+    # #rowColors=get_leaves_branches_col(dd.row)
+    # #rowColors[order.dendrogram(dd.row)]=rowColors
+    # rowGroup=cutree(effectiveRowClust, k = effectiveNbClusters)
+    # 
+    # #get order of class as they will be displayed on the dendogram
+    # rowGroupRenamed=data.frame(cluster=mapvalues(rowGroup, unique(rowGroup[order.dendrogram(dd.row)[nleaves(dd.row):1]]), 1:effectiveNbClusters))
+    #
+    #  dd.col=color_branches(colClust, k = nbSampleClusters)
+    #  #colColors=get_leaves_branches_col(dd.col)
+    #  #colColors[order.dendrogram(dd.col)]=colColors
+    #  colGroup=cutree(colClust, k = nbSampleClusters)
+    #  
+    # # #get order of class as they will be displayed on the dendogram
+    #  colGroupRenamed=data.frame(sampleCluster=mapvalues(colGroup, unique(colGroup[order.dendrogram(dd.col)[nleaves(dd.col):1]]), 1:nbSampleClusters))
+
+    
+    #while option is not correctly managed by heatmap apply, put personalized_hoverinfo to NULL
+    personalized_hoverinfo=NULL
+    
+    if(is.null(opt$personalColors)){
+      heatmapColors=viridis(n = 101, alpha = 1, begin = 0, end = 1, option = "inferno")
+    }else{
+      heatmapColors=personalColors
+    }
+    
+    colGroupRenamed=NULL
+    if(!is.null(factorInfoMatrix)){
+      colGroupRenamed=eval(parse(text=(paste("data.frame(",factorBarColor,"=factorInfoMatrix[colnames(effectiveDataToHeatMap),2])",sep=""))))
+    }
+
+    if(!is.null(colGroupRenamed)){
+      pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,k_col=nbSampleClusters,col_side_colors=colGroupRenamed,col_side_palette=colorspace::terrain_hcl,Rowv=effectiveRowClust,Colv=colClust,label_names=label_names,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = heatmapColors)
+    }else{
+      pp <- heatmaply(effectiveDataToHeatMap,key.title = valueMeaning,k_row=effectiveNbClusters,k_col=nbSampleClusters,Rowv=effectiveRowClust,Colv=colClust,label_names=label_names,custom_hovertext=personalized_hoverinfo,plot_method = "plotly",colors = heatmapColors)
+    }
+    
+    
+    #save image file
+    export(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
+    #rise a bug due to token stuf
+    #orca(pp, file =  paste(c(file.path(getwd(), "plotDir"),"/Heatmap.",opt$format),collapse=""))
+    
+    
+    #save plotLy file
+    htmlwidgets::saveWidget(as_widget(pp), paste(c(file.path(getwd(), "plotLyDir"),"/Heatmap.html"),collapse=""),selfcontained = F)
+    
+  }
   addComment("[INFO]Heatmap drawn",T,opt$log,display=FALSE)  
   
   
@@ -506,8 +584,10 @@ if(expressionToCluster){
     
     addComment("[INFO]Circular heatmap drawn",T,opt$log,display=FALSE)  
     loc <- Sys.setlocale("LC_NUMERIC","C")
-    rm(effectiveDataToHeatMap,effectiveRowClust,effectiveNbClusters)
+  }else{
+    addComment(c("[WARNING]Circular plot will not be plotted considering row number < 2"),T,opt$log,display=FALSE)
   }
+  rm(effectiveDataToHeatMap,effectiveRowClust,effectiveNbClusters)
   
   #plot screeplot 
   if(class(rowClust)!="logical" && nrow(dataToHeatMap)>2){
@@ -612,7 +692,6 @@ addComment("[INFO]End of R script",T,opt$log,display=FALSE)
 printSessionInfo(opt$log)
 
 #sessionInfo()
-
 
 
 
