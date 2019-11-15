@@ -29,7 +29,7 @@
         #if $dataToCluster.reorder_sample.reordering_selector=="factorFile" and $dataToCluster.reorder_sample.factorFileData and $dataToCluster.reorder_sample.factorToUse:
           awk -v factors="$dataToCluster.reorder_sample.factorToUse" 'BEGIN{FS="\t";OFS="";ORS="";split(factors,factorsTab,",")} FNR==1{for(iFactor=1;iFactor<=length(factorsTab);iFactor++)for(iField=2;iField<=NF;iField++){if(\$iField==factorsTab[iFactor])colsToSelect[iFactor]=iField}} FNR>1{line=\$1;for(iFactor=1;iFactor<=length(factorsTab);iFactor++)line=line"\t"\$colsToSelect[iFactor];print line"\n";}' $dataToCluster.reorder_sample.factorFileData > ./orderingFactor;
 
-          sort -V +1 ./orderingFactor > ./orderingSample;
+          sort -V -k2 ./orderingFactor > ./orderingSample;
 
           awk 'BEGIN{FS="\t";OFS="";ORS=""} ARGIND==1{sampleOrdered[FNR]=\$1} ARGIND==2 && FNR==1{for(iElemt=1;iElemt<NF;iElemt++)for(iPosit=2;iPosit<=NF;iPosit++)if(\$iPosit==sampleOrdered[iElemt])positOrdered[iElemt]=iPosit} ARGIND==2{line=\$1;for(iElemt=1;iElemt<NF;iElemt++)line=line"\t"\$positOrdered[iElemt];print line"\n"}' ./orderingSample $dataToCluster.expressionData > ./filteredExpressionData;
 
