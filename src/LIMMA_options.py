@@ -233,13 +233,13 @@ def replaceNamesInFiles(expressionFile_name,conditionFile_name,outputExpressionF
 	outputfile.close()
 	inputfile.close()
 	##check if any entries in dictionnary contains forbiden character
-	for key, value in dico.iteritems():
+	for key, value in dico.items():
 		for specialCharacter in forbidenCharacters:
 			if value.startswith("Condition")==False and key.find(specialCharacter)!=-1:
 				return 1
 	##then write dictionnary in a additional file
 	outputfile = open(ouputDictionnary, 'w')
-	for key, value in dico.iteritems():
+	for key, value in dico.items():
 		outputfile.write(key+"\t"+value+"\n")
 	outputfile.close()
 	return 0
@@ -318,13 +318,13 @@ def replaceNamesBlockInFiles(expressionFile_name,conditionFile_name,blockingFile
 		outputfile.close()
 		inputfile.close()
 	##check if any entries in dictionnary contains forbiden character
-	for key, value in dico.iteritems():
+	for key, value in dico.items():
 		for specialCharacter in forbidenCharacters:
 			if value.startswith("Condition")==False and key.find(specialCharacter)!=-1:
 				return 1
 	##then write dictionnary in a additional file
 	outputfile = open(ouputDictionnary, 'w')
-	for key, value in dico.iteritems():
+	for key, value in dico.items():
 		outputfile.write(key+"\t"+value+"\n")
 	outputfile.close()
 	return 0
