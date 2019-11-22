@@ -355,6 +355,8 @@ addComment("[INFO]Design done",T,opt$log,display=F)
   #use blocking factor if exists
 if(!is.null(blockingFactor)){
   corfit <- duplicateCorrelation(expDataMatrix, design, block=blockingFactor)
+  
+  addComment(c("[INFO]Correlation within groups: ",corfit$consensus.correlation),T,opt$log,display=F)
     
   #run linear model  fit
   data.fit = lmFit(expDataMatrix,design,block = blockingFactor, correlation=corfit$consensus.correlation)

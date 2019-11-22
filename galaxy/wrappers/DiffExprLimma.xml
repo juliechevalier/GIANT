@@ -1,4 +1,4 @@
-<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.4">
+<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.5">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -114,7 +114,7 @@
     <conditional name="interactionSelection">
     <param name="interactionContrast" type="boolean" label="Add interaction contrasts" checked="false" help="If you have selected two factors at least."/>
       <when value="true">
-         <param name="controlSelection" type="select" label="Select one control group for each factor (and only one)" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_allrow_names(inputSection['conditionInformation'].file_name,factorSelection)">
+         <param name="controlSelection" type="select" label="Select one control level for each factor (and only one)" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_allrow_names(inputSection['conditionInformation'].file_name,factorSelection)">
         </param>
       </when>
     </conditional>
@@ -493,7 +493,7 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 \- **Input Files**
 
 - **Title** to personalize output file names (please avoid special characters).
-- **Normalized expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers). Expressions are supposed to be already log2 transformed.
+- **Normalized expression tabular file** with samples as columns and genes as rows (header contains sample names and first column gene identifiers). Expressions are supposed to be already log2 transformed.
 
     ::
 
@@ -503,7 +503,7 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
         OR4F5       3.737956                3.011586                 3.424494                   3.497545
         VWA1        5.189621                5.129595                 4.806793                   5.227014
 
-- **Factor information tabular file**  with factors as columns and samples as rows (header row contains factor names and first column sample names).
+- **Factor information tabular file** with factors as columns and samples as rows (header contains factor names and first column sample names).
 
     ::
 
@@ -513,18 +513,17 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
         139_(HuGene-2_0-st).CEL   0     TreatB    Neg
         149_(HuGene-2_0-st).CEL   0     NoTreat   Neg
 
-\- **Contrast Definition**
+\- **Contrast definition**
 
-- **Select all factors to include in the global model** : proposed from factor information file (Treatment,Strain ...). DO NOT select confounding factors or paired-analysis information (replicates number,dates...)
+- **Select all factors to include in the global model** : automatically extracted from factor information file. Confounding factors or paired-analysis information (replicates number,dates...) should not be selected here, but in specific section below.
 
 - **Contrast**
 
-    \- **Contrast Name** retrieved in output file (as short as possible)
+    \- **Contrast Name** displayed in output file
 
     \- **Select factor levels of 1st group** : the contrast will be computed with the formula "1st group versus 2nd group" so "1st group - 2nd group".
 
-    \- **Select factor levels of 2nd group** : see below some usage examples
-
+    \- **Select factor levels of 2nd group** : see below for some examples
 
     ::
 
@@ -533,25 +532,31 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 	2		Strain, Treatment	WT, KO, NoTreat,TreatA	TreatA vs NoTreat in WT mice			TreatA*WT			NoTreat*WT
 	2		Strain, Treatment	WT, KO, NoTreat,TreatA	Treatment effect on Strain dependent genes	See results of interaction contrast
 
-- **Add Interaction Contrasts** : to compute automatically each level of interaction (no need to enter formula)
+- **Add interaction contrasts** : to compute automatically each level of interaction
+
+    \- **Control groups** for each factor, select its level used as control. Thus interaction contrasts will be computed for each factor level regarding to this control level.
 
 \- **Paired analysis / confounding factors**
 
-- **Add confounding factors** : Any information which create "blocks" on your data other than blocks created by Principal Factors: batch effect (dates...) or paired-analysis information (replicates number...)
+- **Add confounding factors** which can define "blocks" in the data different from those selected previously in the global model. Typically confounding factors are linked to batch effect (dates...) or paired-analysis situation (replicates number...).
 
 \- **Output section**
 
-- **Output FDR p-val threshold** : only genes passing this threshold (in at least one of requested contrasts) will be in result tab. Used in volcano plot too.
+- **Output FDR p-val threshold**, only genes with FDR <= this threshold (in at least one of defined contrasts) are kept in tabular result file and displayed dynamically in volcano plot.
 
-- **Plot histograms** : if yes, plot histograms of unadjusted p-values for each requested contrast.
+- **Plot histograms** of unadjusted p-values for each defined contrast.
 
-- **Plot volcanos** : if yes, plot volcanos for each requested contrast with FDR p-val threshold & FC threshold chosen.
+- **Plot volcanos** for each defined contrast with specified FDR p-val and FC thresholds.
 
-- **Fold change threshold for volcanos** : Used only for volcano plots, not for result tab. (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)
+- **Fold change threshold for volcanos** only, not for tabular result file (both 'threshold' and '1/threshold' values will be used)
 
 - **Add gene/probe information** : if yes, add description of genes to the result tab.
 
-- **Html snapshot format** : format of plot images taken from interactive view
+  \- **Organism** coresponding to experimental data used.
+
+  \- **Nature of row names** coresponding to experimental data used in input.
+
+- **Html snapshot format** : for interactive plotly plots.
 
 \- **Advanced Parameters**
 
@@ -561,9 +566,9 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 
 **Outputs**
 
-- **LIMMA statistic tabular** is the main result file for LIMMA, represented as tab delimited matrix where each colum contains differential expression statistics (p.val, FDR, FC, log2FC and t-statistic) between groups for each gene (in rows).
+- **LIMMA statistic tabular** is the main result file for LIMMA, represented as tab delimited matrix. First and second columns contain respectively gene names and information grabbed from BiomaRt R package. Then, the following colums contain differential expression statistics (p.val, FDR, FC, log2FC and t-statistic) for defined contrasts, for each gene (in rows).
 
-- **LIMMA detailed tabular** contains specific statistics required for additional analysis tools (eg SMAGEXP), represented as tab delimited matrix where each colum contains specific statistics (residual, eBayes prior and total degree of freedom) between groups for each gene (in rows).
+- **LIMMA detailed tabular** contains specific statistics required for additional analysis tools (eg SMAGEXP tool), represented as tab delimited matrix where each colum contains specific statistics (residual, eBayes prior and total degree of freedom) between groups for each gene (in rows).
 
 - **HTML file** to access interactive version of histograms, F-Ratio barplots and volcanos through PlotLy html pages and tabulated differential results.
 

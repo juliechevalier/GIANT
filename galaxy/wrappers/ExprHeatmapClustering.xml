@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.3.1">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.4.0">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
@@ -25,29 +25,45 @@
   </stdio>
   <command>	<![CDATA[
 
-      #if $dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.expressionData:
+      #if ($dataToCluster.dataToCluster_selector=="expression" or $dataToCluster.dataToCluster_selector=="genericData") and $dataToCluster.expressionData:
+
+        ##start by selecting specific input data columns depending on user request
+        #if $dataToCluster.dataToCluster_selector=="genericData" and $dataToCluster.columnToKeep:
+          awk -v columns="$dataToCluster.columnToKeep" 'BEGIN{FS="\t";OFS="";ORS="";split(columns,columnsTab,",")} FNR==1{for(iColumn=1;iColumn<=length(columnsTab);iColumn++)for(iField=2;iField<=NF;iField++){if(\$iField==columnsTab[iColumn])colsToSelect[iColumn]=iField}} {line=\$1;for(iColumn=1;iColumn<=length(columnsTab);iColumn++)line=line"\t"\$colsToSelect[iColumn];print line"\n";}' $dataToCluster.expressionData > ./selectedExpressionData;
+        #else
+          cp $dataToCluster.expressionData ./selectedExpressionData;
+        #end if
+
+        ##reorder columns of input data based on factors file
         #if $dataToCluster.reorder_sample.reordering_selector=="factorFile" and $dataToCluster.reorder_sample.factorFileData and $dataToCluster.reorder_sample.factorToUse:
           awk -v factors="$dataToCluster.reorder_sample.factorToUse" 'BEGIN{FS="\t";OFS="";ORS="";split(factors,factorsTab,",")} FNR==1{for(iFactor=1;iFactor<=length(factorsTab);iFactor++)for(iField=2;iField<=NF;iField++){if(\$iField==factorsTab[iFactor])colsToSelect[iFactor]=iField}} FNR>1{line=\$1;for(iFactor=1;iFactor<=length(factorsTab);iFactor++)line=line"\t"\$colsToSelect[iFactor];print line"\n";}' $dataToCluster.reorder_sample.factorFileData > ./orderingFactor;
 
           sort -V -k2 ./orderingFactor > ./orderingSample;
 
-          awk 'BEGIN{FS="\t";OFS="";ORS=""} ARGIND==1{sampleOrdered[FNR]=\$1} ARGIND==2 && FNR==1{for(iElemt=1;iElemt<NF;iElemt++)for(iPosit=2;iPosit<=NF;iPosit++)if(\$iPosit==sampleOrdered[iElemt])positOrdered[iElemt]=iPosit} ARGIND==2{line=\$1;for(iElemt=1;iElemt<NF;iElemt++)line=line"\t"\$positOrdered[iElemt];print line"\n"}' ./orderingSample $dataToCluster.expressionData > ./filteredExpressionData;
+          awk 'BEGIN{FS="\t";OFS="";ORS="";factorNumber=0} ARGIND==1{sampleOrdered[FNR]=\$1;factorNumber=FNR} ARGIND==2 && FNR==1{for(iElemt=1;iElemt<=factorNumber;iElemt++)for(iPosit=2;iPosit<=NF;iPosit++)if(\$iPosit==sampleOrdered[iElemt])positOrdered[iElemt]=iPosit} ARGIND==2{line=\$1;for(iElemt=1;iElemt<=factorNumber;iElemt++)if(iElemt in positOrdered)line=line"\t"\$positOrdered[iElemt];print line"\n"}' ./orderingSample ./selectedExpressionData > ./orderedExpressionData;
 
-          #if $advSection.conditionClusterNumber>1:
+          ##check if some input data columns were lost during the process
+          awk 'ARGIND==1 && FNR==1{colNumbA=NF} ARGIND==2 && FNR==1{colNumbB=NF} END{if(colNumbA!=colNumbB) print "[WARNING] "colNumbA-colNumbB" input data columns was removed during reordering due to missing information in factor file!\n"}' ./selectedExpressionData ./orderedExpressionData >> $log;
+
+          #if $advSection.conditionClusterNumber!="1":
             printf "[WARNING]Sample clustering option is selected, sample reordering will not be preserved!\n" >> $log; 
           #end if
         #else:
-          cp $dataToCluster.expressionData ./filteredExpressionData;
+          cp ./selectedExpressionData ./orderedExpressionData;
         #end if
       #end if
 
-      #if $dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam" and $dataToCluster.filtering_step.select_filtering.differentialAnalysis:
+
+      ##generate common file name for differential analysis results depending on input data nature
+      #if ($dataToCluster.dataToCluster_selector=="expression" or $dataToCluster.dataToCluster_selector=="genericData") and $dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam" and $dataToCluster.filtering_step.select_filtering.differentialAnalysis:
         cp  ${dataToCluster.filtering_step.select_filtering.differentialAnalysis} ./filteredDifferentialAnalysis;
       #end if
       #if $dataToCluster.dataToCluster_selector=="foldChange" and $dataToCluster.differentialAnalysis:
         cp $dataToCluster.differentialAnalysis ./filteredDifferentialAnalysis;
       #end if
 
+
+      ##generate factor information to use for barplot
       #if $advSection.conditionBarColor.conditionBarColor_selector=="yes"  and $advSection.conditionBarColor.factorFileDataBarPlot and $advSection.conditionBarColor.factorToUse:
        awk -v factor="$advSection.conditionBarColor.factorToUse" 'BEGIN{FS="\t";OFS="";ORS=""} NR==1{for(i=2;i<=NF;i++)if(\$i==factor)colToKeep=i} {print \$1"\t"\$colToKeep"\n"}' $advSection.conditionBarColor.factorFileDataBarPlot > ./barPlotFactor;
       #end if
@@ -59,16 +75,25 @@
       #end if
       #if $advSection.conditionBarColor.conditionBarColor_selector=="yes" and $advSection.conditionBarColor.factorFileDataBarPlot and $advSection.conditionBarColor.factorToUse:
       -g './barPlotFactor'
+      -a '$advSection.conditionBarColor.sideBarPalette'
       #end if
-      #if $dataToCluster.dataToCluster_selector=="expression":
-      -i './filteredExpressionData'
+      #if $dataToCluster.dataToCluster_selector=="genericData":
+      -b
+      #end if
+      #if $dataToCluster.dataToCluster_selector=="expression" or $dataToCluster.dataToCluster_selector=="genericData":
+      -i './orderedExpressionData'
         #if $dataToCluster.filtering_step.filtering_step_selector!="no":
           -r '$dataToCluster.filtering_step.filtering_step_selector'
           #if $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam":
             -d './filteredDifferentialAnalysis'
             -c '$dataToCluster.filtering_step.select_filtering.comparisonsToInclude'
-            -p '$dataToCluster.filtering_step.select_filtering.FCthreshold'
-            -t '$dataToCluster.filtering_step.select_filtering.pvalThreshold'
+            #if $dataToCluster.dataToCluster_selector=="expression":
+              -p '$dataToCluster.filtering_step.select_filtering.FCthreshold'
+              -t '$dataToCluster.filtering_step.select_filtering.pvalThreshold'
+            #else:
+              -p '$dataToCluster.filtering_step.select_filtering.valThreshold'
+              -t '$dataToCluster.filtering_step.select_filtering.valComparison'
+            #end if
           #else:
             -e '$dataToCluster.filtering_step.select_filtering.geneListFile'
           #end if
@@ -107,6 +132,7 @@
     <param name="dataToCluster_selector" type="select" label="Data to cluster">
         <option value="expression" selected="true">Expression data</option>
         <option value="foldChange">Differential expression analysis results</option>
+        <option value="genericData">Generic data table</option>
     </param>
     <when value="expression">
 
@@ -115,10 +141,10 @@
       <conditional name="reorder_sample">
         <param name="reordering_selector" type="select" label="Reorder samples">
             <option value="no" selected="true">No reordering</option>
-            <option value="factorFile">Reorder sample based on factors file</option>
+            <option value="factorFile">Reorder sample based on a factors file</option>
         </param>
         <when value="factorFile">
-          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number in advanced parameters is set to 1."/>
+          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number is set to 1 in advanced parameters."/>
           <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor(s) to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
                  <validator type="empty_field" message="You should specify at least one factor"></validator>
           </param>
@@ -245,6 +271,91 @@
         </conditional>
 
     </when>
+
+    <when value="genericData">
+
+      <param type="data" name="expressionData" format="tabular" label="Generic tabular file" multiple="false"/>
+
+      <param name="columnToKeep" type="select" optional="false" multiple="true" label="Select column to cluster" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(dataToCluster['expressionData'].file_name,[0])">
+                 <validator type="empty_field" message="You should select at least on column"></validator>
+      </param>
+
+      <conditional name="reorder_sample">
+        <param name="reordering_selector" type="select" label="Reorder columns">
+            <option value="no" selected="true">No reordering</option>
+            <option value="factorFile">Reorder comlumns based on a factors file</option>
+        </param>
+        <when value="factorFile">
+          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number is set to 1 in advanced parameters."/>
+          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor(s) to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
+                 <validator type="empty_field" message="You should specify at least one factor"></validator>
+          </param>
+        </when>
+      </conditional>
+
+      <conditional name="filtering_step">
+        <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
+            <option value="no" selected="true">No filtering</option>
+            <option value="input">Filter input probes/genes before clustering</option>
+            <option value="output">Filter probes/genes after clustering (for tabular output)</option>
+        </param>
+        <when value="input">
+          <conditional name="select_filtering">
+            <param name="filtering_stepBis_selector" type="select" label="Filter">
+              <option value="diffExpParam" selected="true">Based on tabular file content</option>
+              <option value="geneList">From list of genes</option>
+            </param>
+            <when value="diffExpParam">
+              <param type="data" name="differentialAnalysis" format="tabular" label="Tabular file containing filtering information" optional="false" multiple="false">
+              </param>
+
+              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select columns to consider for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
+                 <validator type="empty_field" message="You should specify at least on column"></validator>
+              </param>
+
+              <param name="valThreshold" type="float" value="0.0" label="Filtering threshold" help="When several columns are selected a conservative rule is applied (see details below)" >
+              </param>
+
+              <param type="select" name="valComparison" display="radio" label="Keep values greater/lower than threshold">
+                <option value="1">greater</option>
+                <option value="0">lower</option>
+              </param>
+            </when>
+            <when value="geneList">
+              <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in input file"/>
+            </when>
+          </conditional>
+        </when>
+        
+        <when value="output">
+          <conditional name="select_filtering">
+            <param name="filtering_stepBis_selector" type="select" label="Filter">
+              <option value="diffExpParam" selected="true">Based on tabular file content</option>
+              <option value="geneList">From list of genes</option>
+            </param>
+            <when value="diffExpParam">
+              <param type="data" name="differentialAnalysis" format="tabular" label="Tabular file containing filtering information" optional="false" multiple="false">
+              </param>
+
+              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select columns to consider for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
+                 <validator type="empty_field" message="You should specify at least one column"></validator>
+              </param>
+
+              <param name="valThreshold" type="float" value="0.0" label="Filtering threshold" help="When several comparisons are selected a conservative rule is applied (see details below)">
+              </param>
+              <param type="select" name="valComparison" display="radio" label="Keep values greater/lower than threshold">
+                <option value="1">greater</option>
+                <option value="0">lower</option>
+              </param>
+            </when>
+            <when value="geneList">
+              <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in input file"/>
+            </when>
+          </conditional>
+        </when>
+      </conditional>
+
+    </when>
   </conditional>
 
 	<section name="advSection" title="Advanced parameters" expanded="false">
@@ -255,17 +366,26 @@
 
     <param name="conditionClusterNumber" type="integer" value="1" label="Requested number of conditions clusters (1 = no clustering)">
         <validator type="in_range" min="1" message="Cluster number should be greater than 0"/>
-  </param>
+    </param>
 
   <conditional name="conditionBarColor">
-          <param name="conditionBarColor_selector" type="select" label="Add bar color for samples/comparisons">
+          <param name="conditionBarColor_selector" type="select" label="Add side bar color for samples/comparisons">
               <option value="no" selected="true">No</option>
               <option value="yes">Yes please</option>
           </param>
           <when value="yes">
             <param type="data" name="factorFileDataBarPlot" format="tabular" label="Factors file" multiple="false" help="Available only for expression data clustering"/>
-            <param name="factorToUse" type="select" optional="false" multiple="false" label="Select factor to use for coloring" refresh_on_change="true"  dynamic_options="get_column_names(conditionBarColor['factorFileDataBarPlot'].file_name,0)">
+            <param name="factorToUse" type="select" optional="false" multiple="false" label="Select factor to use for coloring side bar" refresh_on_change="true"  dynamic_options="get_column_names(conditionBarColor['factorFileDataBarPlot'].file_name,0)">
                 <validator type="empty_field" message="You should specify one factor"></validator>
+            </param>
+            <param name="sideBarPalette" type="select" label="Side bar color palette">
+              <option value="Spectral" selected="true">Spectral</option>
+              <option value="Set1">Set1</option>
+              <option value="Set2">Set2</option>
+              <option value="Set3">Set3</option>
+              <option value="RdYlBu">RdYlBu</option>
+              <option value="RdYlGn">RdYlGn</option>
+              <option value="PiYG">PiYG</option>
             </param>
           </when>
     </conditional>
@@ -275,7 +395,7 @@
     </param>
 
     <conditional name="select_color">
-      <param type="boolean" name="specifyColors" checked="false" label="Personalized colors">
+      <param type="boolean" name="specifyColors" checked="false" label="Personalized heatmap colors">
       </param>
       <when value="true">
         <param name="featureMin_color" type="color" label="Min value color" value="#ff00ff">
@@ -348,16 +468,20 @@ printf  "<!DOCTYPE html>
 " > ${html_file.extra_files_path}/outputClustering.html
 
 printf "<colgroup>\n" >> ${html_file.extra_files_path}/outputClustering.html
+#if $dataToCluster.dataToCluster_selector=="foldChange" or ($dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam"):
 printf "<col span=\"2\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<col span=\"1\" style=\"background-color:rgb(250,235,235)\">\n" >> ${html_file.extra_files_path}/outputClustering.html
 awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=4;i<=NF;i=i+5){if(odd==1){odd=0;printf "<col span=\"5\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"5\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
+#else
+printf "<col span=\"1\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/outputClustering.html
+printf "<col span=\"1\" style=\"background-color:rgb(250,235,235)\">\n" >> ${html_file.extra_files_path}/outputClustering.html
+awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=3;i<=NF;i++){if(odd==1){odd=0;printf "<col span=\"1\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"1\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
+#end if
+
 printf "</colgroup>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<thead>\n<tr>\n" >> ${html_file.extra_files_path}/outputClustering.html
 
-#if $dataToCluster.dataToCluster_selector=="expression" and ($dataToCluster.filtering_step.filtering_step_selector=="no" or ($dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="geneList")):
-printf "<th rowspan=\"1\">Gene</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
-printf "<th rowspan=\"1\">Cluster</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
-#else
+#if $dataToCluster.dataToCluster_selector=="foldChange" or ($dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam"):
 printf "<th rowspan=\"2\">Gene</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<th rowspan=\"2\">Info</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<th rowspan=\"2\">Cluster</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
@@ -365,26 +489,30 @@ awk 'BEGIN{FS="\t"} NR==1{for(i=4;i<=NF;i=i+5)printf "<th colspan=\"5\">"\$i"</t
 printf "<th></th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "</tr>\n<tr>\n" >> ${html_file.extra_files_path}/outputClustering.html
 awk 'BEGIN{FS="\t"} NR==2{for(i=4;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
+#else
+printf "<th rowspan=\"1\">Gene</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
+printf "<th rowspan=\"1\">Cluster</th>\n" >> ${html_file.extra_files_path}/outputClustering.html
+awk 'BEGIN{FS="\t"} NR==1{for(i=3;i<=NF;i++)printf "<th colspan=\"1\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
 #end if
 
 printf "<th></th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "</tr>\n</thead>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "<tfoot>\n<tr>\n" >> ${html_file.extra_files_path}/outputClustering.html
 
-#if $dataToCluster.dataToCluster_selector=="expression" and ($dataToCluster.filtering_step.filtering_step_selector=="no" or ($dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="geneList")):
-awk 'BEGIN{FS="\t"} NR==1{for(i=1;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
-#else
+#if $dataToCluster.dataToCluster_selector=="foldChange" or ($dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam"):
 awk 'BEGIN{FS="\t"} NR==2{for(i=1;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
+#else
+awk 'BEGIN{FS="\t"} NR==1{for(i=1;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
 #end if
 
 printf "<th></th>\n" >> ${html_file.extra_files_path}/outputClustering.html
 printf "</tr>\n</tfoot>\n">> ${html_file.extra_files_path}/outputClustering.html
 printf "<tbody>\n" >> ${html_file.extra_files_path}/outputClustering.html
 
-#if $dataToCluster.dataToCluster_selector=="expression" and ($dataToCluster.filtering_step.filtering_step_selector=="no" or ($dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="geneList")):
-awk 'BEGIN{FS="\t"} NR>1{printf "<tr>\n";for(i=1;i<=NF;i++){printf "<th>"\$i"</th>\n"};printf "<th></th>\n";printf "</tr>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
-#else
+#if $dataToCluster.dataToCluster_selector=="foldChange" or ($dataToCluster.dataToCluster_selector=="expression" and $dataToCluster.filtering_step.filtering_step_selector!="no" and $dataToCluster.filtering_step.select_filtering.filtering_stepBis_selector=="diffExpParam"):
 awk 'BEGIN{FS="\t"} NR>2{printf "<tr>\n";for(i=1;i<=NF;i++){printf "<th>"\$i"</th>\n"};printf "<th></th>\n";printf "</tr>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
+#else
+awk 'BEGIN{FS="\t"} NR>1{printf "<tr>\n";for(i=1;i<=NF;i++){printf "<th>"\$i"</th>\n"};printf "<th></th>\n";printf "</tr>\n"}' $outputData >> ${html_file.extra_files_path}/outputClustering.html
 #end if
 
 printf "</tbody>\n" >> ${html_file.extra_files_path}/outputClustering.html
@@ -569,7 +697,7 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 \- **Title** to personalize output file names (please avoid special characters).
 
-\- **Data to cluster** you can choose to cluster genes on expression data or using results from differential analysis. 
+\- **Data to cluster**, genes can be clustered based on : expression data, results from differential analysis tool or any tabular file content. 
 
 
 - **Expression data** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
@@ -583,7 +711,7 @@ Run hierarchical clustering on gene expression data or differential expression a
         VWA1        5.189621                5.129595                 4.806793                   5.227014
 
 
-- **Differential expression analysis results** with contrasts statistics (p-val, FDR p-val, FC, log2(FC) and t-statistic) as columns and genes as rows (first and second rows contain contrasts definition and first and second columns contain gene identifiers and functional informations). Please respect the GIANT-Differential Expression Analysis with LIMMA tool output format.
+- **Differential expression analysis results** with contrasts statistics (p-val, FDR p-val, FC, log2(FC) and t-statistic) as columns and genes as rows (first and second rows contain comparison definition and first and second columns contain gene identifiers and functional informations). Please respect the GIANT-Differential Expression Analysis tool output format.
 
     ::
 
@@ -593,31 +721,61 @@ Run hierarchical clustering on gene expression data or differential expression a
         TTTY10   na          1.6e-07   0.0074    0.6403   -0.6432   -6.122
         MIR548AL na          0.072     0.2914    1.711     0.775     10.43
 
-    \- **Comparisons to cluster** when differential results are used to cluster, log2(FC) values of selected comparisons will be used for clustering.
+    \- **Comparisons to cluster** when clustering is performed on differential results, log2(FC) values of selected comparisons will be used.
+
+- **Generic tabular data** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
+
+    ::
+
+        Conditions  SampleA                 SampleB                  SampleC                    SampleD                        
+        DDX11L2     4.500872                4.429759                 4.780281                   4.996189             
+        MIR1302-2   3.415065                3.520472                 3.471503                   3.567988           
+        OR4F5       3.737956                3.011586                 3.424494                   3.497545
+        VWA1        5.189621                5.129595                 4.806793                   5.227014
+
+    \- **Samples to cluster** when clustering is performed on generic data, user have to select the columns to consider in clustering (first column, containing gene identifiers, will be automatically selected).
 
 
-\- **Reorder samples** (only available for expression data clustering).
+\- **Reorder samples** (only available for expression and generic data clustering).
 
-- **Based on factors file** samples will be sorted in an alphabetical/numerical way for the selected factors.
+- **Based on a factors file**, samples will be sorted in an alphabetical/numerical order for the selected factors. Names in the 1st column of the factors file have to match with the columns names of the data to cluster.
+
+    ::
+
+        Conditions                Sex   Treatment Reaction
+        154_(HuGene-2_0-st).CEL   1     TreatA    Pos
+        156_(HuGene-2_0-st).CEL   0     NoTreat   Pos
+        157_(HuGene-2_0-st).CEL   0     TreatB    Neg
+        155_(HuGene-2_0-st).CEL   0     NoTreat   Neg
 
 \- **Genes filtering** can be applied before or after clustering step.
 
-- **Filtering before clustering** allows to restrict clustering to differentially expressed genes (using differential expression analysis file) or to specific user defined genes (using gene list file).
+- **Filtering before clustering** allows to restrict clustering to differentially expressed genes using differential analysis results (available for expression data and differential results clustering) or any generic file (available for generic data clustering). As an alternative, a specific gene list file can be directly used for filtering.
 
+- **Filtering after clustering** will have no effect on clustering or generated heatmaps. This filter is only applied to generated tabular files to keep differentially expressed genes (using differential analysis file or any generic file) or specific user defined genes (using gene list file). 
 
-- **Filtering after clustering** will not impact clustering procedure and generated heatmaps. This filter will be only applied to generated tabular clustering file to keep differentially expressed genes (using differential expression analysis file) or specific user defined genes (using gene list file). 
+\- **Filter approaches** : three filtering strategies can be applied before/after clustering depending on the nature of clustered data. These strategies use : differential analysis results (available for expression data and differential results clustering), generic file content (available for generic data clustering) or a gene list file (available for any input data).
 
-\- **Filter approaches** : two filtering strategies can be applied before/after clustering, you can use differential expression results or using gene list file.
+- **From differential analysis results** to filter genes based on fold change and FDR p-val for selected comparisons.
 
-- **From differential expression analysis** to filter genes based on fold change and FDR p-val for selected contrasts.
+    \- **Differential expression results file** is requested only for expression data clustering. For differential results clustering, the same differential results file selected as "data to cluster" is used. (see "Data to cluster section" for requested format)
 
-    \- **Differential expression results file** is requested if "data to cluster" are expression data. In other case the same differential results file selected as "data to cluster" will be used. (see "Data to cluster section" for differential results file format)
-
-    \- **Comparisons to use** are requested if "data to cluster" are expression data. In other case the same comparisons selected from "data to cluster" section will be used. If several comparisons are selected, kept genes should satisfy both fold change and FDR p-val conditions in at least one of these comparisons. 
+    \- **Comparisons to use** are requested only for expression data clustering. For differential results clustering, the same comparisons selected in "data to cluster" section will be used. If several comparisons are selected, genes that satisfy both fold change and FDR p-val thresholds in at least one of these comparisons are kept. 
 
     \- **Fold change threshold** to use for filtering, genes with fold change >= threshold or fold change <= 1/threshold will be kept (set this threshold to 1 if you do not want to filter on fold change).
 
-    \- **FDR p-val threshold** to use for filtering genes with FDR p-val <= threshold will be kept (set this threshold to 1 if you do not want to filter on FDR p-val).
+    \- **FDR p-val threshold** to use for filtering, genes with FDR p-val <= threshold will be kept (set this threshold to 1 if you do not want to filter on FDR p-val).
+
+
+- **From generic tabular file** to filter genes based on selected columns values.
+
+    \- **Generic tabular file** contains gene in the first column and various informations used for filtering in the following (same format as clustered generic tabular file).
+
+    \- **Columns to use** for filtering. If several columns are selected, genes satisfying threshold condition for at least one of these columns are kept. 
+
+    \- **Threshold value** used for filtering condition, the same threshold is applied for all selected columns.
+
+    \- **Greater/lower test** used for filtering condition, genes with value greater or lower than specified threshold in a least one selected columns are kept.
 
 
 - **From list of genes** to focus on pre-identified genes.
@@ -635,13 +793,21 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 **Advanced parameters**
 
-\- **Genes clusters number** fixed for hierarchical clustering. Use generated screeplot to adjust this number before re-run clustering.
+\- **Genes cluster number** used by hierarchical clustering (minimum is 2). See generated screeplot to adjust this number before re-running a clustering.
 
-\- **Cluster samples/comparisons** option allows to apply additional clustering on samples/comparisons. Disable this option if you need to conserve input sample/comparison order for visualization purposes. Sample/comparison cluster information is not included (yet) in output text file.
+\- **Samples/comparisons clusters number** used by hierarchical clustering applied on columns/conditions. Set to 1 (ie. no clustering) if you need to conserve input columns order for visualization purposes. Columns clusters information is not included (yet) in output tabular file.
 
-\- **Maximum genes number** : for readability and running time, number of displayed rows (genes) in heatmaps/circular plot can be limited. If clustering information in tabular file and scree plot are generated from a global clustering considering all genes (except those filtered before), heatmap and circular plot are displayed for a random gene selection. To avoid such random selection we advise you to use input filtering option before clustering.
+\- **Add side bar** to vizualize factor values for displayed columns/conditions, represented as a colored side bar in the heatmap.
 
-\- **Personalized color** to build color gradient choosing start, middle and end colors.
+- **Factor file** that contains factor information for coloring (same format as the factor file used for input data columns reordering).
+
+- **Factor to use** to color side bar depending on its values for displayed columns/conditions.
+
+- **Color palette used** for coloring factor values (see RColorBrewer R package documentation for more information on proposed palettes).
+
+\- **Maximum gene number** : for readability and running time considerations only, number of displayed rows (genes) in heatmaps/circular plot can be limited. Clustering information in generated tabular file and scree plot are computed from a global clustering considering all genes (excepting those filtered out before clustering). Heatmap and circular plot are displayed for a random gene selection, to avoid such random selection we advise you to use input filtering option before clustering to have a gene number below this limit.
+
+\- **Personalized heatmap colors** to build color gradient choosing start, middle and end colors.
 
 \- **Output format** for circular plots only.
 
@@ -653,9 +819,9 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 **Outputs**
 
-\- **Tabular clustering file** containing cluster group for each gene satifying filtering steps. If input data are expression data, a two columns file is generated with gene identifiers and cluster numbers. If differential results file is used as input data, the same file is returned with an additional column containing cluster numbers.
+\- **Tabular clustering file** containing cluster information for each gene satifying filtering steps. If expression or generic data was clustered, a two columns file is generated with gene identifiers and cluster numbers with possibly additional columns containing informations used for filtering. If differential results was clustered, a similar file is returned with an additional column containing cluster numbers and differential statistics coresponding to comparisons used for filtering.
 
-\- **HTML file** to access interactive version of heatmap and screeplot through PlotLy html pages, circular plot image and tabulated clustering results. We remind you that when gene number to display in heatmap/circular plot exceeds maximum gene number parameter, random sampling is done for plotting efficiency, in this case clustering displayed on heatmap/circular plot may differ from clustering information contained in tabular file as heatmap/circular plot clustering is done over a subset of genes whereas tabular file contains clustering results of all genes (except those filtered before).
+\- **HTML file** to access interactive version of heatmap and screeplot through PlotLy html pages, circular plot image and tabulated clustering results. As a reminder, when the number of genes to display in heatmap/circular plot exceeds the maximum gene number parameter, a random sampling is performed for plotting efficiency. Thus, clustering displayed on heatmap/circular plot may slighlty differ from clustering information contained in tabular file as heatmap/circular plot clustering is done over a subset of genes whereas tabular file contains clustering results performed on all genes.
 
 \- **LOG file** containing information about execution. Useful especially if tool execution fails. Please attach this log file in any bug report.
 
