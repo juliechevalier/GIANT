@@ -1,4 +1,4 @@
-<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.5">
+<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.6">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -91,7 +91,7 @@
   <section name="inputSection" title="Input files" expanded="True">
     <param type="text" name="title" value="LIMMA_toPersonalize" label="Title for output"/>
 
-    <param type="data" name="inputData" format="tabular" label="Normalized expression tabular file" optional="false" multiple="false"/>
+    <param type="data" name="inputData" format="tabular" label="Normalized expression tabular file" optional="false" multiple="false" help="Expression data have to be log2 transformed."/>
 
     <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="false" multiple="false">
     </param>
@@ -493,7 +493,7 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 \- **Input Files**
 
 - **Title** to personalize output file names (please avoid special characters).
-- **Normalized expression tabular file** with samples as columns and genes as rows (header contains sample names and first column gene identifiers). Expressions are supposed to be already log2 transformed.
+- **Normalized expression tabular file** with samples as columns and genes as rows (header contains sample names and first column gene identifiers). WARNING Expression data have to be already log2 transformed.
 
     ::
 

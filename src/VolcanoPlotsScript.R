@@ -199,7 +199,7 @@ for (iVolcano in 1:nbVolcanosToPlot){
   
   p <- ggplot(data=dataToPlot, aes(x=FC, y=pval)) + geom_point() + geom_vline(xintercept=-FCthreshold, color="salmon",linetype="dotted", size=1) +
     geom_vline(xintercept=FCthreshold, color="salmon",linetype="dotted", size=1) +
-    geom_text(data.frame(text=c(paste(c("log2(1/FC=",opt$thresholdFC,")"),collapse=""),paste(c("log2(FC=",opt$thresholdFC,")"),collapse="")),x=c(-FCthreshold,FCthreshold),y=c(0,0)),mapping=aes(x=x, y=y, label=text), size=4, angle=90, vjust=-0.4, hjust=0, color="salmon") +
+    geom_text(data.frame(text=c(paste(c("log2(1/FC=",opt$fcThreshold,")"),collapse=""),paste(c("log2(FC=",opt$fcThreshold,")"),collapse="")),x=c(-FCthreshold,FCthreshold),y=c(0,0)),mapping=aes(x=x, y=y, label=text), size=4, angle=90, vjust=-0.4, hjust=0, color="salmon") +
     theme_bw() + ggtitle(curentVolcanoName) + ylab(label="-log10(p-val)") + xlab(label="Log2 Fold Change") +
     theme(panel.border=element_blank(),plot.title = element_text(hjust = 0.5),legend.position="none") 
   if(!is.null(pvalThresholdFDR)) p <- p + geom_hline(yintercept=pvalThresholdFDR, color="skyblue1",linetype="dotted", size=0.5) + geom_text(data.frame(text=c(paste(c("FDR pval limit(",opt$pvalThreshold,")"),collapse="")),x=c(xMinLimPlot),y=c(pvalThresholdFDR)),mapping=aes(x=x, y=y, label=text), size=4, vjust=0, hjust=0, color="skyblue3")
@@ -219,9 +219,9 @@ for (iVolcano in 1:nbVolcanosToPlot){
     layout(title = curentVolcanoName[iVolcano],xaxis=list(title="Log2 Fold Change",showgrid=TRUE, zeroline=FALSE),yaxis=list(title="-log10(p-val)", showgrid=TRUE, zeroline=FALSE))
   if(length(significativePoints)>0) phtml=add_markers(phtml,data=dataSignifToPlot, x=~FC, y=~pval, mode="markers" , marker=list( color=log10(abs(dataSignifToPlot$FC)*dataSignifToPlot$pval),colorscale='Rainbow'), text=~description, hoverinfo="text", inherit = FALSE) %>% hide_colorbar()
   phtml=add_trace(phtml,x=c(-FCthreshold,-FCthreshold), y=c(0,yMaxLimPlot), type="scatter", mode = "lines", line=list(color="coral",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
-  phtml=add_annotations(phtml,x=-FCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(1/FC=",opt$thresholdFC,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
+  phtml=add_annotations(phtml,x=-FCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(1/FC=",opt$fcThreshold,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
   phtml=add_trace(phtml,x=c(FCthreshold,FCthreshold), y=c(0, yMaxLimPlot), type="scatter",  mode = "lines", line=list(color="coral",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
-  phtml=add_annotations(phtml,x=FCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(FC=",opt$thresholdFC,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
+  phtml=add_annotations(phtml,x=FCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(FC=",opt$fcThreshold,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
   if(!is.null(pvalThresholdFDR)){
     phtml=add_trace(phtml,x=c(xMinLimPlot,xMaxLimPlot), y=c(pvalThresholdFDR,pvalThresholdFDR), type="scatter",  mode = "lines", line=list(color="cornflowerblue",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
     phtml=add_annotations(phtml,x=xMinLimPlot,y=pvalThresholdFDR+0.1,xref = "x",yref = "y",text = paste(c("FDR pval limit(",opt$pvalThreshold,")"),collapse=""),xanchor = 'left',showarrow = F,font=list(color="cornflowerblue"))

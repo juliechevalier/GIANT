@@ -1,4 +1,4 @@
-<tool name="GIANT-Normalization with APT Summarize" id="giant_aptsummarize" version="0.1">
+<tool name="GIANT-Normalization with APT Summarize" id="giant_aptsummarize" version="0.1.1">
   <description>Apply Affymetrix Power Tool summarize function to .CEL collection</description>
   <requirements>
     <requirement type="package" version="2.10.0">apt-probeset-summarize</requirement>
@@ -320,7 +320,7 @@ Extract of annotation file::
 
 **Outputs**
 
-\- **tabular file** containing normalized data as tab delimited matrix. First row contains .CEL names and first column contains (meta) probe set names and/or annotated gene names::
+\- **tabular file** containing log2 transformed normalized data as tab delimited matrix. First row contains .CEL names and first column contains (meta) probe set names and/or annotated gene names::
 
     Conditions  157_(HuGene-2_0-st).CEL 156_(HuGene-2_0-st).CEL  155_(HuGene-2_0-st).CEL    154_(HuGene-2_0-st).CEL                        
     DDX11L2     4.500872                4.429759                 4.780281                   4.996189             

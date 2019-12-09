@@ -1,10 +1,11 @@
-<tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1.1">
+<tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1.2">
   <description>Descriptive plots of .CEL collections or normalized expression data</description>
   <requirements>
 	  <requirement type="package" version="1.40.1">bioconductor-oligo</requirement>
 	  <requirement type="package" version="2.2_13">r-ff</requirement>
 	  <requirement type="package" version="2.2.1">r-ggplot2</requirement>
 	  <requirement type="package" version="4.5.6">r-plotly</requirement>
+    <requirement type="package" version="1.8_17">r-mgcv</requirement>
   </requirements>
   <code file="../../src/General_functions.py"/>
   <stdio>
@@ -489,11 +490,11 @@ This tool generate descriptive plots for Affymetrix raw data (.CEL file) or any 
 
 \- **Input Data** 
 
-- **.CEL files** of your study (you can select multiple .CEL files or unique collection).
+- **.CEL files** of your study (you can select multiple .CEL files or unique collection). For vizualization purposes, expression data extracted from .CEL files will be automatically log2 transformed by the tool.
 
 OR
 
-- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers).
+- **Expression tabular file** with samples as columns and genes as rows (header row contains sample names and first column gene identifiers). For better vizualization, expression data sould be preferentially already log2 transformed, no such transformation will be performed by the tool.
 
     ::
 

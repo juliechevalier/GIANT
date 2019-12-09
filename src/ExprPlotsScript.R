@@ -100,6 +100,7 @@ if(toupper(opt$dataFileFormat)=="CEL"){
   probeInfo=getProbeInfo(celData,probeType = c("pm"),target="probeset")
   #reduce dataMatrix to log expression matrix for a randomly probe selection
   dataMatrix=log2(dataMatrix[sample(unique(probeInfo[,1]),min(100000,length(unique(probeInfo[,1])))),])
+  addComment("[INFO]Raw data are log2 transformed",TRUE,opt$log,display=FALSE)
   remove(probeInfo)
 }else{
   #fichier deja tabule
@@ -116,6 +117,7 @@ if(toupper(opt$dataFileFormat)=="CEL"){
     dataMatrix=data.matrix(as.numeric(dataMatrix))
   }
   dimnames(dataMatrix)=list(rowNamesData,colNamesData)
+  if(any(duplicated(rowNamesData)))addComment("[WARNING] several rows share the same probe/gene name, you should merge or rename them to avoid further analysis mistakes",TRUE,opt$log,display=FALSE)
 }
 
 addComment("[INFO]Input data loaded",TRUE,opt$log,display=FALSE)
@@ -210,6 +212,7 @@ if (!is.null(opt$maPlot)) {
   plotVector=list()
   toTake=sample(nrow(dataMatrix),min(200000,nrow(dataMatrix)))
   refMedianColumn=rowMedians(as.matrix(dataMatrix[toTake,]))
+  if(length(toTake)>100000)addComment(c("[INFO]high number of input data rows ",length(toTake),"; the generation of MA plot can take a while, please be patient"),TRUE,opt$log,display=FALSE)
   for (iCondition in 1:nbConditions){
     #MAplot(celData,which=i,what=pm,transfo=log2)
     #smoothScatter(x=xToPlot,y=yToPlot,main=nameConditions[iCondition])
