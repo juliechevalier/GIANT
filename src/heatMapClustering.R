@@ -188,7 +188,7 @@ if(!is.null(opt$comparisonName)){
     comparisonMatrix=matrix(as.numeric(as.matrix(comparisonMatrix)),ncol=ncol(comparisonMatrix),dimnames = dimnames(comparisonMatrix))
     
     if (ncol(comparisonMatrix)%%nbColPerContrast != 0) {
-      addComment("[ERROR]Diff. exp. data does not contain good number of columns per contrast, should contains in this order:p-val,FDR.p-val,FC,log2(FC) and t-stat",T,opt$log,display=FALSE)
+      addComment("[ERROR]Diff. exp. data does not contain good number of columns per contrast, should contains in this order: p-val, FDR.p-val, FC, log2(FC) and t-stat. Be sure that the first column contains gene names and the second column contains gene information (even this column remains empty).",T,opt$log,display=FALSE)
       q( "no", 1, F )
     }
     

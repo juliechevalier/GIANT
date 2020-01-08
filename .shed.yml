@@ -1,7 +1,7 @@
 owner: vandelj
 name: giant
 description: "Galaxy-based Interactive tools for ANalysis of Transcriptomic data"
-long_description: "blablabla tool"
+long_description: "User-friendly tools suite for micro-arrays analyses and for exploring RNA-seq & Micro-Arrays differential results"
 remote_repository_url: https://github.com/juliechevalier/GIANT/tree/master
 type: unrestricted
 categories:
