@@ -39,6 +39,7 @@ Tutorial slides and Troubleshooting are available on Documentation directory
 Galaxy Installation
 ===================
 see testtoolshed : correct version with owner : vandelj
+
 toolshed version soon
 
 ------------
