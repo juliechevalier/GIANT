@@ -1,8 +1,8 @@
 GIANT
 =====
 
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.1477870.svg
-   :target: https://doi.org/10.5281/zenodo.1477870
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3611057.svg
+   :target: https://doi.org/10.5281/zenodo.3611057
 
 Galaxy-based Interactive tools for ANalysis of Transcriptomic data
 
