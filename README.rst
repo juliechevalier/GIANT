@@ -15,7 +15,7 @@ Some description (see abstract JOBIM2018)
 Citation
 ========
 
-Vandel Jimmy, Gheeraert Céline, Eeckhoute Jérôme, Staels Bart, Lefebvre Philippe and Dubois-Chevalier Julie. (2018, November, 5). GIANT: Galaxy-based Interactive tools for ANalysis of Transcriptomic data (Version v0.0.2). Zenodo. http://doi.org/10.5281/zenodo.1477870
+Zenodo. http://doi.org/10.5281/zenodo.1477870
 
 Each tool wraps R/Bioconductor packages or programs, cite them as indicated in the citation section of the corresponding wrapper
 
@@ -24,12 +24,12 @@ Documentation
 
 See help sections in wrappers & R packages documentation
 
-Tutorial slides will be available soon
+Tutorial slides and Troubleshooting are available on Documentation directory
 
 
 Galaxy Installation
 ===================
-
+see testtoolshed : correct version with owner : vandelj
 toolshed version soon
 
 ------------
