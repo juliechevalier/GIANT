@@ -10,7 +10,16 @@ Galaxy-based Interactive tools for ANalysis of Transcriptomic data
 User-friendly tools suite for micro-arrays analyses and for exploring RNA-seq & Micro-Arrays differential results
 =================================================================================================================
 
-Some description (see abstract JOBIM2018)
+Overview of GIANT
+-----------------
+GIANT is a modular Galaxy tools suite interfacing R packages (as Limma) allowing users to perform transcriptomic analyses in a user-friendly environment. With GIANT, users can consecutively perform all required steps for microarray-based analyses ranging from data QC to differential analyses and complex visualization and unsupervised explorations. Furthermore, specific modules such as QC-plot, Volcano-plot, GSEA-format or Heatmap modules can be used with any type of pre-processed data (as RNA-seq normalized data or RNA-seq differential results). Finally, we use the power of Plotly and Heatmaply packages to provide interactive graphics and interactive requestable result tables in each module, a very innovative feature for Galaxy tools. 
+
+
+Details of the modules of GIANT
+-------------------------------
+Our tools-suite wraps functionalities for: 1) QC plot generation (Array images, boxplots, signal density plots, MA plots, PCA), data normalization and annotation (with APT tool from Affymetrix, with probe-set and gene-level analysis), 2) complex differential analyses with no restriction on number of conditions and factors and taking into account blocking effects (as batch effects or paired-analysis), 3) data visualization with raw p-values histograms, volcanos and circular plots and 4) heatmap and hierarchical clustering generation based on normalized expressions and on differential analysis results.
+Interactive graphics integrated in our modules allow users, for example : to explore data within 3D PCA plots, to target particular points in the volcano plot to easily identify genes of interest or to zoom in heatmaps to explore the content of clusters
+
 
 Citation
 ========
