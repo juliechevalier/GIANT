@@ -1,4 +1,4 @@
-<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.2.3">
+<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.3.1">
   <description>Plot volcano from tabular file</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -47,6 +47,7 @@
         -n '${s.volcanoName}'
         -p '${s.pvalColumn}'
         -c '${s.fcColumn}'
+        -m '${s.fdrColumn}'
       #end for
         -d '$plotSection.fcKind'
         -s $plotSection.FDRthreshold
@@ -93,7 +94,9 @@
 
       <param type="text" name="volcanoName" value="" label="Volcano name"/>
 
-      <param name="pvalColumn" type="select" label="Select column containing p-val statistics" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="Do not use ajusted p-val for Volcano plot"/>
+      <param name="pvalColumn" type="select" label="Select column containing p-val statistics" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="Do not select ajusted p-val here"/>
+
+      <param name="fdrColumn" type="select" label="Select column containing adjusted p-val statistics (if available)" refresh_on_change="true" optional="true" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If adjusted p-val are available, otherwise it will be computed from p-values."/>
 
       <param name="fcColumn" type="select" label="Select column containing log2(FoldChange) values" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If only FC are available as input, please select FC column and check options below." />
 
@@ -109,12 +112,12 @@
       <option value="FC">FC</option>
     </param>
 
-    <param name="FDRthreshold" type="float" value="0.05" label="Output FDR p-val threshold" >
+    <param name="FDRthreshold" type="float" value="0.05" label="Output adjusted p-val threshold" >
       <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
     </param>
 
-    <param name="FCthreshold" type="float" value="2" label="Fold change threshold for volcanos (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
-      <validator type="in_range" min="1" exclude_min="true" message="Threshold should be greater than 1"/>
+    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
+      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
     </param>
 
     <conditional name="geneInformation">
@@ -146,7 +149,7 @@
   </inputs>
 
   <outputs>
-    <data format="tabular" name="outputData" label="${inputSection.title}_LIMMAstatistics"/>
+    <data format="tabular" name="outputData" label="${inputSection.title}_statistics"/>
 	
 	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
 	<!--
@@ -194,36 +197,36 @@ printf  "<!DOCTYPE html>
 </head>
 <body style=\"background-color:white;\">
 <table id=\"example\" class=\"display\" cellspacing=\"0\">
-" > ${html_file.extra_files_path}/outputLIMMA.html
+" > ${html_file.extra_files_path}/output.html
 
-printf "<colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "<col span=\"2\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=3;i<=NF;i=i+4){if(odd==1){odd=0;printf "<col span=\"4\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"4\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "</colgroup>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<colgroup>\n" >> ${html_file.extra_files_path}/output.html
+printf "<col span=\"2\" style=\"background-color:rgb(224,235,235)\">\n" >> ${html_file.extra_files_path}/output.html
+awk 'BEGIN{odd=1;FS="\t"} NR==1{for(i=3;i<=NF;i=i+4){if(odd==1){odd=0;printf "<col span=\"4\" style=\"background-color:rgb(224,238,255)\">\n"}else{odd=1;printf "<col span=\"4\" style=\"background-color:rgb(255,221,224)\">\n"}}}' $outputData >> ${html_file.extra_files_path}/output.html
+printf "</colgroup>\n" >> ${html_file.extra_files_path}/output.html
 
 
-printf "<thead>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "<th rowspan=\"2\">Gene</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "<th rowspan=\"2\">Info</th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-awk 'BEGIN{FS="\t"} NR==1{for(i=3;i<=NF;i=i+4)printf "<th colspan=\"4\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "</tr>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-awk 'BEGIN{FS="\t"} NR==2{for(i=3;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "</tr>\n</thead>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<thead>\n<tr>\n" >> ${html_file.extra_files_path}/output.html
+printf "<th rowspan=\"2\">Gene</th>\n" >> ${html_file.extra_files_path}/output.html
+printf "<th rowspan=\"2\">Info</th>\n" >> ${html_file.extra_files_path}/output.html
+awk 'BEGIN{FS="\t"} NR==1{for(i=3;i<=NF;i=i+4)printf "<th colspan=\"4\">"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/output.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/output.html
+printf "</tr>\n<tr>\n" >> ${html_file.extra_files_path}/output.html
+awk 'BEGIN{FS="\t"} NR==2{for(i=3;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/output.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/output.html
+printf "</tr>\n</thead>\n" >> ${html_file.extra_files_path}/output.html
 
-printf "<tfoot>\n<tr>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-awk 'BEGIN{FS="\t"} NR==2{for(i=1;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "<th></th>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "</tr>\n</tfoot>\n">> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<tfoot>\n<tr>\n" >> ${html_file.extra_files_path}/output.html
+awk 'BEGIN{FS="\t"} NR==2{for(i=1;i<=NF;i++)printf "<th>"\$i"</th>\n"}' $outputData >> ${html_file.extra_files_path}/output.html
+printf "<th></th>\n" >> ${html_file.extra_files_path}/output.html
+printf "</tr>\n</tfoot>\n">> ${html_file.extra_files_path}/output.html
 
-printf "<tbody>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
-awk 'BEGIN{FS="\t"} NR>2{printf "<tr>\n";for(i=1;i<=NF;i++){printf "<th>"\$i"</th>\n"};printf "<th></th>\n";printf "</tr>\n"}' $outputData >> ${html_file.extra_files_path}/outputLIMMA.html
-printf "</tbody>\n" >> ${html_file.extra_files_path}/outputLIMMA.html
+printf "<tbody>\n" >> ${html_file.extra_files_path}/output.html
+awk 'BEGIN{FS="\t"} NR>2{printf "<tr>\n";for(i=1;i<=NF;i++){printf "<th>"\$i"</th>\n"};printf "<th></th>\n";printf "</tr>\n"}' $outputData >> ${html_file.extra_files_path}/output.html
+printf "</tbody>\n" >> ${html_file.extra_files_path}/output.html
 
 printf "</table>
 </body>
-</html>" >> ${html_file.extra_files_path}/outputLIMMA.html
+</html>" >> ${html_file.extra_files_path}/output.html
 
 ]]>
   </configfile>
@@ -231,25 +234,25 @@ printf "</table>
 <![CDATA[
 
 
-##for LIMMA output table
+##for output table
 
 mkdir -p $html_file.extra_files_path
 
 ##create HTML file for limma output table
 source $scriptTableToHtml
 
-##check outputLIMMA.html is here
-if ! [ -e ${html_file.extra_files_path}/outputLIMMA.html ]; then
-  printf "[ERROR]outputLIMMA.html is missing" >> $log; 
+##check output.html is here
+if ! [ -e ${html_file.extra_files_path}/output.html ]; then
+  printf "[ERROR]output.html is missing" >> $log; 
   exit 10
 fi
 
 ##create header of main HTML file
 printf  "<!DOCTYPE html>\n<html>\n<body>"  > $html_file
 
-##first add reference of the LIMMA output table
-printf "<h3>LIMMA statistics (p.val, FC)</h3>\n" >> $html_file
-printf "<a href=\"outputLIMMA.html\">LIMMA results</a>\n"  >> $html_file
+##first add reference of the output table
+printf "<h3>Statistics (p.val, adjusted p.val, FC, log2FC)</h3>\n" >> $html_file
+printf "<a href=\"output.html\">Access to statistics</a>\n"  >> $html_file
 
 
 
@@ -359,18 +362,20 @@ This tool plot volcanos from previous differential expression analysis results c
 
     - **Volcano name** for better ouput identification (avoiding special characters).
 
-    - **Select p-val statistics column** : p-val statistics should be available for all measured genes in experiments as FDR correction will be automatically applied.
+    - **Select p-val statistics column** containing p-value statistics for all genes in the coresponding contrast, FDR correction will be automatically applied on these p-values if adjusted p-values column is not selected in the following option.
 
-    - **Select log2(FoldChange) or FoldChange column** : log2(FC) or FC values corresponding to the same contrast as previous p-val column. 
+    - **Select adjusted p-val column** (optional) if adjusted p-values have been allready computed and are available in the input file. If not, FDR correction will be applied on available p-value statistics. 
+
+    - **Select log2(FoldChange) or FoldChange column** corresponding to the same contrast as previously selected (adjusted)p-value columns. 
 
 
 \- **Output section**
 
 - **FC information available as input** : select if FoldChange columns selected during volcanos definition are allready log2 transformed.
 
-- **Output FDR p-val threshold** : only genes passing this threshold (in at least one of requested volcanos) will be in result tab.
+- **Output adjusted/FDR p-val threshold** : only genes with adjusted p-val <= this threshold (in at least one of requested volcanos) will be in result tab.
 
-- **Fold change threshold for volcanos** : used only for volcano plots, not for result tab. (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)
+- **Output Fold Change threshold** : only genes with absolute FC >= this threshold (in at least one of requested volcanos) will be in result tab (both 'log2(threshold)' and 'log2(1/threshold)' values will be used).
 
 - **Add gene/probe information** : if yes, add description of genes to the result tab.
 

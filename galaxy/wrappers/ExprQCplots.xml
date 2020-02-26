@@ -90,7 +90,7 @@
     </param>
     <param type="boolean" name="boxplotToPlot" checked="true" label="Plot boxplots" help="Plot intensity through boxplot for each condition (pm probes for .cel)">
     </param>
-	<param type="boolean" name="microarrayToPlot" checked="true" label="Display microarrays image (only for .CEL files)">
+	<param type="boolean" name="microarrayToPlot" checked="true" label="Display microarray images (only for .CEL files)">
     </param>
 
     </section>
@@ -108,7 +108,7 @@
     </section>
 
 	<section name="advSection" title="Advanced parameters" expanded="False">
-    <param type="select" name="imageFormat" display="radio" label="Output image format">
+    <param type="select" name="imageFormat" display="radio" label="Output microarray image format">
       <option value="png">PNG format</option>
       <option value="pdf">PDF format</option>
     </param>
@@ -510,7 +510,7 @@ OR
 - **Plot histograms**
 - **Plot MA plots**
 - **Plot boxplots**
-- **Display microarrays image** (only if Input Data are .CEL files)
+- **Display microarray images** (only if "Input Data" are .CEL files)
 
 \- **PCA analysis**
 
@@ -529,7 +529,7 @@ OR
 
 \- **Advanced parameters**
 
-- **Output image format**
+- **Output microarray image format** available only for .CEL input files
 - **Html snapshot format** : format of plot images taken from interactive view
 
 -----

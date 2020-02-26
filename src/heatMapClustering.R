@@ -29,28 +29,33 @@ options(stringAsfactors = FALSE, useFancyQuotes = FALSE, OutDec=".")
 args <- commandArgs()
 
 # get options, using the spec as defined by the enclosed list.
-# we read the options from the default: commandArgs(TRUE).
+# we read the options   from the default: commandArgs(TRUE).
 spec <- matrix(c(
-  "expressionFile", "i", 1, "character",
-  "diffAnalyseFile", "d", 1, "character",
-  "factorInfo","g", 1, "character",
-  "genericData","b", 0, "logical",
-  "comparisonName","c",1,"character",
-  "filterInputOutput","r", 1, "character",
-  "FCthreshold","p", 1, "double",
-  "pvalThreshold","t", 1, "double",
-  "geneListFiltering","e",1,"character",
-  "clusterNumber","n",1,"integer",
-  "maxRows","m",1,"integer",
-  "sampleClusterNumber","s",1,"integer",
-  "personalColors","k",1,"character",
-  "sideBarColorPalette","a",1,"character",
-  "format", "f", 1, "character",
-  "quiet", "q", 0, "logical",
-  "log", "l", 1, "character",
-  "outputFile" , "o", 1, "character"),
+  "expressionFile", "x", 1, "character",
+  "diffAnalyseFile", "x", 1, "character",
+  "factorInfo","x", 1, "character",
+  "genericData","x", 0, "logical",
+  "comparisonName","x",1,"character",
+  "comparisonNameLow","x",1,"character",
+  "comparisonNameHigh","x",1,"character",
+  "filterInputOutput","x", 1, "character",
+  "FCthreshold","x", 1, "double",
+  "pvalThreshold","x", 1, "double",
+  "geneListFiltering","x",1,"character",
+  "clusterNumber","x",1,"integer",
+  "maxRows","x",1,"integer",
+  "sampleClusterNumber","x",1,"integer",
+  "dataTransformation","x",1,"character",
+  "distanceMeasure","x",1,"character",
+  "aggloMethod","x",1,"character",
+  "personalColors","x",1,"character",
+  "sideBarColorPalette","x",1,"character",
+  "format", "x", 1, "character",
+  "quiet", "x", 0, "logical",
+  "log", "x", 1, "character",
+  "outputFile" , "x", 1, "character"),
   byrow=TRUE, ncol=4)
-opt <- getopt(spec)
+opt <- getoptLong(spec)
 
 # enforce the following required arguments
 if (is.null(opt$log)) {
@@ -82,22 +87,62 @@ if (is.null(opt$sampleClusterNumber) || opt$sampleClusterNumber<1) {
   q( "no", 1, F )
 }
 
+if (is.null(opt$dataTransformation)) {
+  addComment("[ERROR]data transformation option is required",T,opt$log)
+  q( "no", 1, F )
+}
+
+if (is.null(opt$distanceMeasure)) {
+  addComment("[ERROR]distance measure option is required",T,opt$log)
+  q( "no", 1, F )
+}
+
+if (is.null(opt$aggloMethod)) {
+  addComment("[ERROR]agglomeration method option is required",T,opt$log)
+  q( "no", 1, F )
+}
+
 if (is.null(opt$maxRows) || opt$maxRows<2) {
   addComment("[ERROR]valid plotted row number is required",T,opt$log)
   q( "no", 1, F )
 }
 
-if (!is.null(opt$comparisonName) && nchar(opt$comparisonName)==0){
+if (!is.null(opt[["comparisonName"]]) && nchar(opt[["comparisonName"]])==0){
   addComment("[ERROR]you have to specify comparison",T,opt$log)
   q( "no", 1, F )
 }
 
-if (!is.null(opt$comparisonName) && is.null(opt$diffAnalyseFile)) {
+if (!is.null(opt$comparisonNameLow) && nchar(opt$comparisonNameLow)==0){
+  addComment("[ERROR]you have to specify comparisonLow",T,opt$log)
+  q( "no", 1, F )
+}
+
+if (!is.null(opt$comparisonNameHigh) && nchar(opt$comparisonNameHigh)==0){
+  addComment("[ERROR]you have to specify comparisonHigh",T,opt$log)
+  q( "no", 1, F )
+}
+
+if (is.null(opt$genericData) && (!is.null(opt$comparisonNameLow) || !is.null(opt$comparisonNameHigh))){
+  addComment("[ERROR]comparisonLow and comparisonHigh can be specified only with generic data",T,opt$log)
+  q( "no", 1, F )
+}
+
+if (!is.null(opt$genericData) && !is.null(opt[["comparisonName"]])){
+  addComment("[ERROR]basic comparison cannot be specified for generic data",T,opt$log)
+  q( "no", 1, F )
+}
+
+if ((!is.null(opt[["comparisonName"]]) || !is.null(opt$comparisonNameLow) || !is.null(opt$comparisonNameHigh)) && is.null(opt$diffAnalyseFile)) {
   addComment("[ERROR]'diff. exp. analysis file' is required",T,opt$log)
   q( "no", 1, F )
 }
 
-if ((!is.null(opt$FCthreshold) || !is.null(opt$pvalThreshold)) && is.null(opt$comparisonName)) {
+if (!is.null(opt$genericData) && !is.null(opt$diffAnalyseFile) && is.null(opt$comparisonNameLow) && is.null(opt$comparisonNameHigh)){
+  addComment("[ERROR]Missing comparison information for filtering",T,opt$log)
+  q( "no", 1, F )
+}
+
+if ((!is.null(opt$FCthreshold) || !is.null(opt$pvalThreshold)) && (is.null(opt[["comparisonName"]]) && is.null(opt$comparisonNameLow) && is.null(opt$comparisonNameHigh))) {
   addComment("[ERROR]'comparisons' are missing for filtering",T,opt$log)
   q( "no", 1, F )
 }
@@ -168,10 +213,10 @@ if(expressionToCluster){
 
 nbComparisons=0
 nbColPerContrast=5
+comparisonMatrix=NULL
 comparisonMatrixInfoGene=NULL
 #if available comparisons
-if(!is.null(opt$comparisonName)){
-  if(is.null(opt$genericData)){
+if(!is.null(opt[["comparisonName"]])){
     #load results from differential expression analysis
     #consider first row contains column names
     comparisonMatrix=read.csv(file=opt$diffAnalyseFile,header=F,sep="\t")
@@ -188,7 +233,7 @@ if(!is.null(opt$comparisonName)){
     comparisonMatrix=matrix(as.numeric(as.matrix(comparisonMatrix)),ncol=ncol(comparisonMatrix),dimnames = dimnames(comparisonMatrix))
     
     if (ncol(comparisonMatrix)%%nbColPerContrast != 0) {
-      addComment("[ERROR]Diff. exp. data does not contain good number of columns per contrast, should contains in this order: p-val, FDR.p-val, FC, log2(FC) and t-stat. Be sure that the first column contains gene names and the second column contains gene information (even this column remains empty).",T,opt$log,display=FALSE)
+      addComment("[ERROR]Diff. exp. data does not contain good number of columns per contrast, should contains in this order:p-val,FDR.p-val,FC,log2(FC) and t-stat",T,opt$log,display=FALSE)
       q( "no", 1, F )
     }
     
@@ -214,14 +259,19 @@ if(!is.null(opt$comparisonName)){
     addComment(c("[INFO]Dim of original comparison matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
     
     #restrict to user specified comparisons
-    restrictedComparisons=unlist(strsplit(opt$comparisonName,","))
+    restrictedComparisons=unlist(strsplit(opt[["comparisonName"]],","))
     #should be improved to avoid selection of column names starting too similarly  
     colToKeep=which(unlist(lapply(colnames(comparisonMatrix),function(x)any(startsWith(x,restrictedComparisons)))))
     comparisonMatrix=matrix(comparisonMatrix[,colToKeep],ncol=length(colToKeep),dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[colToKeep]))
     
     #get number of required comparisons
     nbComparisons=ncol(comparisonMatrix)/nbColPerContrast
-  }else{
+    
+    addComment(c("[INFO]Dim of effective filtering matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
+}
+
+#should be only the case with generic data
+if(!is.null(opt$comparisonNameLow) || !is.null(opt$comparisonNameHigh)){
     #load generic data used for filtering
     nbColPerContrast=1
     #consider first row contains column names
@@ -250,7 +300,10 @@ if(!is.null(opt$comparisonName)){
     addComment(c("[INFO]Dim of original filtering matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
     
     #restrict to user specified comparisons
-    restrictedComparisons=unlist(strsplit(opt$comparisonName,","))
+    restrictedComparisons=c()
+    if(!is.null(opt$comparisonNameLow))restrictedComparisons=unique(c(restrictedComparisons,unlist(strsplit(opt$comparisonNameLow,","))))
+    if(!is.null(opt$comparisonNameHigh))restrictedComparisons=unique(c(restrictedComparisons,unlist(strsplit(opt$comparisonNameHigh,","))))
+    
     if (!all(restrictedComparisons%in%colnames(comparisonMatrix))){
       addComment("[ERROR]Selected columns in filtering file are not present in filtering matrix!",T,opt$log,display=FALSE)
       q( "no", 1, F )
@@ -259,9 +312,11 @@ if(!is.null(opt$comparisonName)){
     
     #get number of required comparisons
     nbComparisons=ncol(comparisonMatrix)
-  }
-  addComment(c("[INFO]Dim of effective filtering matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
+    
+    addComment(c("[INFO]Dim of effective filtering matrix:",dim(comparisonMatrix)),T,opt$log,display=FALSE)
 }
+
+
 
 factorInfoMatrix=NULL
 if(!is.null(opt$factorInfo)){
@@ -320,20 +375,27 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="input"){
       #rowToKeep=intersect(which(comparisonMatrix[,seq(2,ncol(comparisonMatrix),4)]<=opt$pvalThreshold),which(abs(comparisonMatrix[,seq(4,ncol(comparisonMatrix),4)])>=log2(opt$FCthreshold)))
       if(is.null(opt$genericData)){
         #diff. expression matrix
-        rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),nbColPerContrast)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),nbColPerContrast)])>=log2(opt$FCthreshold))))!=0))))
+        rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),nbColPerContrast)]<opt$pvalThreshold),which(abs(x[seq(4,length(x),nbColPerContrast)])>log2(opt$FCthreshold))))!=0))))
       }else{
         #generic filtering matrix
-        if(opt$pvalThreshold==1)rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x>opt$FCthreshold))!=0))))
-        if(opt$pvalThreshold==0)rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x<opt$FCthreshold))!=0))))
+        rowToKeep=rownames(comparisonMatrix)
+        if(!is.null(opt$comparisonNameLow)){
+          restrictedLowComparisons=unlist(strsplit(opt$comparisonNameLow,","))
+          rowToKeep=intersect(rowToKeep,names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x[restrictedLowComparisons]>opt$FCthreshold))!=0)))))
+        }
+        if(!is.null(opt$comparisonNameHigh)){
+          restrictedHighComparisons=unlist(strsplit(opt$comparisonNameHigh,","))
+          rowToKeep=intersect(rowToKeep,names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x[restrictedHighComparisons]<opt$pvalThreshold))!=0)))))
+        }
       }
     }else{
-      #filtering using gene list
+      #filtering using user gene list
       geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1,header=F)
       rowToKeep=unlist(c(geneListFiltering))
     }
     
-    if(!is.null(opt$comparisonName) && !all(rowToKeep%in%rownames(comparisonMatrix))){
-      #should arrive only with user specified gene list filtering with diff.exp. results clustering
+    if(!is.null(comparisonMatrix) && !all(rowToKeep%in%rownames(comparisonMatrix))){
+      #should arrive only with user gene list filtering with diff.exp. results clustering
       addComment("[WARNING] some genes of the user defined list are not in the diff. exp. input file",T,opt$log)
       rowToKeep=intersect(rowToKeep,rownames(comparisonMatrix))
     }
@@ -350,14 +412,14 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="input"){
     }
 
     #filter comparison matrix 
-    if(!is.null(opt$comparisonName)){
+    if(!is.null(comparisonMatrix)){
       comparisonMatrix=matrix(comparisonMatrix[rowToKeep,],ncol=ncol(comparisonMatrix),dimnames = list(rowToKeep,colnames(comparisonMatrix)))
       if(!is.null(comparisonMatrixInfoGene))comparisonMatrixInfoGene=comparisonMatrixInfoGene[rowToKeep]
     }
     #then expression matrix
     if(expressionToCluster)expressionMatrix=matrix(expressionMatrix[rowToKeep,],ncol=ncol(expressionMatrix),dimnames = list(rowToKeep,colnames(expressionMatrix)))
 
-    if(!is.null(opt$comparisonName) && expressionToCluster && nrow(comparisonMatrix)!=nrow(expressionMatrix)){
+    if(!is.null(comparisonMatrix) && expressionToCluster && nrow(comparisonMatrix)!=nrow(expressionMatrix)){
       addComment("[ERROR]Problem during input filtering, please check code",T,opt$log,display=FALSE)
       q( "no", 1, F )
     }
@@ -366,15 +428,17 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="input"){
     addComment(c("[INFO]Input filtering step:",length(rowToKeep),"remaining rows"),T,opt$log,display=FALSE)
 }
 
+
 addComment("[INFO]Ready to plot",T,opt$log,display=FALSE)
 
 ##---------------------
 
 #plot heatmap
 if(expressionToCluster){
-  #will make clustering based on expression value
+  #will make clustering based on expression value or generic value
   dataToHeatMap=expressionMatrix
   valueMeaning="Intensity"
+  if(!is.null(opt$genericData))valueMeaning="Value"
 }else{
   #will make clustering on log2(FC) values
   dataToHeatMap=matrix(comparisonMatrix[,seq(4,ncol(comparisonMatrix),nbColPerContrast)],ncol=nbComparisons,dimnames = list(rownames(comparisonMatrix),colnames(comparisonMatrix)[seq(1,ncol(comparisonMatrix),nbColPerContrast)]))
@@ -385,6 +449,19 @@ addComment(c("[INFO]Dim of heatmap matrix:",dim(dataToHeatMap)),T,opt$log,displa
 if(nrow(dataToHeatMap)==1 && ncol(dataToHeatMap)==1){
   addComment("[ERROR]Cannot make clustering with unique cell tab",T,opt$log,display=FALSE)
   q( "no", 1, F )
+}
+
+
+#apply data transformation if needed
+if(opt$dataTransformation=="log"){
+  dataToHeatMap=log(dataToHeatMap)
+  valueMeaning=paste(c("log(",valueMeaning,")"),collapse="")
+  addComment("[INFO]Data to cluster and to display in the heatmap are log transformed",T,opt$log,display=FALSE)
+}
+if(opt$dataTransformation=="log2"){
+  dataToHeatMap=log2(dataToHeatMap)
+  valueMeaning=paste(c("log2(",valueMeaning,")"),collapse="")
+  addComment("[INFO]Data to cluster and to display in the heatmap are log2 transformed",T,opt$log,display=FALSE)
 }
 
 maxRowsToDisplay=opt$maxRows
@@ -408,8 +485,8 @@ rowClust=FALSE
 effectiveRowClust=FALSE
 
 #make appropriate clustering if needed
-if(nrow(dataToHeatMap)>1 && nbClusters>1)rowClust=hclust(dist(dataToHeatMap))
-if(ncol(dataToHeatMap)>1 && nbSampleClusters>1)colClust=hclust(dist(t(dataToHeatMap)))
+if(nrow(dataToHeatMap)>1 && nbClusters>1)rowClust=hclust(distExtended(dataToHeatMap,method = opt$distanceMeasure),method = opt$aggloMethod)
+if(ncol(dataToHeatMap)>1 && nbSampleClusters>1)colClust=hclust(distExtended(t(dataToHeatMap),method = opt$distanceMeasure),method = opt$aggloMethod)
 
 if(nrow(dataToHeatMap)>maxRowsToDisplay){
   #make subsampling based on preliminary global clustering
@@ -420,7 +497,7 @@ if(nrow(dataToHeatMap)>maxRowsToDisplay){
   heatMapGenesToKeep=sample(rownames(dataToHeatMap),maxRowsToDisplay)
   effectiveDataToHeatMap=matrix(dataToHeatMap[heatMapGenesToKeep,],ncol=ncol(dataToHeatMap),dimnames=list(heatMapGenesToKeep,colnames(dataToHeatMap)))
   effectiveNbClusters=min(nbClusters,maxRowsToDisplay)
-  if(nrow(effectiveDataToHeatMap)>1 && effectiveNbClusters>1)effectiveRowClust=hclust(dist(effectiveDataToHeatMap))
+  if(nrow(effectiveDataToHeatMap)>1 && effectiveNbClusters>1)effectiveRowClust=hclust(distExtended(effectiveDataToHeatMap, method = opt$distanceMeasure),method = opt$aggloMethod)
   addComment(c("[WARNING]Too many rows for efficient heatmap drawing",maxRowsToDisplay,"subsampling is done for vizualization only"),T,opt$log,display=FALSE)
   rm(heatMapGenesToKeep)
 }else{
@@ -433,7 +510,7 @@ addComment(c("[INFO]Dim of plotted heatmap matrix:",dim(effectiveDataToHeatMap))
 
 personalized_hoverinfo=matrix("",ncol = ncol(effectiveDataToHeatMap),nrow = nrow(effectiveDataToHeatMap),dimnames = dimnames(effectiveDataToHeatMap))
 if(expressionToCluster){
-  for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow,"\nCondition: ",iCol,"\nIntensity: ",effectiveDataToHeatMap[iRow,iCol]),collapse="")}}
+  for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow,"\nCondition: ",iCol,"\n",valueMeaning,": ",effectiveDataToHeatMap[iRow,iCol]),collapse="")}}
 }else{
   for(iCol in colnames(effectiveDataToHeatMap)){for(iRow in rownames(effectiveDataToHeatMap)){personalized_hoverinfo[iRow,iCol]=paste(c("Probe: ",iRow,"\nCondition: ",iCol,"\nFC: ",round(2^effectiveDataToHeatMap[iRow,iCol],2)),collapse="")}}
 }
@@ -672,7 +749,7 @@ if(class(rowClust)!="logical" && nrow(dataToHeatMap)>2){
     #screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>2){var(dist(dataToHeatMap[temp,]))}else{0}}))) )
     #compute variance between each intra-class points and fictive mean point (need at least 2 points by cluster)
     #screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>1){   var(dist(rbind(apply(dataToHeatMap[temp,],2,mean),dataToHeatMap[temp,]))[1:length(temp)]) }else{0}}))) )
-    if(ncol(dataToHeatMap)>1)screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>1){   sum((dist(rbind(apply(dataToHeatMap[temp,],2,mean),dataToHeatMap[temp,]))[1:length(temp)])^2) }else{0}}))) )
+    if(ncol(dataToHeatMap)>1)screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>1){   sum((distExtended(rbind(apply(dataToHeatMap[temp,],2,mean),dataToHeatMap[temp,]),method = opt$distanceMeasure)[1:length(temp)])^2) }else{0}}))) )
     else screePlotData=c(screePlotData,sum(unlist(lapply(seq(1,iNbClusters),function(x){temp=which(clusteringResults==x);if(length(temp)>1){   sum((dataToHeatMap[temp,]-mean(dataToHeatMap[temp,]))^2) }else{0}}))) )
   }
   
@@ -713,15 +790,22 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="output"){
       rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(intersect(which(x[seq(2,length(x),nbColPerContrast)]<=opt$pvalThreshold),which(abs(x[seq(4,length(x),nbColPerContrast)])>=log2(opt$FCthreshold))))!=0))))
     }else{
       #generic filtering matrix
-      if(opt$pvalThreshold==1)rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x>opt$FCthreshold))!=0))))
-      if(opt$pvalThreshold==0)rowToKeep=names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x<opt$FCthreshold))!=0))))
+      rowToKeep=rownames(comparisonMatrix)
+      if(!is.null(opt$comparisonNameLow)){
+        restrictedLowComparisons=unlist(strsplit(opt$comparisonNameLow,","))
+        rowToKeep=intersect(rowToKeep,names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x[restrictedLowComparisons]>opt$FCthreshold))!=0)))))
+      }
+      if(!is.null(opt$comparisonNameHigh)){
+        restrictedHighComparisons=unlist(strsplit(opt$comparisonNameHigh,","))
+        rowToKeep=intersect(rowToKeep,names(which(unlist(apply(comparisonMatrix,1,function(x)length(which(x[restrictedHighComparisons]<opt$pvalThreshold))!=0)))))
+      }
     }
   }else{
     geneListFiltering=read.csv(opt$geneListFiltering,as.is = 1,header=F)
     rowToKeep=unlist(c(geneListFiltering))
   }
-  if(!is.null(opt$comparisonName) && !all(rowToKeep%in%rownames(comparisonMatrix))){
-    #should arrive only with user specified gene list filtering with diff.exp. results clustering
+  if(!is.null(comparisonMatrix) && !all(rowToKeep%in%rownames(comparisonMatrix))){
+    #should arrive only with user gene list filtering with diff.exp. results clustering
     addComment("[WARNING] some genes of the user defined list are not in the diff. exp. input file",T,opt$log)
     rowToKeep=intersect(rowToKeep,rownames(comparisonMatrix))
   }
@@ -736,7 +820,7 @@ if(!is.null(opt$filterInputOutput) && opt$filterInputOutput=="output"){
 #we add differential analysis info in output if it was directly used for clustering or when it was used for filtering with expression
 
 #in case of expression or generic data clustering without filtering based on external stats
-if(expressionToCluster && is.null(opt$comparisonName)){
+if(expressionToCluster && is.null(comparisonMatrix)){
   if(length(rowToKeep)==0){
     addComment("[WARNING]No more gene after output filtering step, tabular output will be empty",T,opt$log,display=FALSE)
     outputData=matrix(c("Gene","Cluster","noGene","noClustering"),ncol=2,nrow=2,byrow = TRUE)
@@ -753,7 +837,7 @@ if(expressionToCluster && is.null(opt$comparisonName)){
 }
 
 #in case of generic data clustering with filtering based on generic external data
-if(!is.null(opt$genericData) && !is.null(opt$comparisonName)){
+if(!is.null(opt$genericData) && !is.null(comparisonMatrix)){
   if(length(rowToKeep)==0){
     addComment("[WARNING]No more gene after output filtering step, tabular output will be empty",T,opt$log,display=FALSE)
     outputData=matrix(c("Gene","Cluster","noGene","noClustering"),ncol=2,nrow=2,byrow = TRUE)
@@ -771,7 +855,7 @@ if(!is.null(opt$genericData) && !is.null(opt$comparisonName)){
 }
 
 #in case of expression data clustering with filtering based on diff. exp. results or diff. exp. results clustering
-if(is.null(opt$genericData) && !is.null(opt$comparisonName)){
+if(is.null(opt$genericData) && !is.null(comparisonMatrix)){
   if(length(rowToKeep)==0){
     addComment("[WARNING]No more gene after output filtering step, tabular output will be empty",T,opt$log,display=FALSE)
     outputData=matrix(0,ncol=3,nrow=3)

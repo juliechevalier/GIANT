@@ -14,6 +14,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.  
 
 
+#extendedDist function to correlation measure
+distExtended <- function(x,method) {
+  if(method %in% c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"))return(dist(x,method = method))
+  if(method %in% c("pearson", "spearman", "kendall"))return(as.dist(1-cor(t(x),method=method))/2)
+  if(method %in% c("absPearson", "absSpearman", "absKendall"))return(as.dist(1-abs(cor(t(x),method=method))))
+  return(NULL)
+}
+
 ##comment function to display message and optionnaly add it to log file
 
 addComment <- function(text,addToFile=FALSE,fileName=NULL,append=TRUE,display=TRUE){

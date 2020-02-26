@@ -1,4 +1,4 @@
-<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.6">
+<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.7">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -142,8 +142,8 @@
 	    </param>
 		<param type="boolean" name="volcanoToPlot" checked="true" label="Plot volcanos" help="Plot volcano for each comparison.">
 	    </param>
-    <param name="FCthreshold" type="float" value="2" label="Fold change threshold for volcanos (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
-      <validator type="in_range" min="1" exclude_min="true" message="Threshold should be greater than 1"/>
+    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
+      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
     </param>
 
     <conditional name="geneInformation">
@@ -548,7 +548,7 @@ This tool use the LIMMA function from R package limma. (only adapted for arrays 
 
 - **Plot volcanos** for each defined contrast with specified FDR p-val and FC thresholds.
 
-- **Fold change threshold for volcanos** only, not for tabular result file (both 'threshold' and '1/threshold' values will be used)
+- **Output Fold Change threshold** only genes with absolute FC >= this threshold (in at least one of defined contrast) are kept in tabular result file and displayed dynamically in volcano plot (both 'log2(threshold)' and 'log2(1/threshold)' values will be used).
 
 - **Add gene/probe information** : if yes, add description of genes to the result tab.
 

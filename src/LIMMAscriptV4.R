@@ -87,8 +87,8 @@ if (is.null(opt$format)) {
   addComment("[ERROR]'output format' is required",T,opt$log)
   q( "no", 1, F )
 }
-if (is.null(opt$thresholdPval)) {
-  addComment("[ERROR]'p-val threshold' is required",T,opt$log)
+if (is.null(opt$fdrThreshold)) {
+  addComment("[ERROR]'FDR threshold' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$outputFile) || is.null(opt$outputDfFile)){
@@ -745,19 +745,19 @@ if(!is.null(allFtestMeanSquare)){
 #volcanoplot(data.fit.eb,coef=1,highlight=10)
 volcanoPerPage=1
 if (!is.null(opt$volcano)) {
-  FCthreshold=log2(opt$thresholdFC)
+  logFCthreshold=log2(opt$thresholdFC)
   iToPlot=1
   plotVector=list()
   nbComparisons=ncol(data.fit.eb$adj_p.value)
   for (iComparison in 1:nbComparisons){
     
     #define the log10(p-val) threshold corresponding to FDR threshold fixed by user
-    probeWithLowFDR=-log10(data.fit.eb$p.value[which(data.fit.eb$adj_p.value[,iComparison]<=opt$thresholdPval),iComparison])
+    probeWithLowFDR=-log10(data.fit.eb$p.value[which(data.fit.eb$adj_p.value[,iComparison]<=opt$fdrThreshold),iComparison])
     pvalThresholdFDR=NULL
     if(length(probeWithLowFDR)>0)pvalThresholdFDR=min(probeWithLowFDR)
     
-    #get significative points over FC thresholds
-    significativePoints=which(abs(data.fit.eb$coefficients[,iComparison])>=FCthreshold)
+    #get significant points over FC and FDR thresholds
+    significativePoints=intersect(which(abs(data.fit.eb$coefficients[,iComparison])>=logFCthreshold),which(data.fit.eb$adj_p.value[,iComparison]<=opt$fdrThreshold))
     
     #to reduce size of html plot, we keep 20000 points maximum sampled amongst genes with pval>=33%(pval) and abs(log2(FC))<=66%(abs(log2(FC)))
     htmlPointsToRemove=intersect(which(abs(data.fit.eb$coefficients[,iComparison])<=quantile(abs(data.fit.eb$coefficients[,iComparison]),c(0.66))),which(data.fit.eb$p.value[,iComparison]>=quantile(abs(data.fit.eb$p.value[,iComparison]),c(0.33))))
@@ -783,14 +783,15 @@ if (!is.null(opt$volcano)) {
         dataToPlot=data.frame(pval=-log10(data.fit.eb$p.value[,iComparison]),FC=data.fit.eb$coefficients[,iComparison],description=paste("FC: " , round(2^data.fit.eb$coefficients[,iComparison],2) , " | FDR p-val: ",prettyNum(data.fit.eb$adj_p.value[,iComparison],digits=4), sep=""))
       }
         
-      p <- ggplot(data=dataToPlot, aes(x=FC, y=pval)) + geom_point() + geom_vline(xintercept=-FCthreshold, color="salmon",linetype="dotted", size=1) +
-        geom_vline(xintercept=FCthreshold, color="salmon",linetype="dotted", size=1) +
-        geom_text(data.frame(text=c(paste(c("log2(1/FC=",opt$thresholdFC,")"),collapse=""),paste(c("log2(FC=",opt$thresholdFC,")"),collapse="")),x=c(-FCthreshold,FCthreshold),y=c(0,0)),mapping=aes(x=x, y=y, label=text), size=4, angle=90, vjust=-0.4, hjust=0, color="salmon") +
+      ##traditional plot
+      p <- ggplot(data=dataToPlot, aes(x=FC, y=pval)) + geom_point() + 
         theme_bw() + ggtitle(humanReadingContrastsRenamed[iComparison]) + ylab(label="-log10(p-val)") + xlab(label="Log2 Fold Change") +
-        theme(panel.border=element_blank(),plot.title = element_text(hjust = 0.5),legend.position="none") 
-      if(!is.null(pvalThresholdFDR)) p <- p + geom_hline(yintercept=pvalThresholdFDR, color="skyblue1",linetype="dotted", size=0.5) + geom_text(data.frame(text=c(paste(c("FDR pval limit(",opt$thresholdPval,")"),collapse="")),x=c(xMinLimPlot),y=c(pvalThresholdFDR)),mapping=aes(x=x, y=y, label=text), size=4, vjust=0, hjust=0, color="skyblue3")
+        theme(panel.border=element_blank(),plot.title = element_text(hjust = 0.5),legend.position="none")
+      if(logFCthreshold!=0) p <- p + geom_vline(xintercept=-logFCthreshold, color="salmon",linetype="dotted", size=1) + geom_vline(xintercept=logFCthreshold, color="salmon",linetype="dotted", size=1) + geom_text(data.frame(text=c(paste(c("log2(1/FC=",opt$thresholdFC,")"),collapse=""),paste(c("log2(FC=",opt$thresholdFC,")"),collapse="")),x=c(-logFCthreshold,logFCthreshold),y=c(0,0)),mapping=aes(x=x, y=y, label=text), size=4, angle=90, vjust=-0.4, hjust=0, color="salmon")
+      if(!is.null(pvalThresholdFDR)) p <- p + geom_hline(yintercept=pvalThresholdFDR, color="skyblue1",linetype="dotted", size=0.5) + geom_text(data.frame(text=c(paste(c("FDR pval limit(",opt$fdrThreshold,")"),collapse="")),x=c(xMinLimPlot),y=c(pvalThresholdFDR)),mapping=aes(x=x, y=y, label=text), size=4, vjust=0, hjust=0, color="skyblue3")
       if(length(significativePoints)>0)p <- p + geom_point(data=dataSignifToPlot,aes(colour=description))
       
+      ##interactive plot
       if(length(htmlPointsToRemove)>0){
         pointToRemove=union(htmlPointsToRemove,significativePoints)
         #to test if remains any normal points to draw
@@ -801,16 +802,20 @@ if (!is.null(opt$volcano)) {
         }
       }
       
+      if((nrow(dataToPlot)+nrow(dataSignifToPlot))>40000)addComment(c("[WARNING]For",humanReadingContrastsRenamed[iComparison],"volcano, numerous points to plot(",nrow(dataToPlot)+nrow(dataSignifToPlot),"), resulting volcano could be heavy, using more stringent thresholds could be helpful."),T,opt$log)
+      
       phtml <- plot_ly(data=dataToPlot, x=~FC, y=~pval,type="scatter", mode="markers",showlegend = FALSE, marker = list(color="gray",opacity=0.5), text=~description, hoverinfo="text") %>%
         layout(title = humanReadingContrastsRenamed[iComparison],xaxis=list(title="Log2 Fold Change",showgrid=TRUE, zeroline=FALSE),yaxis=list(title="-log10(p-val)", showgrid=TRUE, zeroline=FALSE))
       if(length(significativePoints)>0) phtml=add_markers(phtml,data=dataSignifToPlot, x=~FC, y=~pval, mode="markers" , marker=list( color=log10(abs(dataSignifToPlot$FC)*dataSignifToPlot$pval),colorscale='Rainbow'), text=~description, hoverinfo="text", inherit = FALSE) %>% hide_colorbar()
-      phtml=add_trace(phtml,x=c(-FCthreshold,-FCthreshold), y=c(0,yMaxLimPlot), type="scatter", mode = "lines", line=list(color="coral",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
-      phtml=add_annotations(phtml,x=-FCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(1/FC=",opt$thresholdFC,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
-      phtml=add_trace(phtml,x=c(FCthreshold,FCthreshold), y=c(0, yMaxLimPlot), type="scatter",  mode = "lines", line=list(color="coral",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
-      phtml=add_annotations(phtml,x=FCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(FC=",opt$thresholdFC,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
+      if(logFCthreshold!=0){
+       phtml=add_trace(phtml,x=c(-logFCthreshold,-logFCthreshold), y=c(0,yMaxLimPlot), type="scatter", mode = "lines", line=list(color="coral",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
+       phtml=add_annotations(phtml,x=-logFCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(1/FC=",opt$thresholdFC,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
+       phtml=add_trace(phtml,x=c(logFCthreshold,logFCthreshold), y=c(0, yMaxLimPlot), type="scatter",  mode = "lines", line=list(color="coral",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
+       phtml=add_annotations(phtml,x=logFCthreshold,y=0,xref = "x",yref = "y",text = paste(c("log2(FC=",opt$thresholdFC,")"),collapse=""),xanchor = 'right',showarrow = F,textangle=270,font=list(color="coral"))
+      }
       if(!is.null(pvalThresholdFDR)){
         phtml=add_trace(phtml,x=c(xMinLimPlot,xMaxLimPlot), y=c(pvalThresholdFDR,pvalThresholdFDR), type="scatter",  mode = "lines", line=list(color="cornflowerblue",dash="dash"), hoverinfo='none', showlegend = FALSE,inherit = FALSE)
-        phtml=add_annotations(phtml,x=xMinLimPlot,y=pvalThresholdFDR+0.1,xref = "x",yref = "y",text = paste(c("FDR pval limit(",opt$thresholdPval,")"),collapse=""),xanchor = 'left',showarrow = F,font=list(color="cornflowerblue"))
+        phtml=add_annotations(phtml,x=xMinLimPlot,y=pvalThresholdFDR+0.1,xref = "x",yref = "y",text = paste(c("FDR pval limit(",opt$fdrThreshold,")"),collapse=""),xanchor = 'left',showarrow = F,font=list(color="cornflowerblue"))
       }
     plotVector[[length(plotVector)+1]]=p
     
@@ -862,7 +867,10 @@ dfMatrix[,"df.prior"]=data.fit.eb$df.prior
 dfMatrix[,"df.total"]=data.fit.eb$df.total
 
 #filter out genes with higher p-values for all comparisons
-genesToKeep=names(which(apply(data.fit.eb$adj_p.value,1,function(x)length(which(x<=opt$thresholdPval))>0)))
+genesToKeep=names(which(apply(data.fit.eb$adj_p.value,1,function(x)length(which(x<=opt$fdrThreshold))>0)))
+#filter out genes with lower FC for all comparisons
+genesToKeep=intersect(genesToKeep,names(which(apply(data.fit.eb$coefficients,1,function(x)length(which(abs(x)>=logFCthreshold))>0))))
+
 if(length(genesToKeep)>0){
   data.fit.eb$adj_p.value=matrix(data.fit.eb$adj_p.value[genesToKeep,],ncol=ncol(data.fit.eb$adj_p.value))
   rownames(data.fit.eb$adj_p.value)=genesToKeep
@@ -883,7 +891,7 @@ if(length(genesToKeep)>0){
   dfMatrix=dfMatrix[genesToKeep,,drop=FALSE]
   
 }else{
-  addComment(c("[WARNING]No significative genes considering the given FDR threshold : ",opt$thresholdPval),T,opt$log,display=FALSE)
+  addComment(c("[WARNING]No significative genes considering the given FDR threshold : ",opt$fdrThreshold),T,opt$log,display=FALSE)
 }
 
 addComment("[INFO]Significant genes filtering done",T,opt$log,T,display=FALSE)

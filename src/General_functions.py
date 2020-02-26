@@ -178,8 +178,12 @@ def selectSubSetTable(file_path,headerLine_number,columnsToAdd,columnNamesToKeep
 	selectedColumns=list(columnsToAdd)
 	for iVolcano, volcano_content in enumerate(columnNamesToKeep):
 		selectedColumns.append(availableColumns.index(volcano_content['pvalColumn']))
+		if volcano_content['fdrColumn'] in availableColumns:
+			selectedColumns.append(availableColumns.index(volcano_content['fdrColumn']))
+		else:
+			selectedColumns.append(0)
 		selectedColumns.append(availableColumns.index(volcano_content['fcColumn']))
-	if len(selectedColumns)!=(2*len(columnNamesToKeep)+len(columnsToAdd)):
+	if len(selectedColumns)!=(3*len(columnNamesToKeep)+len(columnsToAdd)):
 		outputLog.write("[ERROR] matching between input file colnames and requested column names failed\n")	
 		return 1
 	outputLog.write("[INFO] columns kept : "+str(selectedColumns)+"\n")	

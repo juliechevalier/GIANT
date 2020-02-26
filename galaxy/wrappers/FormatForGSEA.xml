@@ -1,4 +1,4 @@
-<tool name="GIANT-GSEA Formating" id="giant_gsea_format" version="0.2.0">
+<tool name="GIANT-GSEA Formatting" id="giant_gsea_format" version="0.2.0">
   <description>Format input files for GSEA software</description>
   <code file="../../src/General_functions.py"/>
   <stdio>
