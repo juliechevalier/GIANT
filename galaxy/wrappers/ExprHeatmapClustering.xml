@@ -395,14 +395,14 @@
 
   <conditional name="aggloMethod">
         <param name="aggloMethod_selector" type="select" label="Agglomeration method used for clustering" help="See documentation of 'hclust' R method for more information">
-            <option value="complete" selected="true">complete</option>
+            <option value="complete">complete</option>
           <option value="median">median</option>
           <option value="centroid">centroid</option>
           <option value="average">average</option>
           <option value="single">single</option>
           <option value="mcquitty">mcquitty</option>
           <option value="ward.D">ward1</option>
-          <option value="ward.D2">ward2</option>
+          <option value="ward.D2" selected="true">ward2</option>
       </param>
   </conditional>
 
