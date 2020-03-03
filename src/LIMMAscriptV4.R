@@ -33,7 +33,7 @@ spec <- matrix(c(
   "blockingInfo","b", 1, "character",
   "dicoRenaming","g",1,"character",
   "blockingPolicy","u", 1, "character",
-  "thresholdPval","t", 1, "double",
+  "fdrThreshold","t", 1, "double",
   "thresholdFC","d", 1, "double",
   "format", "f", 1, "character",
   "histo","h", 1, "character",
