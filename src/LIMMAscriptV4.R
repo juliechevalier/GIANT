@@ -95,8 +95,8 @@ if (is.null(opt$outputFile) || is.null(opt$outputDfFile)){
   addComment("[ERROR]'output files' are required",T,opt$log)
   q( "no", 1, F )
 }
-if (!is.null(opt$volcano) && is.null(opt$thresholdFC)){
-  addComment("[ERROR]'FC threshold' is required for volcanos",T,opt$log)
+if (is.null(opt$thresholdFC)){
+  addComment("[ERROR]'FC threshold' is required",T,opt$log)
   q( "no", 1, F )
 }
 if (is.null(opt$fratioFile)) {
@@ -744,8 +744,8 @@ if(!is.null(allFtestMeanSquare)){
 #plot VOLCANO plot
 #volcanoplot(data.fit.eb,coef=1,highlight=10)
 volcanoPerPage=1
+logFCthreshold=log2(opt$thresholdFC)
 if (!is.null(opt$volcano)) {
-  logFCthreshold=log2(opt$thresholdFC)
   iToPlot=1
   plotVector=list()
   nbComparisons=ncol(data.fit.eb$adj_p.value)

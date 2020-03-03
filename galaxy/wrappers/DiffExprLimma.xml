@@ -58,12 +58,12 @@
         -c '$contrastSection.interactionSelection.controlSelection'
       #end if
         -t $plotSection.cutoffTh
+        -d $plotSection.FCthreshold
       #if $plotSection.histogramToPlot:
         -h 'Histograms'
       #end if
       #if $plotSection.volcanoToPlot:
         -v 'Volcanos'
-        -d $plotSection.FCthreshold
       #end if
       #if $plotSection.geneInformation.addGeneInfo:
         -x '$plotSection.geneInformation.organismID'
@@ -138,13 +138,13 @@
     <param name="cutoffTh" type="float" value="0.05" label="Output FDR p-val threshold" >
       <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
     </param>
+    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
+      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
+    </param>
 		<param type="boolean" name="histogramToPlot" checked="true" label="Plot histograms" help="Plot nominal p-val distribution for each comparison.">
 	    </param>
 		<param type="boolean" name="volcanoToPlot" checked="true" label="Plot volcanos" help="Plot volcano for each comparison.">
 	    </param>
-    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
-      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
-    </param>
 
     <conditional name="geneInformation">
     <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
