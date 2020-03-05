@@ -1,4 +1,4 @@
-<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.3.1">
+<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.3.2">
   <description>Plot volcano from tabular file</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -23,15 +23,16 @@
   </stdio>
   <command>	<![CDATA[
     #import imp
+    #set $runIdentifier=str($outputData).rsplit("/")[-1].rsplit(".")[0]
     #set $general_functions=$imp.load_source('General_functions', $__tool_directory__+'/../../src/General_functions.py')
-    #set $ret_code=$general_functions.selectSubSetTable($inputSection['inputData'].file_name,$inputSection['headerNumber'].value,[0],$volcanoSection['volcanoList'],$__new_file_path__+'/'+$__user_id__+'_statisticsFormated.csv',$log.file_name)
+    #set $ret_code=$general_functions.selectSubSetTable($inputSection['inputData'].file_name,$inputSection['headerNumber'].value,[0],$volcanoSection['volcanoList'],$__new_file_path__+'/'+$__user_id__+'_'+$runIdentifier+'_statisticsFormated.csv',$log.file_name)
 
     if [ $ret_code != 0 ]; then
       printf "[ERROR]Error during formated statistics file generation\n" >> $log;
       exit $ret_code;
     fi; 
 
-    mv ${__new_file_path__}/${__user_id__}_statisticsFormated.csv ./statisticsFormated.csv;
+    mv ${__new_file_path__}/${__user_id__}_${runIdentifier}_statisticsFormated.csv ./statisticsFormated.csv;
 
     #for $i, $s in enumerate( $volcanoSection.volcanoList )
     #if $s.volcanoName!='':
@@ -42,7 +43,7 @@
     #end for
 
 
-    Rscript '$__tool_directory__/../../src/VolcanoPlotsScript.R' -i './statisticsFormated.csv' -l '$log' -o '$outputData' -f 'pdf'
+    Rscript '$__tool_directory__/../../src/VolcanoPlotsScript.R' -i 'statisticsFormated.csv' -l '$log' -o '$outputData' -f 'pdf'
       #for $i, $s in enumerate( $volcanoSection.volcanoList )
         -n '${s.volcanoName}'
         -p '${s.pvalColumn}'
