@@ -1,4 +1,4 @@
-<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.3.2">
+<tool name="GIANT-Plot volcanos" id="giant_volcano_plot" version="0.3.3">
   <description>Plot volcano from tabular file</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -72,109 +72,10 @@
   printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
-  <inputs>
-  <section name="inputSection" title="Input files" expanded="True">
-    <param type="text" name="title" value="Volcano_toPersonalize" label="Title for output"/>
-
-    <param type="data" name="inputData" format="tabular" label="Differential results file" optional="false" multiple="false" refresh_on_change="true"/>
-
-    <param name="headerNumber" type="select" label="Select number of header lines in file" refresh_on_change="true">
-      <option value="0">0</option>
-      <option value="1">1</option>
-      <option value="2" selected="true">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-    </param>
-  </section>
-
-  <section name="volcanoSection" title="Volcano definition" expanded="True">
 
 
-    <repeat name="volcanoList" title="Volcano">
-
-      <param type="text" name="volcanoName" value="" label="Volcano name"/>
-
-      <param name="pvalColumn" type="select" label="Select column containing p-val statistics" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="Do not select ajusted p-val here"/>
-
-      <param name="fdrColumn" type="select" label="Select column containing adjusted p-val statistics (if available)" refresh_on_change="true" optional="true" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If adjusted p-val are available, otherwise it will be computed from p-values."/>
-
-      <param name="fcColumn" type="select" label="Select column containing log2(FoldChange) values" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If only FC are available as input, please select FC column and check options below." />
-
-    </repeat>
-
-  </section>
-
-
-	<section name="plotSection" title="Output section" expanded="True">
-
-    <param name="fcKind" type="select" display="radio" label="Select FC values kind selected as input column" help="Info:log2(FC) will be displayed in volcano plots">
-      <option value="log2FC" selected="true">log2(FC)</option>
-      <option value="FC">FC</option>
-    </param>
-
-    <param name="FDRthreshold" type="float" value="0.05" label="Output adjusted p-val threshold" >
-      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
-    </param>
-
-    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
-      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
-    </param>
-
-    <conditional name="geneInformation">
-    <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
-      <when value="true">
-        <param name="organismID" label="Organism" type="select">
-          <options from_data_table="LimmaTool" >
-            <column name="name" index="1"/>
-            <column name="value" index="0"/>
-            <filter type="unique_value" column="0"/>
-          </options>
-        </param>
-        <param name="infoInRowType" label="Nature of row names" type="select">
-            <options from_data_table="LimmaTool" >
-              <column name="name" index="3"/>
-              <column name="value" index="2"/>
-              <filter type="param_value" ref="organismID" column="0"/>
-            </options>
-        </param>
-      </when>
-    </conditional>
-
-    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
-      <option value="png">PNG format</option>
-      <option value="svg">SVG format</option>
-    </param>
-	</section>
-
-  </inputs>
-
-  <outputs>
-    <data format="tabular" name="outputData" label="${inputSection.title}_statistics"/>
-	
-	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
-	<!--
-	<collection name="outputHistogramsList" label="${inputSection.title}_HistogramsList" type="list">
-	  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-	  <filter>plotSection['histogramToPlot']</filter>
-	</collection>
-	
-	<collection name="outputVolcanosList" label="${inputSection.title}_VolcanosList" type="list">
-	  <discover_datasets pattern="(?P&lt;designation&gt;Volcanos\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-	  <filter>plotSection['volcanoToPlot']</filter>
-	</collection>
-
-  <data name="fRatioOutput" format="png" label="${inputSection.title}_F-ratio">
-        <change_format>
-            <when input="plotSection['imageFormat']" value="pdf" format="pdf" />
-        </change_format>
-  </data>
-	-->
-    <data format="txt" name="log" label="${inputSection.title}_Log" />
-  </outputs>
-
- <configfiles>
-   <configfile name="scriptTableToHtml">
+  <configfiles>
+    <configfile name="scriptTableToHtml">
 <![CDATA[
 printf  "<!DOCTYPE html>
 <html>
@@ -187,7 +88,7 @@ printf  "<!DOCTYPE html>
 </script>
 <script type=\"text/javascript\" class=\"init\">
 \\$(document).ready(function() {
-	\\$(\'\#example\').DataTable( {
+  \\$(\'\#example\').DataTable( {
         \"columnDefs\": [ {
             \"visible\": false,
             \"targets\": -1
@@ -230,8 +131,9 @@ printf "</table>
 </html>" >> ${html_file.extra_files_path}/output.html
 
 ]]>
-  </configfile>
-   <configfile name="scriptTransfer">
+    </configfile>
+
+    <configfile name="scriptTransfer">
 <![CDATA[
 
 
@@ -311,8 +213,117 @@ fi
 ##create footer of HTML file
 printf  "</body>\n</html>" >> $html_file
 ]]>
-   </configfile>
- </configfiles>
+    </configfile>
+  </configfiles>
+
+
+
+  <inputs>
+  <section name="inputSection" title="Input files" expanded="True">
+    <param type="text" name="title" value="Volcano_toPersonalize" label="Title for output"/>
+
+    <param type="data" name="inputData" format="tabular" label="Differential results file" optional="false" multiple="false" refresh_on_change="true"/>
+
+    <param name="headerNumber" type="select" label="Select number of header lines in file" refresh_on_change="true">
+      <option value="0">0</option>
+      <option value="1">1</option>
+      <option value="2" selected="true">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+    </param>
+  </section>
+
+  <section name="volcanoSection" title="Volcano definition" expanded="True">
+
+
+    <repeat name="volcanoList" title="Volcano">
+
+      <param type="text" name="volcanoName" value="" label="Volcano name"/>
+
+      <param name="pvalColumn" type="select" label="Select column containing p-val statistics" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="Do not select ajusted p-val here"/>
+
+      <param name="fdrColumn" type="select" label="Select column containing adjusted p-val statistics (if available)" refresh_on_change="true" optional="true" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If adjusted p-val are available, otherwise it will be computed from p-values."/>
+
+      <param name="fcColumn" type="select" label="Select column containing log2(FoldChange) values" refresh_on_change="true" optional="false" multiple="false" dynamic_options="get_column_names_mergeNumber(inputSection['inputData'].file_name,inputSection['headerNumber'],[0])" help="If only FC are available as input, please select FC column and check options below." />
+
+    </repeat>
+
+  </section>
+
+
+	<section name="plotSection" title="Output section" expanded="True">
+
+    <param name="fcKind" type="select" display="radio" label="Select FC values kind selected as input column" help="Info:log2(FC) will be displayed in volcano plots">
+      <option value="log2FC" selected="true">log2(FC)</option>
+      <option value="FC">FC</option>
+    </param>
+
+    <param name="FDRthreshold" type="float" value="0.05" label="Output adjusted p-val threshold" >
+      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+    </param>
+
+    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
+      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
+    </param>
+
+    <conditional name="geneInformation">
+    <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
+      <when value="true">
+        <param name="organismID" label="Organism" type="select">
+          <options from_data_table="LimmaTool" >
+            <column name="name" index="1"/>
+            <column name="value" index="0"/>
+            <filter type="unique_value" column="0"/>
+          </options>
+        </param>
+        <param name="infoInRowType" label="Nature of row names" type="select">
+            <options from_data_table="LimmaTool" >
+              <column name="name" index="3"/>
+              <column name="value" index="2"/>
+              <filter type="param_value" ref="organismID" column="0"/>
+            </options>
+        </param>
+      </when>
+      <when value="false">
+      </when>
+    </conditional>
+
+    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
+      <option value="png">PNG format</option>
+      <option value="svg">SVG format</option>
+    </param>
+	</section>
+
+  </inputs>
+
+
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${inputSection.title}_statistics"/>
+	
+	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
+	<!--
+	<collection name="outputHistogramsList" label="${inputSection.title}_HistogramsList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['histogramToPlot']</filter>
+	</collection>
+	
+	<collection name="outputVolcanosList" label="${inputSection.title}_VolcanosList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Volcanos\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['volcanoToPlot']</filter>
+	</collection>
+
+  <data name="fRatioOutput" format="png" label="${inputSection.title}_F-ratio">
+        <change_format>
+            <when input="plotSection['imageFormat']" value="pdf" format="pdf" />
+        </change_format>
+  </data>
+	-->
+    <data format="txt" name="log" label="${inputSection.title}_Log" />
+  </outputs>
+
+
   
  <tests>
   <test maxseconds="3600">

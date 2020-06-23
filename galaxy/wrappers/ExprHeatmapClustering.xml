@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.0">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.1">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
@@ -68,7 +68,7 @@
        awk -v factor="$advSection.conditionBarColor.factorToUse" 'BEGIN{FS="\t";OFS="";ORS=""} NR==1{for(i=2;i<=NF;i++)if(\$i==factor)colToKeep=i} {print \$1"\t"\$colToKeep"\n"}' $advSection.conditionBarColor.factorFileDataBarPlot > ./barPlotFactor;
       #end if
 
-	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber' --maxRows '$advSection.maxSampleToPlot' --sampleClusterNumber '$advSection.conditionClusterNumber' --dataTransformation '$advSection.dataTransformation.dataTransformation_selector' --distanceMeasure '$advSection.distanceMeasure.distanceMeasure_selector' --aggloMethod '$advSection.aggloMethod.aggloMethod_selector'
+	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber' --maxRows '$advSection.maxSampleToPlot' --sampleClusterNumber '$advSection.conditionClusterNumber' --dataTransformation '$advSection.dataTransformation' --distanceMeasure '$advSection.distanceMeasure' --aggloMethod '$advSection.aggloMethod'
       #if $advSection.select_color.specifyColors=="true":
       --personalColors '$advSection.select_color.featureMin_color,$advSection.select_color.featureMedium_color,$advSection.select_color.featureMax_color'
       #end if
@@ -130,355 +130,10 @@
 	   printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
-<inputs>
-  <param type="text" name="title" value="Heatmap_toPersonalize" label="Title for output"/>
-
-  <conditional name="dataToCluster">
-    <param name="dataToCluster_selector" type="select" label="Data to cluster">
-        <option value="expression" selected="true">Expression data</option>
-        <option value="foldChange">Differential expression analysis results</option>
-        <option value="genericData">Generic data table</option>
-    </param>
-    <when value="expression">
-
-      <param type="data" name="expressionData" format="tabular" label="Normalized expression tabular file" multiple="false"/>
-
-      <conditional name="reorder_sample">
-        <param name="reordering_selector" type="select" label="Reorder samples">
-            <option value="no" selected="true">No reordering</option>
-            <option value="factorFile">Reorder sample based on a factors file</option>
-        </param>
-        <when value="factorFile">
-          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number is set to 1 in advanced parameters."/>
-          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor(s) to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
-                 <validator type="empty_field" message="You should specify at least one factor"></validator>
-          </param>
-        </when>
-      </conditional>
-
-      <conditional name="filtering_step">
-        <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
-            <option value="no" selected="true">No filtering</option>
-            <option value="input">Filter input probes/genes before clustering</option>
-            <option value="output">Filter probes/genes after clustering (for tabular output)</option>
-        </param>
-        <when value="input">
-          <conditional name="select_filtering">
-            <param name="filtering_stepBis_selector" type="select" label="Filter">
-              <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
-              <option value="geneList">From list of genes</option>
-            </param>
-            <when value="diffExpParam">
-              <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
-              </param>
-
-              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],5)">
-                 <validator type="empty_field" message="You should specify one factor"></validator>
-              </param>
-
-              <param name="FCthreshold" type="float" value="2" label="Fold change threshold for input (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)" >
-                <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater than 1"/>
-              </param>
-              <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for input" help="When several comparisons are selected a conservative rule is applied (see details below)" >
-                <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
-              </param>
-            </when>
-            <when value="geneList">
-              <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in expression file"/>
-            </when>
-          </conditional>
-        </when>
-        
-        <when value="output">
-          <conditional name="select_filtering">
-            <param name="filtering_stepBis_selector" type="select" label="Filter">
-              <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
-              <option value="geneList">From list of genes</option>
-            </param>
-            <when value="diffExpParam">
-              <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
-              </param>
-
-              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],5)">
-                 <validator type="empty_field" message="You should specify one factor"></validator>
-              </param>
-
-              <param name="FCthreshold" type="float" value="2" label="Fold change threshold for output (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)" >
-                 <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater than 1"/>
-              </param>
-              <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for output" help="When several comparisons are selected a conservative rule is applied (see details below)">
-                    <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
-              </param>
-            </when>
-            <when value="geneList">
-              <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in expression file"/>
-            </when>
-          </conditional>
-        </when>
-      </conditional>
-
-    </when>
-    
-    <when value="foldChange">
-
-        <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
-        </param>
-
-        <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to cluster" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(dataToCluster['differentialAnalysis'].file_name,[0,1],5)">
-                 <validator type="empty_field" message="You should specify one factor"></validator>
-        </param>
-
-        <conditional name="filtering_step">
-          <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
-              <option value="no" selected="true">No filtering</option>
-              <option value="input">Filter input probes/genes before clustering</option>
-              <option value="output">Filter probes/genes only in tabular output file</option>
-          </param>
-          <when value="input">
-            <conditional name="select_filtering">
-              <param name="filtering_stepBis_selector" type="select" label="Filter">
-                <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
-                <option value="geneList">From list of genes</option>
-              </param>
-              <when value="diffExpParam">
-                <param name="FCthreshold" type="float" value="2" label="Fold change threshold for input (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)" >
-                  <validator type="in_range" min="1" exclude_min="false" message="FC threshold should be greater than 1"/>
-                </param>
-                <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for input" help="When several comparisons are selected a conservative rule is applied (see details below)" >
-                  <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
-                </param>
-              </when>
-              <when value="geneList">
-               <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in diff. exp. analysis file"/>
-              </when>
-            </conditional>
-          </when>
-          
-          <when value="output">
-            <conditional name="select_filtering">
-              <param name="filtering_stepBis_selector" type="select" label="Filter">
-                <option value="diffExpParam" selected="true">Based on diff. exp. parameters (FC and p-val)</option>
-                <option value="geneList">From list of genes</option>
-              </param>
-              <when value="diffExpParam">
-                <param name="FCthreshold" type="float" value="2" label="Fold change threshold for output (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)">
-                   <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater than 1"/>
-                </param>
-                <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for output" help="When several comparisons are selected a conservative rule is applied (see details below)">
-                      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
-                </param>
-              </when>
-              <when value="geneList">
-                <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in diff. exp. analysis file"/>
-              </when>
-            </conditional>
-          </when>
-        </conditional>
-
-    </when>
-
-    <when value="genericData">
-
-      <param type="data" name="expressionData" format="tabular" label="Generic tabular file" multiple="false"/>
-
-      <param name="columnToKeep" type="select" optional="false" multiple="true" label="Select column to cluster" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(dataToCluster['expressionData'].file_name,[0])">
-                 <validator type="empty_field" message="You should select at least on column"></validator>
-      </param>
-
-      <conditional name="reorder_sample">
-        <param name="reordering_selector" type="select" label="Reorder columns">
-            <option value="no" selected="true">No reordering</option>
-            <option value="factorFile">Reorder comlumns based on a factors file</option>
-        </param>
-        <when value="factorFile">
-          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number is set to 1 in advanced parameters."/>
-          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor(s) to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
-                 <validator type="empty_field" message="You should specify at least one factor"></validator>
-          </param>
-        </when>
-      </conditional>
-
-      <conditional name="filtering_step">
-        <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
-            <option value="no" selected="true">No filtering</option>
-            <option value="input">Filter input probes/genes before clustering</option>
-            <option value="output">Filter probes/genes after clustering (for tabular output)</option>
-        </param>
-        <when value="input">
-          <conditional name="select_filtering">
-            <param name="filtering_stepBis_selector" type="select" label="Filter">
-              <option value="diffExpParam" selected="true">Based on tabular file content</option>
-              <option value="geneList">From list of genes</option>
-            </param>
-            <when value="diffExpParam">
-              <param type="data" name="differentialAnalysis" format="tabular" label="Tabular file containing filtering information" optional="false" multiple="false">
-              </param>
-
-              <param name="comparisonsToIncludeLow" type="select" optional="true" multiple="true" label="Select columns to consider for low filtering (keeping rows with higher value than a low threshold, ae. FC)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
-              </param>
-
-              <param name="valThresholdLow" type="float" value="0.0" optional="true"  label="Low filtering threshold" help="When several comparisons are selected a conservative rule is applied (see details below)">
-              </param>
-
-             <param name="comparisonsToIncludeHigh" type="select" optional="true" multiple="true" label="Select columns to consider for high filtering (keeping rows with lower value than a high threshold, ae. p-value)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
-              </param>
-
-              <param name="valThresholdHigh" type="float" value="0.0" optional="true"  label="High filtering threshold" help="When several columns are selected a conservative rule is applied (see details below)" >
-              </param>
-            </when>
-            <when value="geneList">
-              <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in input file"/>
-            </when>
-          </conditional>
-        </when>
-        
-        <when value="output">
-          <conditional name="select_filtering">
-            <param name="filtering_stepBis_selector" type="select" label="Filter">
-              <option value="diffExpParam" selected="true">Based on tabular file content</option>
-              <option value="geneList">From list of genes</option>
-            </param>
-            <when value="diffExpParam">
-              <param type="data" name="differentialAnalysis" format="tabular" label="Tabular file containing filtering information" optional="false" multiple="false">
-              </param>
-
-              <param name="comparisonsToIncludeLow" type="select" optional="true" multiple="true" label="Select columns to consider for low filtering (keeping rows with higher value than a low threshold, ae. FC)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
-              </param>
-
-              <param name="valThresholdLow" type="float" value="0.0" optional="true" label="Low filtering threshold" help="When several comparisons are selected a conservative rule is applied (see details below)">
-              </param>
-
-             <param name="comparisonsToIncludeHigh" type="select" optional="true" multiple="true" label="Select columns to consider for high filtering (keeping rows with lower value than a high threshold, ae. p-value)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
-              </param>
-
-              <param name="valThresholdHigh" type="float" value="0.0" optional="true"  label="High filtering threshold" help="When several columns are selected a conservative rule is applied (see details below)" >
-              </param>
-            </when>
-            <when value="geneList">
-              <param type="data" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in input file"/>
-            </when>
-          </conditional>
-        </when>
-      </conditional>
-
-    </when>
-  </conditional>
-
-	<section name="advSection" title="Advanced parameters" expanded="false">
-
-    <param name="clusterNumber" type="integer" value="5" label="Requested number of genes clusters" help="Use scree plot to adjust the number of genes clusters">
-      <validator type="in_range" min="2" message="Cluster number should be greater than 1"/>
-    </param>
-
-    <param name="conditionClusterNumber" type="integer" value="1" label="Requested number of conditions clusters (1 = no clustering)">
-        <validator type="in_range" min="1" message="Cluster number should be greater than 0"/>
-    </param>
-
-  <conditional name="dataTransformation">
-        <param name="dataTransformation_selector" type="select" label="Apply mathematical transformation to data before clustering">
-          <option value="no" selected="true">No</option>
-          <option value="log">Natural Logarithm</option>
-          <option value="log2">Base 2 Logarithm</option>
-      </param>
-  </conditional>
-
-  <conditional name="distanceMeasure">
-        <param name="distanceMeasure_selector" type="select" label="Distance measure used for clustering" help="See documentation of 'Dist' R package for more information">
-            <option value="euclidean" selected="true">euclidean</option>
-          <option value="manhattan">manhattan</option>
-          <option value="binary">binary</option>
-          <option value="pearson">pearson</option>
-          <option value="spearman">spearman</option>
-          <option value="kendall">kendall</option>
-      </param>
-  </conditional>
-
-  <conditional name="aggloMethod">
-        <param name="aggloMethod_selector" type="select" label="Agglomeration method used for clustering" help="See documentation of 'hclust' R method for more information">
-            <option value="complete">complete</option>
-          <option value="median">median</option>
-          <option value="centroid">centroid</option>
-          <option value="average">average</option>
-          <option value="single">single</option>
-          <option value="mcquitty">mcquitty</option>
-          <option value="ward.D">ward1</option>
-          <option value="ward.D2" selected="true">ward2</option>
-      </param>
-  </conditional>
-
-  <conditional name="conditionBarColor">
-          <param name="conditionBarColor_selector" type="select" label="Add side bar color for samples/comparisons">
-              <option value="no" selected="true">No</option>
-              <option value="yes">Yes please</option>
-          </param>
-          <when value="yes">
-            <param type="data" name="factorFileDataBarPlot" format="tabular" label="Factors file" multiple="false" help="Available only for expression data clustering"/>
-            <param name="factorToUse" type="select" optional="false" multiple="false" label="Select factor to use for coloring side bar" refresh_on_change="true"  dynamic_options="get_column_names(conditionBarColor['factorFileDataBarPlot'].file_name,0)">
-                <validator type="empty_field" message="You should specify one factor"></validator>
-            </param>
-            <param name="sideBarPalette" type="select" label="Side bar color palette">
-              <option value="Spectral" selected="true">Spectral</option>
-              <option value="Set1">Set1</option>
-              <option value="Set2">Set2</option>
-              <option value="Set3">Set3</option>
-              <option value="RdYlBu">RdYlBu</option>
-              <option value="RdYlGn">RdYlGn</option>
-              <option value="PiYG">PiYG</option>
-            </param>
-          </when>
-    </conditional>
-
-    <param name="maxSampleToPlot" type="integer" value="1000" label="Maximum gene number to plot">
-      <validator type="in_range" min="2" message="The number should be greater than 1"/>
-    </param>
-
-    <conditional name="select_color">
-      <param type="boolean" name="specifyColors" checked="false" label="Personalized heatmap colors">
-      </param>
-      <when value="true">
-        <param name="featureMin_color" type="color" label="Min value color" value="#ff00ff">
-        </param>
-
-        <param name="featureMedium_color" type="color" label="Medium value color" value="#4455ff">
-        </param>
-
-        <param name="featureMax_color" type="color" label="Max value color" value="#00ffff">
-        </param>
-      </when>
-    </conditional>
-
-    <param type="select" name="imageFormat" display="radio" label="Output format">
-      <option value="png">PNG format</option>
-      <option value="pdf">PDF format</option>
-    </param>
-    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
-      <option value="png">PNG format</option>
-      <option value="svg">SVG format</option>
-    </param>
-    <param name="scaleSnapshot" type="float" value="1.0" label="Scale html snapshots to increase resolution" help="Minimum value is 1.0 (default resolution)" >
-        <validator type="in_range" min="1.0" exclude_min="false" message="Scale should be greater than 1"/>
-    </param>
-  </section>
-
-</inputs>
 
 
-  <outputs>
-    <data format="tabular" name="outputData" label="${title}_ClusteringResults"/>
-	
-    <data format="html" name="html_file" label="${title}_HTML.html"/>
-    <!--
-    <collection name="outputHeatmap" label="${title}_Heatmap" type="list">
-      <discover_datasets pattern="(?P&lt;designation&gt;Heatmap.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-      <discover_datasets pattern="(?P&lt;designation&gt;screePlot.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-      <discover_datasets pattern="(?P&lt;designation&gt;circularPlot.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-    </collection>
-	   -->
-    <data format="txt" name="log" label="${title}_Log" />
-  </outputs>
 
   <configfiles>
-
     <configfile name="scriptTableToHtml">
 <![CDATA[
 printf  "<!DOCTYPE html>
@@ -492,7 +147,7 @@ printf  "<!DOCTYPE html>
 </script>
 <script type=\"text/javascript\" class=\"init\">
 \\$(document).ready(function() {
-	\\$(\'\#example\').DataTable( {
+  \\$(\'\#example\').DataTable( {
         \"columnDefs\": [ {
             \"visible\": false,
             \"targets\": -1
@@ -560,8 +215,7 @@ printf "</table>
 </html>" >> ${html_file.extra_files_path}/outputClustering.html
 
 ]]>
-  </configfile>
-  
+    </configfile>
   
     <configfile name="scriptTransfer">
 <![CDATA[
@@ -574,8 +228,8 @@ source $scriptTableToHtml
 
 ##check outputClustering.html is here
 if ! [ -e ${html_file.extra_files_path}/outputClustering.html ]; then
-	printf "[ERROR]outputClustering.html is missing.\n" >> $log; 
-	exit 10
+  printf "[ERROR]outputClustering.html is missing.\n" >> $log; 
+  exit 10
 fi
 
 #write header of html file
@@ -625,8 +279,8 @@ cp -r ./plotLyDir/Heatmap_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/Heatmap_files ${html_file.extra_files_path}/PlotLy_Heatmap_scripts
 
 else
-	printf "[ERROR]Heatmap.html is missing.\n" >> $log; 
-	exit 10
+  printf "[ERROR]Heatmap.html is missing.\n" >> $log; 
+  exit 10
 fi
 
 
@@ -670,7 +324,7 @@ cp -r ./plotLyDir/screePlot_files $html_file.extra_files_path
 mv ${html_file.extra_files_path}/screePlot_files ${html_file.extra_files_path}/PlotLy_screePlot_scripts
 
 else
-	printf "[WARNING]screeplot.html is missing, probably due to limited number of genes.\n" >> $log; 
+  printf "[WARNING]screeplot.html is missing, probably due to limited number of genes.\n" >> $log; 
 fi
 
 
@@ -687,7 +341,7 @@ printf "<h3>Circular plot</h3>\n" >> $html_file
 printf "<a href=\"circularPlot.${advSection.imageFormat}\">Circular plot</a>\n"  >> $html_file
 
 else
-	printf "[WARNING]circularPlot file is missing, probably due to limited number of genes.\n" >> $log; 
+  printf "[WARNING]circularPlot file is missing, probably due to limited number of genes.\n" >> $log; 
 fi
 
 
@@ -696,8 +350,368 @@ fi
 printf  "</body>\n</html>" >> $html_file
 
 ]]>
-   </configfile>
+    </configfile>
   </configfiles>
+
+
+
+<inputs>
+  <param type="text" name="title" value="Heatmap_toPersonalize" label="Title for output"/>
+
+  <conditional name="dataToCluster">
+    <param name="dataToCluster_selector" type="select" label="Data to cluster">
+        <option value="expression" selected="true">Expression data</option>
+        <option value="foldChange">Differential expression analysis results</option>
+        <option value="genericData">Generic data table</option>
+    </param>
+    <when value="expression">
+
+      <param type="data" name="expressionData" format="tabular" label="Normalized expression tabular file" multiple="false"/>
+
+      <conditional name="reorder_sample">
+        <param name="reordering_selector" type="select" label="Reorder samples">
+            <option value="no" selected="true">No reordering</option>
+            <option value="factorFile">Reorder sample based on a factors file</option>
+        </param>
+        <when value="factorFile">
+          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number is set to 1 in advanced parameters."/>
+          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor(s) to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
+                 <validator type="empty_field" message="You should specify at least one factor"></validator>
+          </param>
+        </when>
+        <when value="no">
+        </when>
+      </conditional>
+
+      <conditional name="filtering_step">
+        <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
+            <option value="no" selected="true">No filtering</option>
+            <option value="input">Filter input probes/genes before clustering</option>
+            <option value="output">Filter probes/genes after clustering (for tabular output)</option>
+        </param>
+        <when value="input">
+          <conditional name="select_filtering">
+            <param name="filtering_stepBis_selector" type="select" label="Filter">
+              <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
+              <option value="geneList">From list of genes</option>
+            </param>
+            <when value="diffExpParam">
+              <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
+              </param>
+
+              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],5)">
+                 <validator type="empty_field" message="You should specify one factor"></validator>
+              </param>
+
+              <param name="FCthreshold" type="float" value="2" label="Fold change threshold for input (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)" >
+                <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater than 1"/>
+              </param>
+              <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for input" help="When several comparisons are selected a conservative rule is applied (see details below)" >
+                <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+              </param>
+            </when>
+            <when value="geneList">
+              <param type="data" format="tabular" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in expression file"/>
+            </when>
+          </conditional>
+        </when>
+        
+        <when value="output">
+          <conditional name="select_filtering">
+            <param name="filtering_stepBis_selector" type="select" label="Filter">
+              <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
+              <option value="geneList">From list of genes</option>
+            </param>
+            <when value="diffExpParam">
+              <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
+              </param>
+
+              <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to use for filtering" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0,1],5)">
+                 <validator type="empty_field" message="You should specify one factor"></validator>
+              </param>
+
+              <param name="FCthreshold" type="float" value="2" label="Fold change threshold for output (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)" >
+                 <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater than 1"/>
+              </param>
+              <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for output" help="When several comparisons are selected a conservative rule is applied (see details below)">
+                    <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+              </param>
+            </when>
+            <when value="geneList">
+              <param type="data" format="tabular" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in expression file"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="no">
+        </when>
+      </conditional>
+
+    </when>
+    
+    <when value="foldChange">
+
+        <param type="data" name="differentialAnalysis" format="tabular" label="Differential analysis tabular file (as given by LIMMA diff.exp. tool)" optional="false" multiple="false">
+        </param>
+
+        <param name="comparisonsToInclude" type="select" optional="false" multiple="true" label="Select comparisons to cluster" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(dataToCluster['differentialAnalysis'].file_name,[0,1],5)">
+                 <validator type="empty_field" message="You should specify one factor"></validator>
+        </param>
+
+        <conditional name="filtering_step">
+          <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
+              <option value="no" selected="true">No filtering</option>
+              <option value="input">Filter input probes/genes before clustering</option>
+              <option value="output">Filter probes/genes only in tabular output file</option>
+          </param>
+          <when value="input">
+            <conditional name="select_filtering">
+              <param name="filtering_stepBis_selector" type="select" label="Filter">
+                <option value="diffExpParam" selected="true">Based on differential expression results (FC and p-val)</option>
+                <option value="geneList">From list of genes</option>
+              </param>
+              <when value="diffExpParam">
+                <param name="FCthreshold" type="float" value="2" label="Fold change threshold for input (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)" >
+                  <validator type="in_range" min="1" exclude_min="false" message="FC threshold should be greater than 1"/>
+                </param>
+                <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for input" help="When several comparisons are selected a conservative rule is applied (see details below)" >
+                  <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+                </param>
+              </when>
+              <when value="geneList">
+               <param type="data" format="tabular" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in diff. exp. analysis file"/>
+              </when>
+            </conditional>
+          </when>
+          
+          <when value="output">
+            <conditional name="select_filtering">
+              <param name="filtering_stepBis_selector" type="select" label="Filter">
+                <option value="diffExpParam" selected="true">Based on diff. exp. parameters (FC and p-val)</option>
+                <option value="geneList">From list of genes</option>
+              </param>
+              <when value="diffExpParam">
+                <param name="FCthreshold" type="float" value="2" label="Fold change threshold for output (both 'threshold' and '1/threshold' values will be used)" help="Minimum value is 1 (ie. all probes/genes are kept)">
+                   <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater than 1"/>
+                </param>
+                <param name="pvalThreshold" type="float" value="0.05" label="FDR p-val threshold for output" help="When several comparisons are selected a conservative rule is applied (see details below)">
+                      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+                </param>
+              </when>
+              <when value="geneList">
+                <param type="data" format="tabular" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in diff. exp. analysis file"/>
+              </when>
+            </conditional>
+          </when>
+          <when value="no">
+          </when>
+        </conditional>
+
+    </when>
+
+    <when value="genericData">
+
+      <param type="data" name="expressionData" format="tabular" label="Generic tabular file" multiple="false"/>
+
+      <param name="columnToKeep" type="select" optional="false" multiple="true" label="Select column to cluster" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(dataToCluster['expressionData'].file_name,[0])">
+                 <validator type="empty_field" message="You should select at least on column"></validator>
+      </param>
+
+      <conditional name="reorder_sample">
+        <param name="reordering_selector" type="select" label="Reorder columns">
+            <option value="no" selected="true">No reordering</option>
+            <option value="factorFile">Reorder comlumns based on a factors file</option>
+        </param>
+        <when value="factorFile">
+          <param type="data" name="factorFileData" format="tabular" label="Factors file" multiple="false" help="Be sure the conditions clusters number is set to 1 in advanced parameters."/>
+          <param name="factorToUse" type="select" optional="false" multiple="true" label="Select factor(s) to use for reordering" refresh_on_change="true"  dynamic_options="get_column_names(reorder_sample['factorFileData'].file_name,0)">
+                 <validator type="empty_field" message="You should specify at least one factor"></validator>
+          </param>
+        </when>
+        <when value="no">
+        </when>
+      </conditional>
+
+      <conditional name="filtering_step">
+        <param name="filtering_step_selector" type="select" label="Probes/genes filtering">
+            <option value="no" selected="true">No filtering</option>
+            <option value="input">Filter input probes/genes before clustering</option>
+            <option value="output">Filter probes/genes after clustering (for tabular output)</option>
+        </param>
+        <when value="input">
+          <conditional name="select_filtering">
+            <param name="filtering_stepBis_selector" type="select" label="Filter">
+              <option value="diffExpParam" selected="true">Based on tabular file content</option>
+              <option value="geneList">From list of genes</option>
+            </param>
+            <when value="diffExpParam">
+              <param type="data" name="differentialAnalysis" format="tabular" label="Tabular file containing filtering information" optional="false" multiple="false">
+              </param>
+
+              <param name="comparisonsToIncludeLow" type="select" optional="true" multiple="true" label="Select columns to consider for low filtering (keeping rows with higher value than a low threshold, ae. FC)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
+              </param>
+
+              <param name="valThresholdLow" type="float" value="0.0" optional="true"  label="Low filtering threshold" help="When several comparisons are selected a conservative rule is applied (see details below)">
+              </param>
+
+             <param name="comparisonsToIncludeHigh" type="select" optional="true" multiple="true" label="Select columns to consider for high filtering (keeping rows with lower value than a high threshold, ae. p-value)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
+              </param>
+
+              <param name="valThresholdHigh" type="float" value="0.0" optional="true"  label="High filtering threshold" help="When several columns are selected a conservative rule is applied (see details below)" >
+              </param>
+            </when>
+            <when value="geneList">
+              <param type="data" format="tabular" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in input file"/>
+            </when>
+          </conditional>
+        </when>
+        
+        <when value="output">
+          <conditional name="select_filtering">
+            <param name="filtering_stepBis_selector" type="select" label="Filter">
+              <option value="diffExpParam" selected="true">Based on tabular file content</option>
+              <option value="geneList">From list of genes</option>
+            </param>
+            <when value="diffExpParam">
+              <param type="data" name="differentialAnalysis" format="tabular" label="Tabular file containing filtering information" optional="false" multiple="false">
+              </param>
+
+              <param name="comparisonsToIncludeLow" type="select" optional="true" multiple="true" label="Select columns to consider for low filtering (keeping rows with higher value than a low threshold, ae. FC)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
+              </param>
+
+              <param name="valThresholdLow" type="float" value="0.0" optional="true" label="Low filtering threshold" help="When several comparisons are selected a conservative rule is applied (see details below)">
+              </param>
+
+             <param name="comparisonsToIncludeHigh" type="select" optional="true" multiple="true" label="Select columns to consider for high filtering (keeping rows with lower value than a high threshold, ae. p-value)" refresh_on_change="true"  dynamic_options="get_column_names_filteredList(select_filtering['differentialAnalysis'].file_name,[0])">
+              </param>
+
+              <param name="valThresholdHigh" type="float" value="0.0" optional="true"  label="High filtering threshold" help="When several columns are selected a conservative rule is applied (see details below)" >
+              </param>
+            </when>
+            <when value="geneList">
+              <param type="data" format="tabular" name="geneListFile" label="List of genes to keep" multiple="false" help="Gene names should be the same as written in input file"/>
+            </when>
+          </conditional>
+        </when>
+        <when value="no">
+        </when>
+      </conditional>
+
+    </when>
+  </conditional>
+
+	<section name="advSection" title="Advanced parameters" expanded="false">
+
+    <param name="clusterNumber" type="integer" value="5" label="Requested number of genes clusters" help="Use scree plot to adjust the number of genes clusters">
+      <validator type="in_range" min="2" message="Cluster number should be greater than 1"/>
+    </param>
+
+    <param name="conditionClusterNumber" type="integer" value="1" label="Requested number of conditions clusters (1 = no clustering)">
+        <validator type="in_range" min="1" message="Cluster number should be greater than 0"/>
+    </param>
+
+    <param name="dataTransformation" type="select" label="Apply mathematical transformation to data before clustering">
+      <option value="no" selected="true">No</option>
+      <option value="log">Natural Logarithm</option>
+      <option value="log2">Base 2 Logarithm</option>
+    </param>
+
+    <param name="distanceMeasure" type="select" label="Distance measure used for clustering" help="See documentation of 'Dist' R package for more information">
+      <option value="euclidean" selected="true">euclidean</option>
+      <option value="manhattan">manhattan</option>
+      <option value="binary">binary</option>
+      <option value="pearson">pearson</option>
+      <option value="spearman">spearman</option>
+      <option value="kendall">kendall</option>
+    </param>
+
+    <param name="aggloMethod" type="select" label="Agglomeration method used for clustering" help="See documentation of 'hclust' R method for more information">
+      <option value="complete">complete</option>
+      <option value="median">median</option>
+      <option value="centroid">centroid</option>
+      <option value="average">average</option>
+      <option value="single">single</option>
+      <option value="mcquitty">mcquitty</option>
+      <option value="ward.D">ward1</option>
+      <option value="ward.D2" selected="true">ward2</option>
+    </param>
+
+  <conditional name="conditionBarColor">
+          <param name="conditionBarColor_selector" type="select" label="Add side bar color for samples/comparisons">
+              <option value="no" selected="true">No</option>
+              <option value="yes">Yes please</option>
+          </param>
+          <when value="yes">
+            <param type="data" name="factorFileDataBarPlot" format="tabular" label="Factors file" multiple="false" help="Available only for expression data clustering"/>
+            <param name="factorToUse" type="select" optional="false" multiple="false" label="Select factor to use for coloring side bar" refresh_on_change="true"  dynamic_options="get_column_names(conditionBarColor['factorFileDataBarPlot'].file_name,0)">
+                <validator type="empty_field" message="You should specify one factor"></validator>
+            </param>
+            <param name="sideBarPalette" type="select" label="Side bar color palette">
+              <option value="Spectral" selected="true">Spectral</option>
+              <option value="Set1">Set1</option>
+              <option value="Set2">Set2</option>
+              <option value="Set3">Set3</option>
+              <option value="RdYlBu">RdYlBu</option>
+              <option value="RdYlGn">RdYlGn</option>
+              <option value="PiYG">PiYG</option>
+            </param>
+          </when>
+          <when value="no">
+          </when>
+    </conditional>
+
+    <param name="maxSampleToPlot" type="integer" value="1000" label="Maximum gene number to plot">
+      <validator type="in_range" min="2" message="The number should be greater than 1"/>
+    </param>
+
+    <conditional name="select_color">
+      <param type="boolean" name="specifyColors" checked="false" label="Personalized heatmap colors">
+      </param>
+      <when value="true">
+        <param name="featureMin_color" type="color" label="Min value color" value="#ff00ff">
+        </param>
+
+        <param name="featureMedium_color" type="color" label="Medium value color" value="#4455ff">
+        </param>
+
+        <param name="featureMax_color" type="color" label="Max value color" value="#00ffff">
+        </param>
+      </when>
+      <when value="false">
+      </when>
+    </conditional>
+
+    <param type="select" name="imageFormat" display="radio" label="Output format">
+      <option value="png">PNG format</option>
+      <option value="pdf">PDF format</option>
+    </param>
+    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
+      <option value="png">PNG format</option>
+      <option value="svg">SVG format</option>
+    </param>
+    <param name="scaleSnapshot" type="float" value="1.0" label="Scale html snapshots to increase resolution" help="Minimum value is 1.0 (default resolution)" >
+        <validator type="in_range" min="1.0" exclude_min="false" message="Scale should be greater than 1"/>
+    </param>
+  </section>
+
+  </inputs>
+
+
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${title}_ClusteringResults"/>
+	
+    <data format="html" name="html_file" label="${title}_HTML.html"/>
+    <!--
+    <collection name="outputHeatmap" label="${title}_Heatmap" type="list">
+      <discover_datasets pattern="(?P&lt;designation&gt;Heatmap.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;screePlot.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+      <discover_datasets pattern="(?P&lt;designation&gt;circularPlot.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+    </collection>
+	   -->
+    <data format="txt" name="log" label="${title}_Log" />
+  </outputs>
+
+  
   
  <tests>
   <test maxseconds="7200">
@@ -723,6 +737,9 @@ printf  "</body>\n</html>" >> $html_file
     <output name="log" file="./HierarchicalClustering/foldChangeClustering.log" lines_diff="6" />
   </test>
 </tests> 
+
+
+
   <help>
   	<![CDATA[
 **What it does** 

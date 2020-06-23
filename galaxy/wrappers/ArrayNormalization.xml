@@ -1,7 +1,7 @@
 <tool name="GIANT-Normalization with APT Summarize" id="giant_aptsummarize" version="0.1.1">
   <description>Apply Affymetrix Power Tool summarize function to .CEL collection</description>
   <requirements>
-    <requirement type="package" version="2.10.0">apt-probeset-summarize</requirement>
+    <requirement type="package" version="2.10.1">apt-probeset-summarize</requirement>
   </requirements>
   <stdio>
     <regex match="Execution halted"
@@ -11,7 +11,10 @@
     <exit_code range="10" level="fatal" description="Error in post-treatments, see log file for more information." />
     <exit_code range="1:9" level="fatal" description="Error during apt command execution, see log file for more information." />
   </stdio>
-  <command>	<![CDATA[
+
+
+
+   <command>	<![CDATA[
   ##ONLY FOR LOCAL TEST PURPOSE, COMMENT OTHERWISE
   ##set $pathToApt='/mnt/galaxy/home/galaxy/Software/ThermoFischer/apt-1.20.6-x86_64-intel-linux/bin'
 
@@ -100,90 +103,11 @@ else
   printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
-  <inputs>
-    <param type="text" name="title" value="APT_toPersonalize" label="Title for output"/>
 
-    <param type="data" name="inputData" format="cel" label=".cel collection file" optional="false" multiple="true">
-      <validator type="empty_dataset" message="At least one data file should be selected"></validator>
-    </param>
 
-    <param type="select" name="commandLine" display="radio" label="Normalization to perform" help="For more details go to APT webpage">
-        <option value="rma-gc-scale" selected="true">gc correction + scale intensity + rma</option>
-        <option value="scale-intensities,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish">scale intensity + rma</option>
-        <option value="gc-correction,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish">gc correction + rma</option>
-        <option value="rma">rma</option>
-    </param>
-
-    <param type="select" name="normLevel" display="radio" label="Normalization level" help="'Core genes' option is not available for all arrays">
-      <option value="core">Core genes</option>
-      <option value="probeset">Probe set</option>
-    </param>
-
-    <conditional name="mainCondition">
-
-      <param name="arraySelection" type="select" label="Select GeneChip array kind">
-      <option value="common">common arrays (HTA, HuGene, MoGene)</option>
-      <option value="other">other arrays</option>
-      </param>
-
-      <when value="common">
-        <param name="arrayID" label="Name" type="select">
-          <options from_data_table="aptTool">
-          </options>
-        </param>
-      </when>
-
-      <when value="other">
-
-    <param type="data" name="PGFfile" label=".pgf indicates which probes are grouped together into a probeset*" optional="true" multiple="false">
-    </param>
-
-    <param type="data" name="CLFfile" label=".clf indicates where the probes are located in the CEL file*" optional="true" multiple="false">
-    </param>
-
-    <param type="data" name="CDFfile" label=".cdf contains both .pgf and .clf informations* (requested only if .pgf and .clf files are not available)" optional="true" multiple="false">
-    </param>
-
-    <param type="data" name="MPSfile" label=".mps defines a probeset as a collection of existing probesets* (requested for normalization at gene level)" optional="true" multiple="false" help="If .mps is not selected/available a 'probeset level' normalization will be automatically performed">
-    </param>
-
-    <param type="data" name="BGPfile" label=".bgp indicates which probes are to be used for computing background* (requested only if GC driven background correction is applied)" optional="true" multiple="false" help="*Files should be downloaded from corresponding array specific Affymetrix webpage to insure format compatibility">
-    </param>
-
-    <param type="data" name="annotationFile" format="tabular" label="tabular file containing available probesets annotation (requested if annotation options are selected)" optional="true" multiple="false" >
-    </param>
-
-      </when>
-    </conditional>
-
-  <conditional name="annotationCondition">
-    <param type="boolean" name="addAnnotation" checked="false" label="Add gene annotation">
-    </param> 
-    <when value="true">
-      <param type="boolean" name="keepAnnotated" checked="false" label="Discard probe set without gene annotation">
-      </param>
-
-      <param type="select" name="mergingMethod" display="radio" label="Merging approach for probe set with same gene annotation">
-        <option value="none">No merging</option>
-        <option value="mean" selected="true">Mean between probes [recommended]</option>
-        <option value="higherVar">Keep probe with higher variance</option>
-        <option value="lowerVar">Keep probe with lower variance</option>
-      </param>
-    </when>
-  </conditional>
-
-  </inputs>
-
-  <outputs>
-    <data format="tabular" name="outputData" label="${title}_NormalizedData"/>
-    <data format="txt" name="log" label="${title}_Log" />
-  </outputs>
 
   <configfiles>
-
-
-  
-     <configfile name="scriptFormat">
+    <configfile name="scriptFormat">
 <![CDATA[
 #for $inputDataset in $inputData
         echo '${inputDataset.name}' >> ./tempColumnName.txt
@@ -251,7 +175,93 @@ fi
 ]]>
    </configfile> 
   </configfiles>
+
+
+
+  <inputs>
+    <param type="text" name="title" value="APT_toPersonalize" label="Title for output"/>
+
+    <param type="data" name="inputData" format="cel" label=".cel collection file" optional="false" multiple="true">
+      <validator type="empty_dataset" message="At least one data file should be selected"></validator>
+    </param>
+
+    <param type="select" name="commandLine" display="radio" label="Normalization to perform" help="For more details go to APT webpage">
+        <option value="rma-gc-scale" selected="true">gc correction + scale intensity + rma</option>
+        <option value="scale-intensities,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish">scale intensity + rma</option>
+        <option value="gc-correction,rma-bg,quant-norm.sketch=0.usepm=true.bioc=true,pm-only,med-polish">gc correction + rma</option>
+        <option value="rma">rma</option>
+    </param>
+
+    <param type="select" name="normLevel" display="radio" label="Normalization level" help="'Core genes' option is not available for all arrays">
+      <option value="core">Core genes</option>
+      <option value="probeset">Probe set</option>
+    </param>
+
+    <conditional name="mainCondition">
+
+      <param name="arraySelection" type="select" label="Select GeneChip array configuration files">
+      <option value="common">pre-loaded array files</option>
+      <option value="other">array files selection</option>
+      </param>
+
+      <when value="common">
+        <param name="arrayID" label="Name" type="select">
+          <options from_data_table="aptTool">
+          </options>
+        </param>
+      </when>
+
+      <when value="other">
+
+    <param type="data" format="data" name="PGFfile" label=".pgf indicates which probes are grouped together into a probeset*" optional="true" multiple="false">
+    </param>
+
+    <param type="data" format="data" name="CLFfile" label=".clf indicates where the probes are located in the CEL file*" optional="true" multiple="false">
+    </param>
+
+    <param type="data" format="data" name="CDFfile" label=".cdf contains both .pgf and .clf informations* (requested only if .pgf and .clf files are not available)" optional="true" multiple="false">
+    </param>
+
+    <param type="data" format="data" name="MPSfile" label=".mps defines a probeset as a collection of existing probesets* (requested for normalization at gene level)" optional="true" multiple="false" help="If .mps is not selected/available a 'probeset level' normalization will be automatically performed">
+    </param>
+
+    <param type="data" format="data" name="BGPfile" label=".bgp indicates which probes are to be used for computing background* (requested only if GC driven background correction is applied)" optional="true" multiple="false" help="*Files should be downloaded from corresponding array specific Affymetrix webpage to insure format compatibility">
+    </param>
+
+    <param type="data" name="annotationFile" format="tabular" label="tabular file containing available probesets annotation (requested if annotation options are selected)" optional="true" multiple="false" >
+    </param>
+
+      </when>
+    </conditional>
+
+  <conditional name="annotationCondition">
+    <param type="boolean" name="addAnnotation" checked="false" label="Add gene annotation">
+    </param> 
+    <when value="true">
+      <param type="boolean" name="keepAnnotated" checked="false" label="Discard probe set without gene annotation">
+      </param>
+
+      <param type="select" name="mergingMethod" display="radio" label="Merging approach for probe set with same gene annotation">
+        <option value="none">No merging</option>
+        <option value="mean" selected="true">Mean between probes [recommended]</option>
+        <option value="higherVar">Keep probe with higher variance</option>
+        <option value="lowerVar">Keep probe with lower variance</option>
+      </param>
+    </when>
+    <when value="false">
+    </when>
+  </conditional>
+  </inputs>
+
+
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${title}_NormalizedData"/>
+    <data format="txt" name="log" label="${title}_Log" />
+  </outputs>
   
+
+
  <tests>
   <test maxseconds="3600">
   	<param name="inputData" value="./CELfiles/GSM205766.CEL,./CELfiles/GSM205767.CEL,./CELfiles/GSM205768.CEL" />
@@ -267,6 +277,9 @@ fi
     <output name="log" file="./APT-summarize/output.log" lines_diff="2" />
   </test>
 </tests> 
+
+
+
 
   <help>
   <![CDATA[
@@ -298,7 +311,7 @@ Please refer to `APT tool web page`__ to get more details about analysis steps.
 
 \- **Normalization level** to choose when GeneChip array kind allows such distinction (ie. when a .mps file exists in Affymetrix webpage). 'Probe set level' is the first level where probes for same exon are merged in probe sets. 'Gene level' [recommended] is an upper level where several probe sets are merged in meta probe sets. If a meta probe set can be see as a good single gene expression indicator, several meta probe sets can still share same gene annotation.
 
-\- **GeneChip array kind** to select array corresponding to .CEL files. Configuration files for most common Affymetrix arrays are pre-loaded, in this case you just have to select corresponding array kind. If your array is not available in this list, you should choose "other arrays" and then select manually configuration files for the array. Configuration files (.pgf, .clf, .cdf, .mps, .bgp) are available in library archive files from corresponding array Affymetrix webpage (in 'Support file' section). All these files are not mandatory for all normalizations, only .pgf and.clf files or just .cdf file are mandatory for basic normalization. .mps file is requested only for gene level normalization if it is available (see Normalization level parameter). .bgp file is requested only for analysis pathway with specific background computation. Annotation file is a simple two column tabular file, with first column containing probe set names and second corresponding annotation, it should not contains any column header.
+\- **GeneChip array configuration files** according to .CEL files. Configuration files for given arrays can be pre-loaded by administrators of the used Galaxy instance and listed in the aptTool.loc file. In this case you just have to select corresponding array kind, thus pre-loaded configuration files will be used automatically for normalization. If configuration files were not pre-loaded, you have to choose "array files selection" and then select manually configuration files for the corresponding array. Configuration files (.pgf, .clf, .cdf, .mps, .bgp) are available in library archive files from the Affymetrix webpage of the array (as an example, configuration files for HTA2.0 array are found in the 'Main Analysis Files' in the 'Support file' section of `this page`__). All these files are not mandatory for all normalizations, only .pgf and.clf files or just .cdf file are mandatory for basic normalization. .mps file is requested only for gene level normalization if it is available (see Normalization level parameter). .bgp file is requested only for analysis pathway with specific background computation. Annotation file is a simple two column tabular file, with first column containing probe set names and second corresponding annotations, it should not contains any column header. This file can be generated from Affymetrix annotation file available in the same section as array configuration files in Affymetrix webpages, please keep a trace of used annotation version to insure reproducibility.
 
 Extract of annotation file::
 
@@ -308,7 +321,7 @@ Extract of annotation file::
     TC01000023.hg.1  ISG15 
     TC01000024.hg.1  AGRN 
 
-\- **Gene annotation** : add gene annotation when available (for pre-loaded arrays, most recent annotation files available from Affymetrix website are used, for other arrays, annotation files should be specified manually). You can choose to keep or discard in normalized file (meta) probe sets without match in annotation file and select merging policy for probe sets sharing same gene annotation.
+\- **Gene annotation** : add gene annotation when available (for pre-loaded arrays, annotation file path should be filled in the aptTool.loc file, for other arrays, annotation file should be selected manually). You can choose to keep or discard in normalized file (meta) probe sets without match in annotation file and select merging policy for probe sets sharing same gene annotation.
 
 -----
 
@@ -330,9 +343,9 @@ Extract of annotation file::
 
 \- **LOG file** containing information about execution. Useful especially if tool execution fais. Please attach this log file in any bug report.
 
-
-
     .. __: http://media.affymetrix.com/support/developer/powertools/changelog/apt-probeset-summarize.html#intro
+
+    .. __: https://www.thermofisher.com/order/catalog/product/902233#/902233
 
 ]]> 
   </help>

@@ -51,7 +51,7 @@ This tools suite is developed by the Team_ "Molecular analysis of gene regulatio
 .. _U1011: http://u1011.pasteur-lille.fr/accueil/
 
 Tools compatibilities
-===================
+=====================
 
 To insure full compatibility between GIANT tools, please be sure to use compatible tool versions as described in the table below. Usually, minor changes generate increment of the version third number (e.g v0.3.1 to v0.3.2). Major changes are indicated through increment of the version second number (e.g v0.2.2 to v0.3.0).
 More generally, to avoid compatibility issues, try to get the most up to date version of each tool from the Galaxy tool shed.

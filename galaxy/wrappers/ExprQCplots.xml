@@ -1,4 +1,4 @@
-<tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1.2">
+<tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1.3">
   <description>Descriptive plots of .CEL collections or normalized expression data</description>
   <requirements>
 	  <requirement type="package" version="1.40.1">bioconductor-oligo</requirement>
@@ -76,97 +76,22 @@
 	   #end if
      printf "[INFO]End of tool script" >> $log; 
 	   ]]>
-	   </command>
-  <inputs>
-    <param type="text" name="title" value="PlotFigure_toPersonalize" label="Title for output">
-	</param>		 
-    <param type="data" name="dataFile" format="cel,tabular" label="Select one .CEL collection or one tabular file" optional="false" multiple="true" >
-	</param>
-
-	<section name="plotSection" title="Plots selection" expanded="True">
-    <param type="boolean" name="histogramToPlot" checked="true" label="Plot histograms" help="Plot intensity distribution for each condition (pm probes for .cel)">
-    </param>
-    <param type="boolean" name="maplotToPlot" checked="true" label="Plot MA plots" help="Plot MA plot for each condition, median value is used as reference">
-    </param>
-    <param type="boolean" name="boxplotToPlot" checked="true" label="Plot boxplots" help="Plot intensity through boxplot for each condition (pm probes for .cel)">
-    </param>
-	<param type="boolean" name="microarrayToPlot" checked="true" label="Display microarray images (only for .CEL files)">
-    </param>
-
-    </section>
-	<section name="pcaSection" title="PCA analysis" expanded="True">
-	<param type="boolean" name="acpToPlot" checked="true" label="Plot 3D PCA" help="3D plot of conditions in the space defined by the 3 principal components">
-    </param>
-    <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file (optional)" optional="true" multiple="false">
-    </param>
-    <param name="factorsToInclude" type="select" optional="true" multiple="true" label="Select factor informations to display (optional)"
-    	refresh_on_change="true"  dynamic_options="get_column_names(pcaSection['conditionInformation'].file_name,0)">
-                 <validator type="empty_field" message="You should specify one factor"></validator>
-	</param>
+	</command>
 
 
-    </section>
-
-	<section name="advSection" title="Advanced parameters" expanded="False">
-    <param type="select" name="imageFormat" display="radio" label="Output microarray image format">
-      <option value="png">PNG format</option>
-      <option value="pdf">PDF format</option>
-    </param>
-    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
-      <option value="png">PNG format</option>
-      <option value="svg">SVG format</option>
-    </param>
-    </section>
-	
-  </inputs>
-
-  
-  
-  <outputs>	
-		<data format="html" name="html_file" label="${title}_HTML.html"/>
-		<!--
-		<collection name="outputHistogramsList" label="${title}_HistogramsList" type="list">
-		  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-		  <filter>plotSection['histogramToPlot']</filter>
-		</collection>
-		
-		<collection name="outputMAplotsList" label="${title}_MAplotsList" type="list">
-		  <discover_datasets pattern="(?P&lt;designation&gt;MAplots[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-		  <filter>plotSection['maplotToPlot']</filter>
-		</collection>
-		
-		<collection name="outputBoxplotsList" label="${title}_BoxplotsList" type="list">
-		  <discover_datasets pattern="(?P&lt;designation&gt;Boxplots[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-		  <filter>plotSection['boxplotToPlot']</filter>
-		</collection>
-		
-		<collection name="outputMicroarrayList" label="${title}_MicroarrayList" type="list">
-		  <discover_datasets pattern="(?P&lt;designation&gt;Microarray\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-		  <filter>plotSection['microarrayToPlot'] and dataFile[0].ext == "cel"</filter>
-		</collection>
-
-		<collection name="outputPCAList" label="${title}_PCA" type="list">
-		  <discover_datasets pattern="(?P&lt;designation&gt;PCA[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-		  <discover_datasets pattern="(?P&lt;designation&gt;screePlot)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-		  <filter>pcaSection['acpToPlot']</filter>
-		</collection>
-		-->
-    <data name="log" label="${title}_Log" format="txt"/>
-  </outputs>
 
   <configfiles>
-
- <configfile name="scriptPrepareTable">
-   	<![CDATA[
-   	 awk -v fact="$pcaSection.factorsToInclude" 'BEGIN{FS="\t";OFS="";ORS="";split(fact, factors, ",");for(i in factors)factorsName[factors[i]]=1} NR==1{for(i=2;i<=NF;i++){if(\$i in factorsName)positFactor[i]=1}} {print $1;for(factorID in positFactor)print "\t"\$factorID; print "\n"}'  $conditionInformation > ./factorTable.csv;
+    <configfile name="scriptPrepareTable">
+    <![CDATA[
+     awk -v fact="$pcaSection.factorsToInclude" 'BEGIN{FS="\t";OFS="";ORS="";split(fact, factors, ",");for(i in factors)factorsName[factors[i]]=1} NR==1{for(i=2;i<=NF;i++){if(\$i in factorsName)positFactor[i]=1}} {print $1;for(factorID in positFactor)print "\t"\$factorID; print "\n"}'  $conditionInformation > ./factorTable.csv;
 
     if [ ! -e ./factorTable.csv ]; then
       printf "[ERROR]factorTable.csv is missing" >> $log; 
       exit 15
     fi
     printf "[INFO]End of scriptPrepareTable\n" >> $log 
-   	]]>
-   </configfile>
+    ]]>
+    </configfile>
 
     <configfile name="scriptTransfer">
 <![CDATA[
@@ -183,11 +108,11 @@ printf "<head>
 <script>
 \\$(document).ready(function(){
     \\$(\"\#MAplotTitle\").click(function(){
-	if(\\$(\"p.MAplot\").is(\':visible\'))\\$(\"p.MAplot\").hide(1000);
+  if(\\$(\"p.MAplot\").is(\':visible\'))\\$(\"p.MAplot\").hide(1000);
         else \\$(\"p.MAplot\").show(1000);
     });
     \\$(\"\#MicroarrayTitle\").click(function(){
-	if(\\$(\"p.Microarray\").is(\':visible\'))\\$(\"p.Microarray\").hide(1000);
+  if(\\$(\"p.Microarray\").is(\':visible\'))\\$(\"p.Microarray\").hide(1000);
         else \\$(\"p.Microarray\").show(1000);
     });
 });
@@ -245,7 +170,6 @@ fi
 
 
 
-
 #if $plotSection.boxplotToPlot:
 
 printf "<h3>Boxplots</h3>\n" >> $html_file
@@ -290,8 +214,6 @@ if [ \$counter = 1 ]; then
 fi
 
 #end if
-
-
 
 
 
@@ -350,8 +272,6 @@ fi
 
 
 
-
-
 #if $plotSection.microarrayToPlot and $dataType == "cel":
 
 printf "<h3 id=\"MicroarrayTitle\">Microarray</h3>\n" >> $html_file
@@ -368,8 +288,6 @@ printf "<p class=\"Microarray\"><a href=\"Microarray_\$conditionName.${advSectio
 done
 
 #end if
-
-
 
 
 
@@ -457,7 +375,87 @@ printf  "</body>\n</html>" >> $html_file
 ]]>
     </configfile>
   </configfiles>
+
+
+
+  <inputs>
+    <param type="text" name="title" value="PlotFigure_toPersonalize" label="Title for output">
+	</param>		 
+    <param type="data" name="dataFile" format="cel,tabular" label="Select one .CEL collection or one tabular file" optional="false" multiple="true" >
+	</param>
+
+	<section name="plotSection" title="Plots selection" expanded="True">
+    <param type="boolean" name="histogramToPlot" checked="true" label="Plot histograms" help="Plot intensity distribution for each condition (pm probes for .cel)">
+    </param>
+    <param type="boolean" name="maplotToPlot" checked="true" label="Plot MA plots" help="Plot MA plot for each condition, median value is used as reference">
+    </param>
+    <param type="boolean" name="boxplotToPlot" checked="true" label="Plot boxplots" help="Plot intensity through boxplot for each condition (pm probes for .cel)">
+    </param>
+	<param type="boolean" name="microarrayToPlot" checked="true" label="Display microarray images (only for .CEL files)">
+    </param>
+
+    </section>
+	<section name="pcaSection" title="PCA analysis" expanded="True">
+	<param type="boolean" name="acpToPlot" checked="true" label="Plot 3D PCA" help="3D plot of conditions in the space defined by the 3 principal components">
+    </param>
+    <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file (optional)" optional="true" multiple="false">
+    </param>
+    <param name="factorsToInclude" type="select" optional="true" multiple="true" label="Select factor informations to display (optional)"
+    	refresh_on_change="true"  dynamic_options="get_column_names(pcaSection['conditionInformation'].file_name,0)">
+                 <validator type="empty_field" message="You should specify one factor"></validator>
+	</param>
+
+    </section>
+
+	<section name="advSection" title="Advanced parameters" expanded="False">
+    <param type="select" name="imageFormat" display="radio" label="Output microarray image format">
+      <option value="png">PNG format</option>
+      <option value="pdf">PDF format</option>
+    </param>
+    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
+      <option value="png">PNG format</option>
+      <option value="svg">SVG format</option>
+    </param>
+    </section>
+	
+  </inputs>
+
   
+  
+  <outputs>	
+		<data format="html" name="html_file" label="${title}_HTML.html"/>
+		<!--
+		<collection name="outputHistogramsList" label="${title}_HistogramsList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['histogramToPlot']</filter>
+		</collection>
+		
+		<collection name="outputMAplotsList" label="${title}_MAplotsList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;MAplots[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['maplotToPlot']</filter>
+		</collection>
+		
+		<collection name="outputBoxplotsList" label="${title}_BoxplotsList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;Boxplots[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['boxplotToPlot']</filter>
+		</collection>
+		
+		<collection name="outputMicroarrayList" label="${title}_MicroarrayList" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;Microarray\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>plotSection['microarrayToPlot'] and dataFile[0].ext == "cel"</filter>
+		</collection>
+
+		<collection name="outputPCAList" label="${title}_PCA" type="list">
+		  <discover_datasets pattern="(?P&lt;designation&gt;PCA[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <discover_datasets pattern="(?P&lt;designation&gt;screePlot)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+		  <filter>pcaSection['acpToPlot']</filter>
+		</collection>
+		-->
+    <data name="log" label="${title}_Log" format="txt"/>
+  </outputs>
+
+
+
  <tests>
   <test maxseconds="3600">
     <param name="wfile" value="wiggle.wig" />
@@ -476,6 +474,9 @@ printf  "</body>\n</html>" >> $html_file
     <output name="log" file="ceas_1/ceas_1.pdf" />
   </test>
 </tests> 
+
+
+
   <help>
 <![CDATA[
 **What it does ?**

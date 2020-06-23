@@ -1,4 +1,4 @@
-<tool name="GIANT-Factor file generator" id="giant_factor_generator" version="0.1.1">
+<tool name="GIANT-Factor file generator" id="giant_factor_generator" version="0.1.2">
   <description>Generate factor file used by other GIANT tools</description>
   <requirements>
   </requirements>
@@ -138,5 +138,8 @@ OR
 - **LOG file** for job log. If you see errors, please attached this in the bug report
 
 ]]>  </help>
+
+ <citations>
+ </citations>
 
 </tool>

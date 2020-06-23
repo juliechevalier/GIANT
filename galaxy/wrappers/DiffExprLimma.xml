@@ -1,4 +1,4 @@
-<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.7">
+<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.8">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -87,129 +87,12 @@
   printf "[INFO]End of tool script" >> $log; 
 	]]>
   </command>
-  <inputs>
-  <section name="inputSection" title="Input files" expanded="True">
-    <param type="text" name="title" value="LIMMA_toPersonalize" label="Title for output"/>
-
-    <param type="data" name="inputData" format="tabular" label="Normalized expression tabular file" optional="false" multiple="false" help="Expression data have to be log2 transformed."/>
-
-    <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="false" multiple="false">
-    </param>
-  </section>
-
-  <section name="contrastSection" title="Contrast definition" expanded="True">
-
-    <param name="factorSelection" type="select" label="Select all factors to include in the global model (excepting confounding factors)" refresh_on_change="true" display="checkboxes" optional="false" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)" help="Confounding factors are selected in the coresponding section below." />
-
-     <repeat name="contrastList" title="Contrast">
-        <param type="text" name="groupName" value="" label="Contrast name"/>
-
-        <param name="firstGroupToCompare" type="select" label="Select factor levels of 1st group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
-        </param>
-
-        <param name="secondGroupToCompare" type="select" label="Select factor levels of 2nd group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
-        </param>
-    </repeat>
-
-    <conditional name="interactionSelection">
-    <param name="interactionContrast" type="boolean" label="Add interaction contrasts" checked="false" help="If you have selected two factors at least."/>
-      <when value="true">
-         <param name="controlSelection" type="select" label="Select one control level for each factor (and only one)" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_allrow_names(inputSection['conditionInformation'].file_name,factorSelection)">
-        </param>
-      </when>
-    </conditional>
-
-  </section>
 
 
 
-  <section name="blockingSection" title="Paired analysis/confounding factor" expanded="True">
-    <conditional name="blockingConditional">
-     <param name="addBlocking" type="boolean" label="Add confounding factors" checked="false" help="To control factors producing spurious association as batch effects or to analyze paired data"/>
-      <when value="true">
-          <param name="blockingToInclude" type="select" label="Select confounding factors" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)">
-            <validator type="empty_field" message="You should select at least one factor"></validator>
-          </param>
-      </when>
-    </conditional>
-  </section>
-
-	<section name="plotSection" title="Output section" expanded="True">
-    <param name="cutoffTh" type="float" value="0.05" label="Output FDR p-val threshold" >
-      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
-    </param>
-    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
-      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
-    </param>
-		<param type="boolean" name="histogramToPlot" checked="true" label="Plot histograms" help="Plot nominal p-val distribution for each comparison.">
-	    </param>
-		<param type="boolean" name="volcanoToPlot" checked="true" label="Plot volcanos" help="Plot volcano for each comparison.">
-	    </param>
-
-    <conditional name="geneInformation">
-    <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
-      <when value="true">
-        <param name="organismID" label="Organism" type="select">
-          <options from_data_table="LimmaTool" >
-            <column name="name" index="1"/>
-            <column name="value" index="0"/>
-            <filter type="unique_value" column="0"/>
-          </options>
-        </param>
-        <param name="infoInRowType" label="Nature of row names" type="select">
-            <options from_data_table="LimmaTool" >
-              <column name="name" index="3"/>
-              <column name="value" index="2"/>
-              <filter type="param_value" ref="organismID" column="0"/>
-            </options>
-        </param>
-      </when>
-    </conditional>
-
-    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
-      <option value="png">PNG format</option>
-      <option value="svg">SVG format</option>
-    </param>
-	</section>
-
-    <section name="advSection" title="Advanced parameters" expanded="False">
-    <param type="select" name="confoundingPolicy" display="radio" label="Confounding effect policy" help="DO NOT modify this parameter unless you know what you are doing!">
-      <option value="additive">As an additive factor (default)</option>
-      <option value="correlated">As a correlation constraint</option>
-    </param>
-    </section>
-	
-  </inputs>
-
-  <outputs>
-    <data format="tabular" name="outputData" label="${inputSection.title}_LIMMAstatistics"/>
-
-    <data format="tabular" name="outputDfData" label="${inputSection.title}_LIMMAdetailed"/>
-	
-	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
-	<!--
-	<collection name="outputHistogramsList" label="${inputSection.title}_HistogramsList" type="list">
-	  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-	  <filter>plotSection['histogramToPlot']</filter>
-	</collection>
-	
-	<collection name="outputVolcanosList" label="${inputSection.title}_VolcanosList" type="list">
-	  <discover_datasets pattern="(?P&lt;designation&gt;Volcanos\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-	  <filter>plotSection['volcanoToPlot']</filter>
-	</collection>
-
-  <data name="fRatioOutput" format="png" label="${inputSection.title}_F-ratio">
-        <change_format>
-            <when input="plotSection['imageFormat']" value="pdf" format="pdf" />
-        </change_format>
-  </data>
-	-->
-    <data format="txt" name="log" label="${inputSection.title}_Log" />
-  </outputs>
-
- <configfiles>
-   <configfile name="scriptPrepareTable">
-   	<![CDATA[
+  <configfiles>
+    <configfile name="scriptPrepareTable">
+    <![CDATA[
     awk -v fact="$contrastSection.factorSelection" 'BEGIN{OFS="";ORS="";FS="\t";split(fact,tab,",");for(i in tab)dico[tab[i]]=1} FNR==1{for(i=2;i<=NF;i++){if(\$i in dico)colToSelect[i]=1}} {print \$1;for(i in colToSelect)print "\t"\$i ; print "\n"}' $inputSection.conditionInformation > ./factorTable.csv;
 
     if [ ! -e ./factorTable.csv ]; then
@@ -218,19 +101,20 @@
     fi
 
 
-	   #if $blockingSection.blockingConditional.addBlocking == "true":
-   	 awk -v fact="$blockingSection.blockingConditional.blockingToInclude" ' BEGIN{OFS="";ORS="";FS="\t";split(fact, facto, ",");for(i in facto)factors[facto[i]]=1} FNR==1{for(i=2;i<=NF;i++)if(\$i in factors)dico[i]=1} {print $1;for(factorID in dico)print "\t"\$factorID; print "\n"}'  $inputSection.conditionInformation > ./blockingTable.csv;
+     #if $blockingSection.blockingConditional.addBlocking == "true":
+     awk -v fact="$blockingSection.blockingConditional.blockingToInclude" ' BEGIN{OFS="";ORS="";FS="\t";split(fact, facto, ",");for(i in facto)factors[facto[i]]=1} FNR==1{for(i=2;i<=NF;i++)if(\$i in factors)dico[i]=1} {print $1;for(factorID in dico)print "\t"\$factorID; print "\n"}'  $inputSection.conditionInformation > ./blockingTable.csv;
 
       if [ ! -e ./blockingTable.csv ]; then
         printf "[ERROR]blockingTable.csv is missing" >> $log; 
         exit 15
       fi
 
-   	 #end if
+     #end if
      printf "[INFO]End of scriptPrepareTable\n" >> $log 
-   	]]>
-   </configfile>
-   <configfile name="scriptTableToHtml">
+    ]]>
+    </configfile>
+
+    <configfile name="scriptTableToHtml">
 <![CDATA[
 printf  "<!DOCTYPE html>
 <html>
@@ -243,7 +127,7 @@ printf  "<!DOCTYPE html>
 </script>
 <script type=\"text/javascript\" class=\"init\">
 \\$(document).ready(function() {
-	\\$(\'\#example\').DataTable( {
+  \\$(\'\#example\').DataTable( {
         \"columnDefs\": [ {
             \"visible\": false,
             \"targets\": -1
@@ -286,8 +170,9 @@ printf "</table>
 </html>" >> ${html_file.extra_files_path}/outputLIMMA.html
 
 ]]>
-  </configfile>
-   <configfile name="scriptTransfer">
+    </configfile>
+
+    <configfile name="scriptTransfer">
 <![CDATA[
 
 
@@ -398,8 +283,6 @@ fi
 
 
 
-
-
 #if $plotSection.volcanoToPlot:
 
 printf "<h3>Volcanos</h3>\n" >> $html_file
@@ -457,8 +340,140 @@ fi
 ##create footer of HTML file
 printf  "</body>\n</html>" >> $html_file
 ]]>
-   </configfile>
- </configfiles>
+    </configfile>
+  </configfiles>
+
+
+
+  <inputs>
+    <section name="inputSection" title="Input files" expanded="True">
+      <param type="text" name="title" value="LIMMA_toPersonalize" label="Title for output"/>
+
+      <param type="data" name="inputData" format="tabular" label="Normalized expression tabular file" optional="false" multiple="false" help="Expression data have to be log2 transformed."/>
+
+      <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="false" multiple="false">
+      </param>
+    </section>
+
+  <section name="contrastSection" title="Contrast definition" expanded="True">
+
+    <param name="factorSelection" type="select" label="Select all factors to include in the global model (excepting confounding factors)" refresh_on_change="true" display="checkboxes" optional="false" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)" help="Confounding factors are selected in the coresponding section below." />
+
+     <repeat name="contrastList" title="Contrast">
+        <param type="text" name="groupName" value="" label="Contrast name"/>
+
+        <param name="firstGroupToCompare" type="select" label="Select factor levels of 1st group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
+        </param>
+
+        <param name="secondGroupToCompare" type="select" label="Select factor levels of 2nd group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
+        </param>
+    </repeat>
+
+    <conditional name="interactionSelection">
+    <param name="interactionContrast" type="boolean" label="Add interaction contrasts" checked="false" help="If you have selected two factors at least."/>
+      <when value="true">
+         <param name="controlSelection" type="select" label="Select one control level for each factor (and only one)" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_allrow_names(inputSection['conditionInformation'].file_name,factorSelection)">
+        </param>
+      </when>
+      <when value="false">
+      </when>
+    </conditional>
+
+  </section>
+
+
+
+  <section name="blockingSection" title="Paired analysis/confounding factor" expanded="True">
+    <conditional name="blockingConditional">
+     <param name="addBlocking" type="boolean" label="Add confounding factors" checked="false" help="To control factors producing spurious association as batch effects or to analyze paired data"/>
+      <when value="true">
+          <param name="blockingToInclude" type="select" label="Select confounding factors" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)">
+            <validator type="empty_field" message="You should select at least one factor"></validator>
+          </param>
+      </when>
+      <when value="false">
+      </when>
+    </conditional>
+  </section>
+
+	<section name="plotSection" title="Output section" expanded="True">
+    <param name="cutoffTh" type="float" value="0.05" label="Output FDR p-val threshold" >
+      <validator type="in_range" min="0" max="1" message="Threshold should be between 0 and 1"/>
+    </param>
+    <param name="FCthreshold" type="float" value="2" label="Output Fold Change threshold (both 'log2(threshold)' and 'log2(1/threshold)' values will be used)" >
+      <validator type="in_range" min="1" exclude_min="false" message="Threshold should be greater or equal to 1"/>
+    </param>
+		<param type="boolean" name="histogramToPlot" checked="true" label="Plot histograms" help="Plot nominal p-val distribution for each comparison.">
+	    </param>
+		<param type="boolean" name="volcanoToPlot" checked="true" label="Plot volcanos" help="Plot volcano for each comparison.">
+	    </param>
+
+    <conditional name="geneInformation">
+    <param name="addGeneInfo" type="boolean" label="Add gene/probe information" checked="false"/>
+      <when value="true">
+        <param name="organismID" label="Organism" type="select">
+          <options from_data_table="LimmaTool" >
+            <column name="name" index="1"/>
+            <column name="value" index="0"/>
+            <filter type="unique_value" column="0"/>
+          </options>
+        </param>
+        <param name="infoInRowType" label="Nature of row names" type="select">
+            <options from_data_table="LimmaTool" >
+              <column name="name" index="3"/>
+              <column name="value" index="2"/>
+              <filter type="param_value" ref="organismID" column="0"/>
+            </options>
+        </param>
+      </when>
+      <when value="false">
+      </when>
+    </conditional>
+
+    <param type="select" name="imagePlotlyFormat" display="radio" label="Html snapshot format">
+      <option value="png">PNG format</option>
+      <option value="svg">SVG format</option>
+    </param>
+	</section>
+
+    <section name="advSection" title="Advanced parameters" expanded="False">
+    <param type="select" name="confoundingPolicy" display="radio" label="Confounding effect policy" help="DO NOT modify this parameter unless you know what you are doing!">
+      <option value="additive">As an additive factor (default)</option>
+      <option value="correlated">As a correlation constraint</option>
+    </param>
+    </section>
+	
+  </inputs>
+
+
+
+  <outputs>
+    <data format="tabular" name="outputData" label="${inputSection.title}_LIMMAstatistics"/>
+
+    <data format="tabular" name="outputDfData" label="${inputSection.title}_LIMMAdetailed"/>
+	
+	<data format="html" name="html_file" label="${inputSection.title}_HTML.html"/>
+	<!--
+	<collection name="outputHistogramsList" label="${inputSection.title}_HistogramsList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Histograms[0-9]+)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['histogramToPlot']</filter>
+	</collection>
+	
+	<collection name="outputVolcanosList" label="${inputSection.title}_VolcanosList" type="list">
+	  <discover_datasets pattern="(?P&lt;designation&gt;Volcanos\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
+	  <filter>plotSection['volcanoToPlot']</filter>
+	</collection>
+
+  <data name="fRatioOutput" format="png" label="${inputSection.title}_F-ratio">
+        <change_format>
+            <when input="plotSection['imageFormat']" value="pdf" format="pdf" />
+        </change_format>
+  </data>
+	-->
+    <data format="txt" name="log" label="${inputSection.title}_Log" />
+  </outputs>
+
+
   
  <tests>
   <test maxseconds="3600">
