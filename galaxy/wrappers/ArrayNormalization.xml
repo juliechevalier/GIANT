@@ -1,7 +1,7 @@
 <tool name="GIANT-Normalization with APT Summarize" id="giant_aptsummarize" version="0.1.1">
   <description>Apply Affymetrix Power Tool summarize function to .CEL collection</description>
   <requirements>
-    <requirement type="package" version="2.10.1">apt-probeset-summarize</requirement>
+    <requirement type="package" version="2.10.2">apt-probeset-summarize</requirement>
   </requirements>
   <stdio>
     <regex match="Execution halted"
@@ -11,11 +11,8 @@
     <exit_code range="10" level="fatal" description="Error in post-treatments, see log file for more information." />
     <exit_code range="1:9" level="fatal" description="Error during apt command execution, see log file for more information." />
   </stdio>
-
-
-
-   <command>	<![CDATA[
-  ##ONLY FOR LOCAL TEST PURPOSE, COMMENT OTHERWISE
+  <command>	<![CDATA[
+  ##only for local test, comment otherwise
   ##set $pathToApt='/mnt/galaxy/home/galaxy/Software/ThermoFischer/apt-1.20.6-x86_64-intel-linux/bin'
 
     mkdir ./apt_output/;
@@ -104,8 +101,6 @@ else
 	]]>
   </command>
 
-
-
   <configfiles>
     <configfile name="scriptFormat">
 <![CDATA[
@@ -175,8 +170,6 @@ fi
 ]]>
    </configfile> 
   </configfiles>
-
-
 
   <inputs>
     <param type="text" name="title" value="APT_toPersonalize" label="Title for output"/>
@@ -253,13 +246,11 @@ fi
   </conditional>
   </inputs>
 
-
-
   <outputs>
     <data format="tabular" name="outputData" label="${title}_NormalizedData"/>
     <data format="txt" name="log" label="${title}_Log" />
   </outputs>
-  
+
 
 
  <tests>
@@ -268,16 +259,15 @@ fi
     <param name="commandLine" value="rma-gc-scale" />
     <param name="normLevel" value="core" />
     <param name="arraySelection" value="other" />
-    <param name="CDFfile" value="./Mouse430_2.cdf" />
-    <param name="annotationFile" value="./formatedAnnotation.csv" />
+    <param name="CDFfile" value="./APT-summarize/input/Mouse430_2.cdf" />
+    <param name="annotationFile" value="./APT-summarize/input/formatedAnnotation.csv" />
     <param name="addAnnotation" value="true" />
     <param name="keepAnnotated" value="false" />
     <param name="mergingMethod" value="mean" />
-    <output name="outputData" file="./APT-summarize/expressionOutput.csv" />
-    <output name="log" file="./APT-summarize/output.log" lines_diff="2" />
+    <output name="outputData" file="./APT-summarize/output/outputExpression.csv" />
+    <output name="log" file="./APT-summarize/output/outputLog.txt" compare="sim_size" delta_frac="0.15" />
   </test>
-</tests> 
-
+ </tests> 
 
 
 

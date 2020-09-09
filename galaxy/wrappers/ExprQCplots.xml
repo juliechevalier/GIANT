@@ -1,4 +1,4 @@
-<tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1.3">
+<tool name="GIANT-QC Plots" id="giant_plot_functions" version="0.1.4">
   <description>Descriptive plots of .CEL collections or normalized expression data</description>
   <requirements>
 	  <requirement type="package" version="1.40.1">bioconductor-oligo</requirement>
@@ -8,6 +8,7 @@
     <requirement type="package" version="1.8_17">r-mgcv</requirement>
   </requirements>
   <code file="../../src/General_functions.py"/>
+  <!--<code file="./src/General_functions.py"/> change for Planemo test-->
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -22,8 +23,8 @@
     <exit_code range="1:9" level="fatal" description="Error in R execution, see log file for more information." />
   </stdio>
   <command>	<![CDATA[
-    ##set $dataType=$dataFile.extension
-	   #set $dataType=$dataFile[0].ext
+    ##set $dataType=$inputData.extension
+	   #set $dataType=$inputData[0].ext
 	   
 	   #if $conditionInformation and $pcaSection.factorsToInclude!="None":
        	bash $scriptPrepareTable;
@@ -33,10 +34,12 @@
         fi; 
      #end if
 
-	   #if ($dataType == "cel" and len($dataFile)>1) or ($dataType == "tabular" and len($dataFile)==1):
-	   Rscript '$__tool_directory__/../../src/ExprPlotsScript.R' -i '$dataFile' -l '$log' -f '$advSection.imageFormat' -j '$dataType'
+	   #if ($dataType == "cel" and len($inputData)>1) or ($dataType == "tabular" and len($inputData)==1):
+	   Rscript '$__tool_directory__/../../src/ExprPlotsScript.R' -i '$inputData' -l '$log' -f '$advSection.imageFormat' -j '$dataType'
+     ##change for Planemo test
+     ##Rscript '$__tool_directory__/src/ExprPlotsScript.R' -i '$inputData' -l '$log' -f '$advSection.imageFormat' -j '$dataType'
 	   #if $dataType == "cel":
-	   #for $inputDataset in $dataFile
+	   #for $inputDataset in $inputData
         -c '${inputDataset.name}'
        #end for
 	   #end if
@@ -95,7 +98,7 @@
 
     <configfile name="scriptTransfer">
 <![CDATA[
-#set $dataType=$dataFile[0].ext
+#set $dataType=$inputData[0].ext
 #set $cnt=1
 
 ##create header of HTML file
@@ -381,7 +384,7 @@ printf  "</body>\n</html>" >> $html_file
   <inputs>
     <param type="text" name="title" value="PlotFigure_toPersonalize" label="Title for output">
 	</param>		 
-    <param type="data" name="dataFile" format="cel,tabular" label="Select one .CEL collection or one tabular file" optional="false" multiple="true" >
+    <param type="data" name="inputData" format="cel,tabular" label="Select one .CEL collection or one tabular file" optional="false" multiple="true" >
 	</param>
 
 	<section name="plotSection" title="Plots selection" expanded="True">
@@ -396,7 +399,7 @@ printf  "</body>\n</html>" >> $html_file
 
     </section>
 	<section name="pcaSection" title="PCA analysis" expanded="True">
-	<param type="boolean" name="acpToPlot" checked="true" label="Plot 3D PCA" help="3D plot of conditions in the space defined by the 3 principal components">
+	  <param type="boolean" name="acpToPlot" checked="true" label="Plot 3D PCA" help="3D plot of conditions in the space defined by the 3 principal components">
     </param>
     <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file (optional)" optional="true" multiple="false">
     </param>
@@ -442,7 +445,7 @@ printf  "</body>\n</html>" >> $html_file
 		
 		<collection name="outputMicroarrayList" label="${title}_MicroarrayList" type="list">
 		  <discover_datasets pattern="(?P&lt;designation&gt;Microarray\_.*)\.(?P&lt;ext&gt;[^\._]+)?" directory="plotDir" visible="false"/>
-		  <filter>plotSection['microarrayToPlot'] and dataFile[0].ext == "cel"</filter>
+		  <filter>plotSection['microarrayToPlot'] and inputData[0].ext == "cel"</filter>
 		</collection>
 
 		<collection name="outputPCAList" label="${title}_PCA" type="list">
@@ -458,20 +461,25 @@ printf  "</body>\n</html>" >> $html_file
 
  <tests>
   <test maxseconds="3600">
-    <param name="wfile" value="wiggle.wig" />
-    <param name="bfile" value="bedfile.bed" />
-    <param name="span" value="3000" />
-    <param name="pfres" value="50" />
-    <param name="lowersize" value="1000" />
-    <param name="middlesize" value="2000" />
-    <param name="uppersize" value="3000" />
-    <param name="lowerbisize" value="2500" />
-    <param name="upperbisize" value="5000" />
-    <param name="reldist" value="3000" />
-    <param name="genome" value="hg18" />
-    <param name="imagetype" value="PDF" />
-    <param name="enable" value="no" />
-    <output name="log" file="ceas_1/ceas_1.pdf" />
+    <param name="inputData" value="./NormalizedData.tabular" />
+    <section name="plotSection" >
+      <param name="histogramToPlot" value="true" />
+      <param name="maplotToPlot" value="true" />
+      <param name="boxplotToPlot" value="true" />
+      <param name="microarrayToPlot" value="false" />
+    </section>
+    <section name="pcaSection" >
+      <param name="acpToPlot" value="true" />
+      <param name="conditionInformation" value="./FactorFileGenerator/output/conditionsFile.csv" />
+      <param name="factorsToInclude" value="Strain,Treatment" />
+    </section>
+    <section name="advSection" >
+      <param name="imageFormat" value="png" />
+      <param name="imagePlotlyFormat" value="png" />
+    </section>
+    <output name="html_file" file="./ExprQCplots/output/outputHTML.zip" decompress="true" >
+    </output>  
+    <output name="log" file="./ExprQCplots/output/outputLog.txt" compare="sim_size" delta_frac="0.10" />    
   </test>
 </tests> 
 

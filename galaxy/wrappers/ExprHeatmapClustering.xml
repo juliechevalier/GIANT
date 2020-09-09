@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.1">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.2">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
@@ -10,7 +10,8 @@
     <requirement type="package" version="1.18.1">bioconductor-complexheatmap</requirement>
     <requirement type="package" version="2.2.2">pandoc</requirement>
   </requirements>
-  <code file='../../src/General_functions.py'/>
+  <code file="../../src/General_functions.py"/>
+  <!--<code file="./src/General_functions.py"/> change for Planemo test-->
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -68,7 +69,10 @@
        awk -v factor="$advSection.conditionBarColor.factorToUse" 'BEGIN{FS="\t";OFS="";ORS=""} NR==1{for(i=2;i<=NF;i++)if(\$i==factor)colToKeep=i} {print \$1"\t"\$colToKeep"\n"}' $advSection.conditionBarColor.factorFileDataBarPlot > ./barPlotFactor;
       #end if
 
-	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber' --maxRows '$advSection.maxSampleToPlot' --sampleClusterNumber '$advSection.conditionClusterNumber' --dataTransformation '$advSection.dataTransformation' --distanceMeasure '$advSection.distanceMeasure' --aggloMethod '$advSection.aggloMethod'
+	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber' 
+      ##change for Planemo test
+      ##Rscript '$__tool_directory__/src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber'
+       --maxRows '$advSection.maxSampleToPlot' --sampleClusterNumber '$advSection.conditionClusterNumber' --dataTransformation '$advSection.dataTransformation' --distanceMeasure '$advSection.distanceMeasure' --aggloMethod '$advSection.aggloMethod'
       #if $advSection.select_color.specifyColors=="true":
       --personalColors '$advSection.select_color.featureMin_color,$advSection.select_color.featureMedium_color,$advSection.select_color.featureMax_color'
       #end if
@@ -714,27 +718,47 @@ printf  "</body>\n</html>" >> $html_file
   
   
  <tests>
-  <test maxseconds="7200">
-    <param name="dataToCluster_selector" value="expression" />
-    <param name="expressionData" value="./NormalizedData.tabular" />
-    <param name="filtering_step_selector" value="input" />
-    <param name="filtering_stepBis_selector" value="diffExpParam" />
-    <param name="differentialAnalysis" value="./LIMMAstatistics.tabular" />
-    <param name="comparisonsToInclude" value="WT*WY14643-KO*WY14643" />
-    <param name="FCthreshold" value="1.2" />
-    <param name="pvalThreshold" value="0.05" />
-    <output name="log" file="./HierarchicalClustering/ExpressionClustering.log" lines_diff="6" />
-  </test>
-  <test maxseconds="7200">
-    <param name="dataToCluster_selector" value="foldChange" />
-    <param name="differentialAnalysis" value="./LIMMAstatistics.tabular" />
-    <param name="comparisonsToInclude" value="WT*WY14643+KO*WY14643-WT*Control-KO*Control,WT*WY14643+WT*Control-KO*WY14643-KO*Control" />
-    <param name="filtering_step_selector" value="output" />
-    <param name="filtering_stepBis_selector" value="diffExpParam" />
-    <param name="FCthreshold" value="1.2" />
-    <param name="pvalThreshold" value="0.05" />
-    <output name="outputData" file="./HierarchicalClustering/foldChangeClustering.tabular" />
-    <output name="log" file="./HierarchicalClustering/foldChangeClustering.log" lines_diff="6" />
+  <test maxseconds="3600">
+    <conditional name="dataToCluster">
+      <param name="dataToCluster_selector" value="expression" />
+      <param name="expressionData" value="./NormalizedData.tabular" />
+      <conditional name="reorder_sample">
+        <param name="reordering_selector" value="no" />
+      </conditional>
+      <conditional name="filtering_step">
+        <param name="filtering_step_selector" value="input" />
+        <conditional name="select_filtering">
+          <param name="filtering_stepBis_selector" value="diffExpParam" />
+          <param name="differentialAnalysis" value="./DiffExprLimma/output/outputStat.csv" />
+          <param name="comparisonsToInclude" value="TreatVsControl" />
+          <param name="FCthreshold" value="2.0" />
+          <param name="pvalThreshold" value="0.05" />
+        </conditional>
+      </conditional>
+    </conditional>
+    <section name="advSection" >
+      <param name="clusterNumber" value="5" />
+      <param name="conditionClusterNumber" value="3" />
+      <param name="dataTransformation" value="no" /> 
+      <param name="distanceMeasure" value="euclidean" />
+      <param name="aggloMethod" value="ward.D2" />
+      <conditional name="conditionBarColor">
+        <param name="conditionBarColor_selector" value="yes" />
+        <param name="factorFileDataBarPlot" value="./FactorFileGenerator/output/conditionsFile.csv"  />
+        <param name="factorToUse" value="Treatment" />
+        <param name="sideBarPalette" value="Spectral" />
+      </conditional>
+      <param name="maxSampleToPlot" value="1000" />
+      <conditional name="select_color">
+        <param name="specifyColors" value="false" />
+      </conditional>
+      <param name="imageFormat" value="png" />
+      <param name="imagePlotlyFormat" value="png" />
+      <param name="scaleSnapshot" value="1.0" />
+    </section>
+    <output name="outputData" file="./ExprHeatmapClustering/output/outputResults.csv" />
+    <output name="html_file" file="./ExprHeatmapClustering/output/outputHTML.zip" decompress="true" />
+    <output name="log" file="./ExprHeatmapClustering/output/outputLog.txt" compare="sim_size" delta_frac="0.10" />
   </test>
 </tests> 
 

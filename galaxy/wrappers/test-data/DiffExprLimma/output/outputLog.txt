@@ -1,0 +1,39 @@
+[INFO]End of scriptPrepareTable
+[INFO]Renaming is done
+[INFO]Start of R script
+[INFO]Parameters checked!
+[INFO]Working directory:  /home/vandelj/galaxy/galaxy/database/jobs_directory/001/1370/working
+[INFO]Command line:  /home/vandelj/galaxy/galaxy/database/dependencies/_conda/envs/mulled-v1-f818bb6c4e6bfd90b2475fe17a3fa6800e28fde1c264f31b4151717056fcfe22/lib/R/bin/exec/R --slave --no-restore --file=/home/vandelj/galaxy/galaxy/tools/GIANT/galaxy/wrappers/../../src/LIMMAscriptV4.R --args -i expressionRenamed.csv -l /home/vandelj/galaxy/galaxy/database/files/003/dataset_3457.dat -o /home/vandelj/galaxy/galaxy/database/files/003/dataset_3454.dat -z /home/vandelj/galaxy/galaxy/database/files/003/dataset_3455.dat -f pdf -a factorTableRenamed.csv -s sumSquareFtest -g dictionnaryRenamed.csv -r Strain,Treatment -p TreatVsControl -m WT*Treat,KO*Treat -n WT*Control,KO*Control -p WTvsKO -m WT*Control,WT*Treat -n KO*Control,KO*Treat -c Strain:WT,Treatment:Control -t 0.05 -d 1.2 -h Histograms
+[WARNING] 66 rows are constant across conditions in input data file
+[INFO]Expression data loaded and checked
+[INFO]Dim of expression matrix: 20376 17
+[INFO]Factors OK
+[INFO]Dim of factorInfo matrix: 17 3
+[INFO]Contrast variables are renamed to avoid confusion
+[INFO]Available coefficients:  Factor1_Value1.Factor2_Value2 Factor1_Value1.Factor2_Value3 Factor1_Value4.Factor2_Value2 Factor1_Value4.Factor2_Value3
+[INFO]Design done
+[INFO]Lmfit done
+[INFO]Contrast added :  Value1*Value3+Value4*Value3-Value1*Value2-Value4*Value2
+with complete formula  0.444444444444444*Factor1_Value1.Factor2_Value3+0.555555555555556*Factor1_Value4.Factor2_Value3-0.375*Factor1_Value1.Factor2_Value2-0.625*Factor1_Value4.Factor2_Value2
+[INFO]Contrast added :  Value1*Value2+Value1*Value3-Value4*Value2-Value4*Value3
+with complete formula  0.428571428571429*Factor1_Value1.Factor2_Value2+0.571428571428571*Factor1_Value1.Factor2_Value3-0.5*Factor1_Value4.Factor2_Value2-0.5*Factor1_Value4.Factor2_Value3
+[INFO]Interaction contrast added :  Factor1_Value4:Factor2_Value3
+with complete formula  Factor1_Value4.Factor2_Value3-Factor1_Value1.Factor2_Value3-Factor1_Value4.Factor2_Value2+Factor1_Value1.Factor2_Value2
+[INFO]Contrast definition done
+[INFO]Estimation done
+[INFO]Core treatment done
+[INFO]Histograms drawn
+[INFO]SumSquareTest drawn
+[INFO]Significant genes filtering done
+[INFO]Formated output
+[INFO]Total execution time for R script: 0.860548007488251 mins
+[INFO]End of R script
+[INFO]R session info :
+R version 3.5.1 (2018-07-02)
+Platform : x86_64-conda_cos6-linux-gnu (64-bit)
+Running under : Ubuntu 18.04.5 LTS
+Local variables : LC_CTYPE=fr_FR.UTF-8;LC_NUMERIC=C;LC_TIME=fr_FR.UTF-8;LC_COLLATE=fr_FR.UTF-8;LC_MONETARY=fr_FR.UTF-8;LC_MESSAGES=en_US.UTF-8;LC_PAPER=fr_FR.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=fr_FR.UTF-8;LC_IDENTIFICATION=C
+Attached base packages : grid; stats; graphics; grDevices; utils; datasets; methods; base
+Other attached packages : RColorBrewer 1.1-2; stringr 1.3.1; plotly 4.8.0; ggplot2 3.0.0; biomaRt 2.36.1; limma 3.36.5; 
+Loaded packages : progress 1.2.2; tidyselect 0.2.5; purrr 0.3.2; colorspace 1.4-1; vctrs 0.2.0; htmltools 0.4.0; stats4 3.5.1; viridisLite 0.3.0; yaml 2.2.0; blob 1.2.0; XML 3.98-1.20; rlang 0.4.0; later 1.0.0; pillar 1.4.2; glue 1.3.1; withr 2.1.2; DBI 1.0.0; BiocGenerics 0.26.0; bit64 0.9-7; lifecycle 0.1.0; plyr 1.8.4; munsell 0.5.0; gtable 0.3.0; htmlwidgets 1.5.1; memoise 1.1.0; labeling 0.3; Biobase 2.40.0; fastmap 1.0.1; IRanges 2.14.12; httpuv 1.5.2; crosstalk 1.0.0; parallel 3.5.1; AnnotationDbi 1.42.1; Rcpp 1.0.2; xtable 1.8-4; promises 1.1.0; backports 1.1.5; scales 1.0.0; S4Vectors 0.18.3; jsonlite 1.6; mime 0.7; bit 1.1-14; hms 0.5.1; digest 0.6.21; stringi 1.4.3; shiny 1.4.0; dplyr 0.8.3; tools 3.5.1; bitops 1.0-6; magrittr 1.5; RCurl 1.95-4.12; lazyeval 0.2.2; tibble 2.1.3; RSQLite 2.1.2; crayon 1.3.4; tidyr 1.0.0; pkgconfig 2.0.3; zeallot 0.1.0; data.table 1.11.6; prettyunits 1.0.2; assertthat 0.2.1; httr 1.4.1; R6 2.4.0; compiler 3.5.1; 
+[INFO]End of tool script

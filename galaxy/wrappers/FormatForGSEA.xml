@@ -1,6 +1,7 @@
 <tool name="GIANT-GSEA Formatting" id="giant_gsea_format" version="0.2.0">
   <description>Format input files for GSEA software</description>
   <code file="../../src/General_functions.py"/>
+  <!--<code file="./src/General_functions.py"/> change for Planemo test-->
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -60,7 +61,7 @@
         </param>
         <param type="data" name="conditionInformation" format="tabular" label="Factor information tabular file" optional="false" multiple="false">
         </param>
-            <param name="factorToInclude" type="select" label="Reference factor" multiple="false" optional="false"  refresh_on_change="true"
+        <param name="factorToInclude" type="select" label="Reference factor" multiple="false" optional="false"  refresh_on_change="true"
               dynamic_options="get_column_names_filteredList(mainCondition['conditionInformation'].file_name,[0])">
         </param>
       </when>
@@ -101,31 +102,27 @@
 
  <tests>
   <test maxseconds="3600" >
-    <param name="selection" value="classicGSEA" />
-    <param name="expressionData" value="./NormalizedData.tabular" />
-    <param name="conditionInformation" value="./conditionGroups.txt" />
-    <param name="factorToInclude" value="Treatment" />
-    <output name="outExpression" file="./GSEA-Formatting/outputExpression.gct" />
-    <output name="outPhenotypes" file="./GSEA-Formatting/outputPhenotypesTreatment.cls" />
-    <output name="log" file="./GSEA-Formatting/outputRanks.log" />
+    <conditional name="mainCondition">
+      <param name="selection" value="classicGSEA" />
+      <param name="expressionData" value="./NormalizedData.tabular" />
+      <param name="conditionInformation" value="./FactorFileGenerator/output/conditionsFile.csv" />
+      <param name="factorToInclude" value="Treatment" />
+    </conditional>    
+    <output name="outExpression" file="./FormatForGSEA/output/outputExpression_A.gct" />
+    <output name="outPhenotypes" file="./FormatForGSEA/output/outputPhenotypes_A.cls" />
+    <output name="log" file="./FormatForGSEA/output/outputLog_A.txt" />
   </test>
+
   <test maxseconds="3600" >
-    <param name="selection" value="classicGSEA" />
-    <param name="expressionData" value="./NormalizedData.tabular" />
-    <param name="conditionInformation" value="./conditionGroups.txt" />
-    <param name="factorToInclude" value="Type" />
-    <output name="outExpression" file="./GSEA-Formatting/outputExpression.gct" />
-    <output name="outPhenotypes" file="./GSEA-Formatting/outputPhenotypesType.cls" />
-    <output name="log" file="./GSEA-Formatting/outputRanks.log" />
-  </test>
-  <test maxseconds="3600" >
-    <param name="selection" value="rankedGSEA" />
-    <param name="differentialAnalysis" value="./LIMMAstatistics.tabular" />
-    <param name="comparisonsToUse" value="WT*Control-KO*Control" />
-    <param name="rankingIndice" value="FC" />
-    <param name="pvalThreshold" value="0.05" />
-    <output name="outRankedGenes" file="./GSEA-Formatting/outputRanks.rnk" />
-    <output name="log" file="./GSEA-Formatting/outputRanks.log" />
+    <conditional name="mainCondition">
+      <param name="selection" value="rankedGSEA" />
+      <param name="differentialAnalysis" value="./DiffExprLimma/output/outputStat.csv" />
+      <param name="comparisonsToUse" value="TreatVsControl" />
+      <param name="rankingIndice" value="absFC" />
+      <param name="pvalThreshold" value="0.05" />
+    </conditional>    
+    <output name="outRankedGenes" file="./FormatForGSEA/output/outputRanks_B.rnk" />
+    <output name="log" file="./FormatForGSEA/output/outputLog_B.txt" />
   </test>
 </tests> 
   <help>

@@ -1,8 +1,9 @@
-<tool name="GIANT-Factor file generator" id="giant_factor_generator" version="0.1.2">
+<tool name="GIANT-Factor file generator" id="giant_factor_generator" version="0.1.3">
   <description>Generate factor file used by other GIANT tools</description>
   <requirements>
   </requirements>
   <code file="../../src/General_functions.py"/>
+  <!--<code file="./src/General_functions.py"/> change for Planemo test-->
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -18,8 +19,41 @@
 
   #import imp
   #set $general_functions=$imp.load_source('General_functions', $__tool_directory__+'/../../src/General_functions.py')
+  ##change for Planemo test
+  ##set $general_functions=$imp.load_source('General_functions', $__tool_directory__+'/src/General_functions.py')
 
-  #set $ret_code=$general_functions.generateFactorFile($inputCondition['inputData'],$factorsSection['factorList'],$outputData.file_name,$log.file_name)
+  #if $inputCondition.selection == "CELcollection" and $inputCondition.selectCollectionStrat.how=="group_tags":
+    #set $temp_factor_names = list()
+    #for $factor in $inputCondition.selectCollectionStrat.factorListBis:
+          #set $temp_factor = list()
+          #for $level in $factor.valueList:
+            #set $temp_level = ''
+            #for $group in $level.valueConditions.value:
+                #for $file in $inputCondition.inputData.get_datasets_for_group($group):
+                    printf "$group\t $file.element_identifier\n" >> ./TAGmatching.csv;
+                    #if $temp_level == '':
+                      #set $temp_level = str($file.element_identifier)
+                    #else:
+                      #set $temp_level += ','+str($file.element_identifier)
+                    #end if
+                #end for
+            #end for
+            $temp_factor.append( {'valueName':str($level.valueName), 'valueConditions':$temp_level} )
+          #end for
+          $temp_factor.reverse()
+          $temp_factor_names.append( {'factorName':str($factor.factorName), 'valueList':$temp_factor} )
+    #end for
+  #end if
+
+  #if $inputCondition.selection == "CELcollection":
+    #if $inputCondition.selectCollectionStrat.how=="group_tags":
+      #set $ret_code=$general_functions.generateFactorFile($inputCondition.inputData.collection,$temp_factor_names,$outputData.file_name,$log.file_name)
+    #else:
+      #set $ret_code=$general_functions.generateFactorFile($inputCondition.inputData.collection,$inputCondition.selectCollectionStrat.factorListBis,$outputData.file_name,$log.file_name)
+    #end if
+  #else:
+    #set $ret_code=$general_functions.generateFactorFile($inputCondition.inputData,$inputCondition.factorList,$outputData.file_name,$log.file_name)
+  #end if
 
   if [ $ret_code != 0 ]; then
     printf "[ERROR]Error during factor file generation\n" >> $log;
@@ -35,56 +69,120 @@
   <conditional name="inputCondition">
       <param name="selection" type="select" label="Input data type for sample names" force_select="true">
         <option value="normalizedData">Expression tabular file</option>
-        <option value="CELcollection">.CEL files</option>
+        <option value="CELfiles">.CEL files</option>
+        <option value="CELcollection">.CEL file collection</option>
       </param>
       <when value="normalizedData">
-        <param type="data" name="inputData" format="tabular" label="Select file" optional="false" multiple="false"/>
+        <param type="data" name="inputData" format="tabular" label="Select a single dataset" optional="false" multiple="false"/>
+
+            <repeat name="factorList" title="Factor">
+              <param type="text" name="factorName" value="" label="Factor name"/>
+              <repeat name="valueList" title="Value">
+                <param type="text" name="valueName" value="" label="Value name"/>
+                <param name="valueConditions" type="select" optional="false" multiple="true" label="Select sample sharing this value"
+                  refresh_on_change="true"  dynamic_options="get_condition_file_names(inputCondition['inputData'],0)">
+                </param>
+              </repeat>
+            </repeat>
+
+      </when>
+      <when value="CELfiles">
+        <param type="data" name="inputData" format="cel" label="Select multiple files" optional="false" multiple="true">
+        <validator type="empty_field" message="At least two data files should be selected"></validator>
+        </param>
+
+            <repeat name="factorList" title="Factor">
+              <param type="text" name="factorName" value="" label="Factor name"/>
+              <repeat name="valueList" title="Value">
+                <param type="text" name="valueName" value="" label="Value name"/>
+                <param name="valueConditions" type="select" optional="false" multiple="true" label="Select sample sharing this value"
+                  refresh_on_change="true"  dynamic_options="get_condition_file_names(inputCondition['inputData'])">
+                </param>
+              </repeat>
+            </repeat>
+
       </when>
       <when value="CELcollection">
-        <param type="data" name="inputData" format="cel" label="Select files" optional="false" multiple="true">
-        <validator type="empty_dataset" message="At least one data file should be selected"></validator>
+        <param type="data_collection" name="inputData" format="cel" label="Select a single dataset collection" optional="false" multiple="true">
+        <validator type="empty_field" message="One data collection should be selected"></validator>
         </param>
+
+        <conditional name="selectCollectionStrat">
+          <param name="how" type="select" label="Select how .CEL files will be assigned to factor values">
+              <option value="individualSelection">Select individually each .CEL file from the collection</option>
+              <option value="group_tags">Use associated .CEL file tags</option>
+          </param>
+          <when value="individualSelection">
+
+              <repeat name="factorListBis" title="Factor">
+                <param type="text" name="factorName" value="" label="Factor name"/>
+                <repeat name="valueList" title="Value">
+                  <param type="text" name="valueName" value="" label="Value name"/>
+                  <param name="valueConditions" type="select" optional="false" multiple="true" label="Select sample sharing this value"
+                    refresh_on_change="true"  dynamic_options="get_condition_file_names(inputCondition['inputData'])">
+                  </param>
+                </repeat>
+              </repeat>
+
+          </when>
+          <when value="group_tags">
+
+              <repeat name="factorListBis" title="Factor">
+                <param type="text" name="factorName" value="" label="Factor name"/>
+                <repeat name="valueList" title="Value">
+                  <param type="text" name="valueName" value="" label="Value name"/>
+                  <param name="valueConditions" type="group_tag" data_ref="inputData" multiple="true" label="Select groups sharing this value"/>
+                </repeat>
+              </repeat>
+
+          </when>
+        </conditional>
       </when>
   </conditional>
-
-  <section name="factorsSection" title="Factor definition" expanded="True">
-     <repeat name="factorList" title="Factor">
-        <param type="text" name="factorName" value="" label="Factor name"/>
-        <repeat name="valueList" title="Value">
-          <param type="text" name="valueName" value="" label="Value name"/>
-          <param name="valueConditions" type="select" optional="false" multiple="true" label="Select sample sharing this value"
-            refresh_on_change="true"  dynamic_options="get_condition_file_names(inputCondition['inputData'])">
-          </param>
-        </repeat>
-    </repeat>
-  </section>
-	
   </inputs>
 
   <outputs>
     <data format="tabular" name="outputData" label="${title}_conditionsFile"/>
-
     <data format="txt" name="log" label="${title}_Log" />
   </outputs>
   
+
+
  <tests>
   <test maxseconds="3600">
-    <param name="wfile" value="wiggle.wig" />
-    <param name="bfile" value="bedfile.bed" />
-    <param name="span" value="3000" />
-    <param name="pfres" value="50" />
-    <param name="lowersize" value="1000" />
-    <param name="middlesize" value="2000" />
-    <param name="uppersize" value="3000" />
-    <param name="lowerbisize" value="2500" />
-    <param name="upperbisize" value="5000" />
-    <param name="reldist" value="3000" />
-    <param name="genome" value="hg18" />
-    <param name="imagetype" value="PDF" />
-    <param name="enable" value="no" />
-    <output name="outputData" file="ceas_1/ceas_1.pdf" />
+    <conditional name="inputCondition">
+      <param name="selection" value="normalizedData" />
+      <param name="inputData" value="./NormalizedData.tabular" />
+      <repeat name="factorList">
+        <param name="factorName" value="Strain" />
+        <repeat name="valueList">
+          <param name="valueName" value="WT" />
+          <param name="valueConditions" value="GSM205769.CEL,GSM205772.CEL,GSM205768.CEL,GSM205767.CEL,GSM205766.CEL,GSM205771.CEL,GSM205770.CEL"/>
+        </repeat>
+        <repeat name="valueList">
+          <param name="valueName" value="KO" />
+          <param name="valueConditions" value="GSM205777.CEL,GSM205776.CEL,GSM205781.CEL,GSM205773.CEL,GSM205780.CEL,GSM205779.CEL,GSM205782.CEL,GSM205775.CEL,GSM205774.CEL,GSM205778.CEL"/>
+        </repeat>
+      </repeat>
+      <repeat name="factorList">
+        <param name="factorName" value="Treatment" />
+        <repeat name="valueList">
+          <param name="valueName" value="Control" />
+          <param name="valueConditions" value="GSM205777.CEL,GSM205776.CEL,GSM205773.CEL,GSM205775.CEL,GSM205774.CEL,GSM205768.CEL,GSM205767.CEL,GSM205766.CEL"/>
+        </repeat>
+        <repeat name="valueList">
+          <param name="valueName" value="Treat" />
+          <param name="valueConditions" value="GSM205781.CEL,GSM205769.CEL,GSM205772.CEL,GSM205780.CEL,GSM205779.CEL,GSM205782.CEL,GSM205778.CEL,GSM205771.CEL,GSM205770.CEL"/>
+      </repeat>
+      </repeat>
+    </conditional>
+    <output name="outputData" file="./FactorFileGenerator/output/conditionsFile.csv" />
+    <output name="log" file="./FactorFileGenerator/output/outputLog.txt" />    
   </test>
-</tests> 
+ </tests> 
+
+
+
   <help>
 <![CDATA[
 **What it does ?**
@@ -111,7 +209,17 @@ This tool generates factor information file used by other tools of GIANT tool su
 
 OR
 
-- **.CEL files** of your study (you should select multiple .CEL files or unique collection file).
+- **.CEL files** of your study (you should select multiple .CEL files).
+
+OR
+
+- **.CEL file collection** of your study (you should select a unique collection file).
+
+  \- **Individual selection** of files to associate to factor values.
+  
+    or
+
+  \- **Tag selection** to associate samples sharing the same tag to factor values.
 
 \- **Factor definition**
 
@@ -119,7 +227,7 @@ OR
 
 - **Value name** of different states for the current factor as 'KO' or 'WT' for 'Strain' factor (please avoid special characters)
 
-- **Select sample** to assign to current value
+- **Select sample/tag** to assign to current value
 
 -----
 
@@ -138,8 +246,5 @@ OR
 - **LOG file** for job log. If you see errors, please attached this in the bug report
 
 ]]>  </help>
-
- <citations>
- </citations>
 
 </tool>

@@ -1,0 +1,23 @@
+[INFO] header line number : 2 lines
+[INFO] columns kept : [0, 2, 3, 5, 7, 8, 10]
+[INFO]Start of R script
+[INFO]Parameters checked test mode !
+[INFO]Working directory:  /home/vandelj/galaxy/galaxy/database/jobs_directory/001/1372/working
+[INFO]Command line:  /home/vandelj/galaxy/galaxy/database/dependencies/_conda/envs/mulled-v1-78d940f523a41ff1f0c0089242efa32a67749ab438b0f64b510b12caa14dd452/lib/R/bin/exec/R --slave --no-restore --file=/home/vandelj/galaxy/galaxy/tools/GIANT/galaxy/wrappers/../../src/VolcanoPlotsScript.R --args -i statisticsFormated.csv -l /home/vandelj/galaxy/galaxy/database/files/003/dataset_3463.dat -o /home/vandelj/galaxy/galaxy/database/files/003/dataset_3461.dat -f pdf -n TreatVsControl -p TreatVsControl_p-val -c TreatVsControl_log2(FC) -m TreatVsControl_FDR.p-val -n WTvsKO -p WTvsKO_p-val -c WTvsKO_log2(FC) -m WTvsKO_FDR.p-val -d log2FC -s 0.05 -e 2.0
+[INFO]Input data available for 2 volcano(s) with 4338 rows
+[INFO]For TreatVsControl volcano, 0 rows are discarded due to NA values, 4338 remaining rows.
+[INFO]For WTvsKO volcano, 0 rows are discarded due to NA values, 4338 remaining rows.
+[INFO]Volcanos drawn
+[INFO]Significant genes filtering done
+[INFO]Formated output
+[INFO]Total execution time for R script: 0.065193247795105 mins
+[INFO]End of R script
+[INFO]R session info :
+R version 3.5.1 (2018-07-02)
+Platform : x86_64-conda_cos6-linux-gnu (64-bit)
+Running under : Ubuntu 18.04.5 LTS
+Local variables : LC_CTYPE=fr_FR.UTF-8;LC_NUMERIC=C;LC_TIME=fr_FR.UTF-8;LC_COLLATE=fr_FR.UTF-8;LC_MONETARY=fr_FR.UTF-8;LC_MESSAGES=en_US.UTF-8;LC_PAPER=fr_FR.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=fr_FR.UTF-8;LC_IDENTIFICATION=C
+Attached base packages : grid; stats; graphics; grDevices; utils; datasets; methods; base
+Other attached packages : bindrcpp 0.2.2; stringr 1.3.1; plotly 4.8.0; ggplot2 3.0.0; biomaRt 2.36.1; 
+Loaded packages : progress 1.2.0; tidyselect 0.2.5; purrr 0.2.5; colorspace 1.4-0; htmltools 0.3.6; stats4 3.5.1; viridisLite 0.3.0; yaml 2.2.0; blob 1.1.1; XML 3.98-1.16; rlang 0.3.1; later 0.7.5; pillar 1.3.1; glue 1.3.0; withr 2.1.2; DBI 1.0.0; BiocGenerics 0.26.0; bit64 0.9-7; plyr 1.8.4; bindr 0.1.1; munsell 0.5.0; gtable 0.2.0; htmlwidgets 1.3; memoise 1.1.0; labeling 0.3; Biobase 2.40.0; IRanges 2.14.12; httpuv 1.4.5.1; crosstalk 1.0.0; parallel 3.5.1; AnnotationDbi 1.42.1; Rcpp 1.0.0; xtable 1.8-3; promises 1.0.1; scales 1.0.0; S4Vectors 0.18.3; jsonlite 1.6; mime 0.6; bit 1.1-12; hms 0.4.2; digest 0.6.18; stringi 1.2.4; dplyr 0.7.8; shiny 1.2.0; tools 3.5.1; bitops 1.0-6; magrittr 1.5; lazyeval 0.2.1; RCurl 1.95-4.11; RSQLite 2.1.1; tibble 2.0.1; crayon 1.3.4; tidyr 0.8.2; pkgconfig 2.0.2; data.table 1.11.6; prettyunits 1.0.2; assertthat 0.2.0; httr 1.4.0; R6 2.3.0; compiler 3.5.1; 
+[INFO]End of tool script

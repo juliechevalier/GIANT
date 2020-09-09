@@ -1,0 +1,26 @@
+[INFO]End of scriptPrepareTable
+[INFO]Start of R script
+[INFO]Parameters checked!
+[INFO]Working directory:  /home/vandelj/galaxy/galaxy/database/jobs_directory/001/1366/working
+[INFO]Command line:  /home/vandelj/galaxy/galaxy/database/dependencies/_conda/envs/mulled-v1-65ac9e97675712b2c308836e0fd8389fb4597dace9f153f98eb0fb8ba313b9ae/lib/R/bin/exec/R --slave --no-restore --file=/home/vandelj/galaxy/galaxy/tools/GIANT/galaxy/wrappers/../../src/ExprPlotsScript.R --args -i /home/vandelj/galaxy/galaxy/database/files/003/dataset_3442.dat -l /home/vandelj/galaxy/galaxy/database/files/003/dataset_3446.dat -f png -j tabular -t factorTable.csv -h Histograms -a MAplots -b Boxplots -p PCA -s screePlot
+[INFO]Input data loaded
+[INFO]Dim of data matrix: 20376 17
+[INFO]Retreive condition names
+[INFO]Factors OK
+[INFO]Dim of factorInfo matrix: 17 3
+[INFO]Ready to plot
+[INFO]Histograms drawn
+[INFO]MAplots drawn
+[INFO]Boxplots drawn
+[INFO]ACP plot drawn
+[INFO]Total execution time for R script: 2.09847157001495 mins
+[INFO]End of R script
+[INFO]R session info :
+R version 3.3.2 (2016-10-31)
+Platform : x86_64-pc-linux-gnu (64-bit)
+Running under : Ubuntu 18.04.5 LTS
+Local variables : LC_CTYPE=fr_FR.UTF-8;LC_NUMERIC=C;LC_TIME=fr_FR.UTF-8;LC_COLLATE=fr_FR.UTF-8;LC_MONETARY=fr_FR.UTF-8;LC_MESSAGES=en_US.UTF-8;LC_PAPER=fr_FR.UTF-8;LC_NAME=C;LC_ADDRESS=C;LC_TELEPHONE=C;LC_MEASUREMENT=fr_FR.UTF-8;LC_IDENTIFICATION=C
+Attached base packages : grid; stats4; parallel; methods; stats; graphics; grDevices; utils; datasets; base
+Other attached packages : plotly 4.5.6; ggplot2 2.2.1; ff 2.2-13; bit 1.1-12; oligo 1.40.1; Biostrings 2.42.1; XVector 0.14.1; IRanges 2.8.2; S4Vectors 0.12.2; Biobase 2.34.0; oligoClasses 1.38.0; BiocGenerics 0.22.0; 
+Loaded packages : SummarizedExperiment 1.4.0; purrr 0.2.4; splines 3.3.2; lattice 0.20-34; colorspace 1.3-2; htmltools 0.3.6; viridisLite 0.3.0; yaml 2.1.18; base64enc 0.1-3; blob 1.1.1; rlang 0.2.0; glue 1.2.0; DBI 0.8; bit64 0.9-5; affyio 1.42.0; foreach 1.4.4; plyr 1.8.4; zlibbioc 1.20.0; munsell 0.4.3; gtable 0.2.0; htmlwidgets 1.0; codetools 0.2-15; memoise 1.1.0; labeling 0.3; GenomeInfoDb 1.10.3; BiocInstaller 1.24.0; preprocessCore 1.34.0; Rcpp 0.12.16; scales 0.5.0; jsonlite 1.5; affxparser 1.48.0; digest 0.6.15; dplyr 0.5.0; GenomicRanges 1.26.4; bitops 1.0-6; tools 3.3.2; magrittr 1.5; RCurl 1.95-4.8; lazyeval 0.2.1; RSQLite 2.0; tibble 1.2; tidyr 0.7.1; MASS 7.3-48; Matrix 1.2-14; assertthat 0.2.0; httr 1.3.1; iterators 1.0.9; R6 2.2.2; 
+[INFO]End of tool script

@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import galaxy.model
 
 def get_column_names( file_path, toNotConsider=-1, each=1):
 	options=[]
@@ -76,7 +77,7 @@ def get_row_names( file_path, factorName ):
 
 def get_condition_file_names( file_list, toNotConsider=-1, each=1):
 	options=[]
-	if not isinstance(file_list,list):#if input file is a tabular file, act as get_column_names
+	if not (isinstance(file_list,list) or isinstance(file_list,galaxy.model.HistoryDatasetCollectionAssociation) or isinstance(file_list,galaxy.model.DatasetCollection)) :#if input file is a tabular file, act as get_column_names
 		inputfile = open(file_list.file_name)
 		firstLine = next(inputfile).strip().split("\t")
 		cpt=0
@@ -88,13 +89,17 @@ def get_condition_file_names( file_list, toNotConsider=-1, each=1):
 				if cpt==each:
 					cpt=0
 		inputfile.close()
-	else:#if input file is a .cel file list or a collection
-		if not hasattr(file_list[0],'collection'):#if it is not a collection, get name easily
-			for i, field_component in enumerate( file_list ):
-				options.append( ( field_component.name, field_component.name, False ) )
-		else:#if the file is a collection, have to get deeper in the corresponding HistoryDatasetCollectionAssociation object
-			for i, field_component in enumerate( file_list[0].collection.elements ):
-				options.append( ( field_component.element_identifier, field_component.element_identifier, False ) )
+	else:#if input file is a .cel file list, a DatasetCollection or a HistoryDatasetCollectionAssociation
+			if isinstance(file_list,list):#if it is a list, retrieve names easily
+				for i, field_component in enumerate( file_list ):
+					options.append( ( field_component.name, field_component.name, False ) )
+			else:#if the file is a DatasetCollection, have to get deeper in the corresponding DatasetCollection object
+				if isinstance(file_list,galaxy.model.DatasetCollection):#if it is a list, retrieve names easily
+					for i, field_component in enumerate( file_list.elements ):
+						options.append( ( field_component.element_identifier, field_component.element_identifier, False ) )
+				else:#if the file is a HistoryDatasetCollectionAssociation, have to get a little bit deeper in the corresponding HistoryDatasetCollectionAssociation object
+					for i, field_component in enumerate( file_list.collection.elements ):
+						options.append( ( field_component.element_identifier, field_component.element_identifier, False ) )
 	return options
 
 def generateFactorFile( file_list, factor_list, outputFileName, logFile):
@@ -102,10 +107,7 @@ def generateFactorFile( file_list, factor_list, outputFileName, logFile):
 	outputfile = open(outputFileName, 'w')
 	outputLog = open(logFile, 'w')
 	sampleList=[]
-	if not isinstance(file_list,list):
-		conditionNames=get_condition_file_names(file_list,0) #unique expression file, remove the first column (index=0)
-	else :
-		conditionNames=get_condition_file_names(file_list) #.CEL files
+	conditionNames=get_condition_file_names(file_list,0) #if it's a unique expression file, remove the first column (index=0)
 	for iSample, sample_component in enumerate (conditionNames):
 		sampleList.append(str(sample_component[1]))
 	outputLog.write("[INFO] "+str(len(sampleList))+" sample are detected as input\n")

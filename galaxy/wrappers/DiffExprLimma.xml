@@ -1,4 +1,4 @@
-<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.8">
+<tool name="GIANT-Differential Expression with LIMMA" id="giant_limma_analysis" version="0.3.9">
   <description>Use LIMMA to detect differentially expressed genes</description>
   <requirements>
     <requirement type="package" version="1.7.1">r-r.methodss3</requirement>
@@ -11,6 +11,7 @@
     <requirement type="package" version="1.4.32">r-statmod</requirement>
   </requirements>
   <code file="../../src/LIMMA_options.py"/>
+  <!--<code file="./src/LIMMA_options.py"/> change for Planemo test-->
   <stdio>
     <regex match="Execution halted"
            source="both"
@@ -32,6 +33,8 @@
   fi;
 
   cp '$__tool_directory__/../../src/LIMMA_options.py' ./LIMMA_options.py;
+  ##change for Planemo test
+  ##cp '$__tool_directory__/src/LIMMA_options.py' ./LIMMA_options.py;
   
   #if $blockingSection.blockingConditional.addBlocking == "true":
     python -c 'import LIMMA_options;LIMMA_options.replaceNamesBlockInFiles("$inputSection.inputData","./factorTable.csv","./blockingTable.csv","./expressionRenamed.csv","./factorTableRenamed.csv","./blockingTableRenamed.csv","./dictionnaryRenamed.csv")';
@@ -43,6 +46,8 @@
   if [ -f ./dictionnaryRenamed.csv ]; then
     printf "[INFO]Renaming is done\n" >> $log;
     Rscript '$__tool_directory__/../../src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -z '$outputDfData' -f 'pdf'
+    ##change for Planemo test
+    ##Rscript '$__tool_directory__/src/LIMMAscriptV4.R' -i 'expressionRenamed.csv' -l '$log' -o '$outputData' -z '$outputDfData' -f 'pdf'
       -a 'factorTableRenamed.csv' -s 'sumSquareFtest' -g 'dictionnaryRenamed.csv'
       #if $blockingSection.blockingConditional.addBlocking == "true":
         -b 'blockingTableRenamed.csv'
@@ -360,7 +365,7 @@ printf  "</body>\n</html>" >> $html_file
     <param name="factorSelection" type="select" label="Select all factors to include in the global model (excepting confounding factors)" refresh_on_change="true" display="checkboxes" optional="false" multiple="true" dynamic_options="get_column_names(inputSection['conditionInformation'].file_name)" help="Confounding factors are selected in the coresponding section below." />
 
      <repeat name="contrastList" title="Contrast">
-        <param type="text" name="groupName" value="" label="Contrast name"/>
+        <param name="groupName" type="text" value="" label="Contrast name"/>
 
         <param name="firstGroupToCompare" type="select" label="Select factor levels of 1st group" display="checkboxes" multiple="true" refresh_on_change="true" dynamic_options="get_row_names_allInteractions(inputSection['conditionInformation'].file_name,factorSelection)">
         </param>
@@ -477,23 +482,54 @@ printf  "</body>\n</html>" >> $html_file
   
  <tests>
   <test maxseconds="3600">
-    <param name="wfile" value="wiggle.wig" />
-    <param name="bfile" value="bedfile.bed" />
-    <param name="span" value="3000" />
-    <param name="pfres" value="50" />
-    <param name="lowersize" value="1000" />
-    <param name="middlesize" value="2000" />
-    <param name="uppersize" value="3000" />
-    <param name="lowerbisize" value="2500" />
-    <param name="upperbisize" value="5000" />
-    <param name="reldist" value="3000" />
-    <param name="genome" value="hg18" />
-    <param name="imagetype" value="PDF" />
-    <param name="enable" value="no" />
-    <output name="outputData" file="ceas_1/ceas_1.pdf" />
-    <output name="outputDfData" file="ceas_1/ceas_1.pdf" />
+    <section name="inputSection">
+      <param name="inputData" value="./NormalizedData.tabular" />
+      <param name="conditionInformation" value="./FactorFileGenerator/output/conditionsFile.csv" />
+    </section>
+    <section name="contrastSection">
+      <param name="factorSelection" value="Strain,Treatment" />
+      <repeat name="contrastList" >
+        <param name="groupName" value="TreatVsControl" />
+        <param name="firstGroupToCompare" value="WT*Treat,KO*Treat" />
+        <param name="secondGroupToCompare" value="WT*Control,KO*Control" />
+      </repeat>
+      <repeat name="contrastList" >
+        <param name="groupName" value="WTvsKO" />
+        <param name="firstGroupToCompare" value="WT*Control,WT*Treat" />
+        <param name="secondGroupToCompare" value="KO*Control,KO*Treat" />
+      </repeat>
+      <conditional name="interactionSelection">
+        <param name="interactionContrast" value="true" />
+        <param name="controlSelection" value="Strain:WT,Treatment:Control" />
+      </conditional>
+    </section>    
+    <section name="blockingSection">
+      <conditional name="blockingConditional">
+        <param name="addBlocking"  value="false"/>
+      </conditional>
+    </section>    
+    <section name="plotSection">
+      <param name="cutoffTh" value="0.05"/>
+      <param name="FCthreshold" value="1.2"/>
+      <param name="histogramToPlot" value="true"/>
+      <param name="volcanoToPlot" value="false"/>
+      <conditional name="geneInformation">
+        <param name="addGeneInfo" value="false"/>
+      </conditional>
+      <param name="imagePlotlyFormat" value="png"/>
+    </section>    
+    <section name="advSection">
+      <param name="confoundingPolicy" value="additive"/>
+    </section>  
+    <output name="outputData" file="./DiffExprLimma/output/outputStat.csv" />
+    <output name="outputDfData" file="./DiffExprLimma/output/outputStatDetailed.csv" />
+    <output name="html_file" file="./DiffExprLimma/output/outputHTML.zip" decompress="true" />
+    <output name="log" file="./DiffExprLimma/output/outputLog.txt" compare="sim_size" delta_frac="0.10" />    
   </test>
-</tests> 
+ </tests> 
+
+
+
   <help>
 <![CDATA[
 **What it does ?**

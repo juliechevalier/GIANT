@@ -1,0 +1,3 @@
+[INFO] 17 sample are detected as input
+[INFO] 2 factors are detected
+[INFO]End of tool script
