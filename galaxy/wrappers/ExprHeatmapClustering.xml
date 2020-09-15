@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.2">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.3">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
@@ -69,10 +69,10 @@
        awk -v factor="$advSection.conditionBarColor.factorToUse" 'BEGIN{FS="\t";OFS="";ORS=""} NR==1{for(i=2;i<=NF;i++)if(\$i==factor)colToKeep=i} {print \$1"\t"\$colToKeep"\n"}' $advSection.conditionBarColor.factorFileDataBarPlot > ./barPlotFactor;
       #end if
 
-	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber' 
+	    Rscript '$__tool_directory__/../../src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber'
       ##change for Planemo test
       ##Rscript '$__tool_directory__/src/heatMapClustering.R' --log '$log' --outputFile '$outputData' --format '$advSection.imageFormat' --clusterNumber '$advSection.clusterNumber'
-       --maxRows '$advSection.maxSampleToPlot' --sampleClusterNumber '$advSection.conditionClusterNumber' --dataTransformation '$advSection.dataTransformation' --distanceMeasure '$advSection.distanceMeasure' --aggloMethod '$advSection.aggloMethod'
+      --maxRows '$advSection.maxSampleToPlot' --sampleClusterNumber '$advSection.conditionClusterNumber' --dataTransformation '$advSection.dataTransformation' --distanceMeasure '$advSection.distanceMeasure' --aggloMethod '$advSection.aggloMethod'
       #if $advSection.select_color.specifyColors=="true":
       --personalColors '$advSection.select_color.featureMin_color,$advSection.select_color.featureMedium_color,$advSection.select_color.featureMax_color'
       #end if
@@ -619,13 +619,16 @@ printf  "</body>\n</html>" >> $html_file
       <option value="log2">Base 2 Logarithm</option>
     </param>
 
-    <param name="distanceMeasure" type="select" label="Distance measure used for clustering" help="See documentation of 'Dist' R package for more information">
+    <param name="distanceMeasure" type="select" label="Distance measure used for clustering">
       <option value="euclidean" selected="true">euclidean</option>
       <option value="manhattan">manhattan</option>
       <option value="binary">binary</option>
       <option value="pearson">pearson</option>
       <option value="spearman">spearman</option>
       <option value="kendall">kendall</option>
+      <option value="absPearson">absolute pearson</option>
+      <option value="absSpearman">absolute spearman</option>
+      <option value="absKendall">absolute kendall</option>
     </param>
 
     <param name="aggloMethod" type="select" label="Agglomeration method used for clustering" help="See documentation of 'hclust' R method for more information">
@@ -879,7 +882,7 @@ Run hierarchical clustering on gene expression data or differential expression a
 
 \- **Mathematical transformation** can be applied to clustered data before clustering and visualization. Data used for the filtering step are not modified by this transformation.
 
-\- **Distance measure** used to cluster rows and columns.
+\- **Distance measure** used to cluster rows and columns. For "euclidean", "manhattan" and "binary" distances the 'dist' R function is directly called, for "pearson", "spearman" and "kendall" distances the '(1-correlation)/2' term is used  as a classical distance, for "absPearson", "absSpearman" and "absKendall" the 'abs(1-correlation)'' term is used.
 
 \- **Agglomeration method** used to cluster rows and columns.
 
