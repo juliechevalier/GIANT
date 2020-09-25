@@ -18,7 +18,7 @@
 distExtended <- function(x,method) {
   if(method %in% c("euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski"))return(dist(x,method = method))
   if(method %in% c("pearson", "spearman", "kendall"))return(as.dist(1-cor(t(x),method=method))/2)
-  if(method %in% c("absPearson", "absSpearman", "absKendall"))return(as.dist(1-abs(cor(t(x),method=method))))
+  if(method %in% c("absPearson", "absSpearman", "absKendall"))return(as.dist(1-abs(cor(t(x),method=tolower(substr(method,4,15))))))
   return(NULL)
 }
 

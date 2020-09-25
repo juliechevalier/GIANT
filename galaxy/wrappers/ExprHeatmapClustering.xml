@@ -1,4 +1,4 @@
-<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.3">
+<tool name="GIANT-Heatmap and Hierarchical clustering" id="giant_hierarchical_clustering" version="0.5.4">
   <description>Run hierarchical clustering and plot heatmap from expression data and/or differential expression analysis</description>
   <requirements>
     <requirement type="package" version="4.8.0">r-plotly</requirement>
